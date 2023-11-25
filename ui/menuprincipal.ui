@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>860</width>
-    <height>628</height>
+    <width>1201</width>
+    <height>691</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -78,7 +78,7 @@ background-color:white;
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>2</number>
+          <number>1</number>
          </property>
          <property name="movable">
           <bool>true</bool>
@@ -411,8 +411,20 @@ background-color:white;
              <layout class="QVBoxLayout" name="verticalLayout_14">
               <item>
                <widget class="QTabWidget" name="tabWidget_reportes_2">
+                <property name="tabPosition">
+                 <enum>QTabWidget::North</enum>
+                </property>
+                <property name="tabShape">
+                 <enum>QTabWidget::Rounded</enum>
+                </property>
                 <property name="currentIndex">
                  <number>1</number>
+                </property>
+                <property name="movable">
+                 <bool>true</bool>
+                </property>
+                <property name="tabBarAutoHide">
+                 <bool>true</bool>
                 </property>
                 <widget class="QWidget" name="tab_8">
                  <attribute name="title">
@@ -750,7 +762,7 @@ background-color:white;
                        <widget class="QLineEdit" name="lineEdit_busqueda_HM"/>
                       </item>
                       <item>
-                       <widget class="QPushButton" name="btn_buscar_3">
+                       <widget class="QPushButton" name="btn_buscarHM">
                         <property name="text">
                          <string>Buscar</string>
                         </property>
@@ -759,7 +771,7 @@ background-color:white;
                      </layout>
                     </item>
                     <item>
-                     <widget class="QTableWidget" name="tableWidget_5"/>
+                     <widget class="QTableWidget" name="tableWidget_aggHM"/>
                     </item>
                    </layout>
                   </item>
@@ -777,7 +789,7 @@ background-color:white;
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="txt_codigo_EM"/>
+                         <widget class="QLineEdit" name="txt_codigo_HM"/>
                         </item>
                        </layout>
                       </item>
@@ -791,7 +803,7 @@ background-color:white;
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="txt_descrip_EM"/>
+                         <widget class="QLineEdit" name="txt_descrip_HM"/>
                         </item>
                        </layout>
                       </item>
@@ -805,7 +817,7 @@ background-color:white;
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="txt_serial_EM"/>
+                         <widget class="QLineEdit" name="txt_cant_HM"/>
                         </item>
                        </layout>
                       </item>
@@ -819,7 +831,7 @@ background-color:white;
                          </widget>
                         </item>
                         <item>
-                         <widget class="QComboBox" name="comboBox_2">
+                         <widget class="QComboBox" name="comboBox_agg_HM">
                           <property name="minimumSize">
                            <size>
                             <width>120</width>
@@ -861,7 +873,7 @@ background-color:white;
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="lineEdit_14">
+                         <widget class="QLineEdit" name="txt_Notas_aggHM">
                           <property name="text">
                            <string/>
                           </property>
@@ -889,7 +901,7 @@ background-color:white;
                          </spacer>
                         </item>
                         <item>
-                         <widget class="QPushButton" name="btn_agg">
+                         <widget class="QPushButton" name="btn_aggHM">
                           <property name="minimumSize">
                            <size>
                             <width>200</width>
@@ -938,7 +950,7 @@ background-color:white;
                          </spacer>
                         </item>
                         <item>
-                         <widget class="QPushButton" name="btn_edit">
+                         <widget class="QPushButton" name="btn_editHM">
                           <property name="minimumSize">
                            <size>
                             <width>200</width>
@@ -987,7 +999,26 @@ background-color:white;
                          </spacer>
                         </item>
                         <item>
-                         <widget class="QPushButton" name="btn_delete">
+                         <widget class="QPushButton" name="btn_limpiarHM">
+                          <property name="minimumSize">
+                           <size>
+                            <width>200</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>200</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>Limpiar</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QPushButton" name="btn_deleteHM">
                           <property name="minimumSize">
                            <size>
                             <width>200</width>
@@ -1052,7 +1083,7 @@ background-color:white;
                        <widget class="QLineEdit" name="lineEdit_busqueda_EM"/>
                       </item>
                       <item>
-                       <widget class="QPushButton" name="btn_buscar_2">
+                       <widget class="QPushButton" name="btn_buscarEMagg">
                         <property name="text">
                          <string>Buscar</string>
                         </property>
@@ -1061,7 +1092,7 @@ background-color:white;
                      </layout>
                     </item>
                     <item>
-                     <widget class="QTableWidget" name="tableWidget_3"/>
+                     <widget class="QTableWidget" name="tableWidget_aggEM"/>
                     </item>
                    </layout>
                   </item>
@@ -1121,7 +1152,7 @@ background-color:white;
                          </widget>
                         </item>
                         <item>
-                         <widget class="QComboBox" name="comboBox_3">
+                         <widget class="QComboBox" name="comboBox_aggEM">
                           <property name="minimumSize">
                            <size>
                             <width>120</width>
@@ -1163,7 +1194,18 @@ background-color:white;
                          </widget>
                         </item>
                         <item>
-                         <widget class="QDateEdit" name="dateEdit_2"/>
+                         <widget class="QDateEdit" name="dateEdit_aggEM">
+                          <property name="dateTime">
+                           <datetime>
+                            <hour>0</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                            <year>2023</year>
+                            <month>1</month>
+                            <day>1</day>
+                           </datetime>
+                          </property>
+                         </widget>
                         </item>
                        </layout>
                       </item>
@@ -1177,9 +1219,16 @@ background-color:white;
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="txt_fech_Ultmant_EM_2">
-                          <property name="text">
-                           <string/>
+                         <widget class="QDateEdit" name="dateEdit_aggEMultMant">
+                          <property name="dateTime">
+                           <datetime>
+                            <hour>0</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                            <year>2023</year>
+                            <month>1</month>
+                            <day>1</day>
+                           </datetime>
                           </property>
                          </widget>
                         </item>
@@ -1195,7 +1244,7 @@ background-color:white;
                          </widget>
                         </item>
                         <item>
-                         <widget class="QLineEdit" name="lineEdit_15">
+                         <widget class="QLineEdit" name="txt_notas_EM_2">
                           <property name="text">
                            <string/>
                           </property>
@@ -1223,7 +1272,7 @@ background-color:white;
                          </spacer>
                         </item>
                         <item>
-                         <widget class="QPushButton" name="btn_agg_2">
+                         <widget class="QPushButton" name="btn_agg_EM">
                           <property name="minimumSize">
                            <size>
                             <width>200</width>
@@ -1272,7 +1321,7 @@ background-color:white;
                          </spacer>
                         </item>
                         <item>
-                         <widget class="QPushButton" name="btn_edit_2">
+                         <widget class="QPushButton" name="btn_edit_EM">
                           <property name="minimumSize">
                            <size>
                             <width>200</width>
@@ -1321,7 +1370,26 @@ background-color:white;
                          </spacer>
                         </item>
                         <item>
-                         <widget class="QPushButton" name="btn_delete_2">
+                         <widget class="QPushButton" name="btn_limpiarEMagg">
+                          <property name="minimumSize">
+                           <size>
+                            <width>200</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>200</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>Limpiar</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QPushButton" name="btn_delete_EM">
                           <property name="minimumSize">
                            <size>
                             <width>200</width>
@@ -1375,17 +1443,17 @@ background-color:white;
            <item>
             <widget class="QTabWidget" name="tabWidget_3">
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="tab_12">
               <attribute name="title">
                <string>Generar</string>
               </attribute>
-              <layout class="QVBoxLayout" name="verticalLayout_69">
+              <layout class="QVBoxLayout" name="verticalLayout_52">
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_55">
+                <layout class="QHBoxLayout" name="horizontalLayout_28">
                  <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_59">
+                  <layout class="QVBoxLayout" name="verticalLayout_51">
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_56">
                      <item>
@@ -1431,11 +1499,23 @@ background-color:white;
                     </layout>
                    </item>
                    <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_57">
+                    <layout class="QHBoxLayout" name="horizontalLayout_24">
                      <item>
                       <layout class="QVBoxLayout" name="verticalLayout_60">
                        <item>
                         <widget class="QLabel" name="label_77">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>20</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>Nombre del Proyecto</string>
                          </property>
@@ -1450,6 +1530,18 @@ background-color:white;
                       <layout class="QVBoxLayout" name="verticalLayout_61">
                        <item>
                         <widget class="QLabel" name="label_78">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>20</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>Responsable Retiro</string>
                          </property>
@@ -1461,9 +1553,47 @@ background-color:white;
                       </layout>
                      </item>
                      <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_65">
+                       <item>
+                        <widget class="QLabel" name="label_81">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Cedula</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="txtbx_cedula_Responsable"/>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
                       <layout class="QVBoxLayout" name="verticalLayout_62">
                        <item>
                         <widget class="QLabel" name="label_79">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>20</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>Telefono</string>
                          </property>
@@ -1478,6 +1608,18 @@ background-color:white;
                       <layout class="QVBoxLayout" name="verticalLayout_67">
                        <item>
                         <widget class="QLabel" name="label_80">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>20</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>Numero de Retiro</string>
                          </property>
@@ -1827,6 +1969,248 @@ background-color:white;
               <attribute name="title">
                <string>Visualizar</string>
               </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_55">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_38">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_54">
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_37">
+                     <item>
+                      <spacer name="horizontalSpacer_38">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_73">
+                       <item>
+                        <spacer name="horizontalSpacer_85">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="lineEdit_busqueda_Salida"/>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="btn_buscar_Salidas">
+                         <property name="text">
+                          <string>Buscar</string>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_6">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_30">
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_69">
+                       <item>
+                        <widget class="QLabel" name="label_82">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Nombre del Proyecto</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="txtbx_nameproyecto_Salida"/>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_70">
+                       <item>
+                        <widget class="QLabel" name="label_83">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Responsable Retiro</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="lineEdit_Responsable_salid"/>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_71">
+                       <item>
+                        <widget class="QLabel" name="label_84">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Cedula</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="txtbx_cedula_Responsable_Salida"/>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_72">
+                       <item>
+                        <widget class="QLabel" name="label_85">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Telefono</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="txtbx_telefonoresponsable_Salida"/>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_73">
+                       <item>
+                        <widget class="QLabel" name="label_86">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Numero de Retiro</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLabel" name="label_numero_retiro_salida">
+                         <property name="text">
+                          <string/>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_4">
+                   <property name="title">
+                    <string>Acciones</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_141">
+                    <item>
+                     <widget class="QPushButton" name="btn_Limpiar_Salidas">
+                      <property name="text">
+                       <string>Limpiar</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QTableWidget" name="tableWidget_8"/>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_55">
+                 <item>
+                  <spacer name="horizontalSpacer_53">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="btn_print_SalidasVis">
+                   <property name="text">
+                    <string>Imprimir</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
              </widget>
             </widget>
            </item>
@@ -2005,6 +2389,13 @@ background-color:white;
                   </size>
                  </property>
                 </spacer>
+               </item>
+               <item>
+                <widget class="Line" name="line_5">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
                </item>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_47">
@@ -2318,15 +2709,28 @@ background-color:white;
               <attribute name="title">
                <string>Visualizar</string>
               </attribute>
-              <layout class="QVBoxLayout" name="verticalLayout_97">
+              <layout class="QVBoxLayout" name="verticalLayout_53">
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_88">
+                <layout class="QHBoxLayout" name="horizontalLayout_29">
                  <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_88">
+                  <layout class="QHBoxLayout" name="horizontalLayout_89">
                    <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_89">
+                    <spacer name="horizontalSpacer_63">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_90">
                      <item>
-                      <spacer name="horizontalSpacer_63">
+                      <spacer name="horizontalSpacer_88">
                        <property name="orientation">
                         <enum>Qt::Horizontal</enum>
                        </property>
@@ -2339,95 +2743,14 @@ background-color:white;
                       </spacer>
                      </item>
                      <item>
-                      <layout class="QHBoxLayout" name="horizontalLayout_90">
-                       <item>
-                        <spacer name="horizontalSpacer_88">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>40</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_busqueda_pedido_5"/>
-                       </item>
-                       <item>
-                        <widget class="QPushButton" name="pushButton_13">
-                         <property name="text">
-                          <string>Buscar</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_91">
-                     <item>
-                      <layout class="QVBoxLayout" name="verticalLayout_89">
-                       <item>
-                        <widget class="QLabel" name="label_93">
-                         <property name="text">
-                          <string>Nombre del Proyecto</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="txtbx_nameproyecto_7"/>
-                       </item>
-                      </layout>
+                      <widget class="QLineEdit" name="lineEdit_busqueda_pedido_5"/>
                      </item>
                      <item>
-                      <layout class="QVBoxLayout" name="verticalLayout_91">
-                       <item>
-                        <widget class="QLabel" name="label_94">
-                         <property name="text">
-                          <string>Responsable</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_Responsable_7"/>
-                       </item>
-                      </layout>
-                     </item>
-                     <item>
-                      <layout class="QVBoxLayout" name="verticalLayout_92">
-                       <item>
-                        <widget class="QLabel" name="label_95">
-                         <property name="text">
-                          <string>Telefono</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="txtbx_telefonoresponsable_7"/>
-                       </item>
-                      </layout>
-                     </item>
-                     <item>
-                      <layout class="QVBoxLayout" name="verticalLayout_93">
-                       <item>
-                        <widget class="QLabel" name="label_96">
-                         <property name="text">
-                          <string>Numero de Pedido</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_numeroPedido_7">
-                         <property name="text">
-                          <string/>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
+                      <widget class="QPushButton" name="pushButton_13">
+                       <property name="text">
+                        <string>Buscar</string>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </item>
@@ -2448,6 +2771,77 @@ background-color:white;
                     </item>
                    </layout>
                   </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="Line" name="line_4">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_91">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_89">
+                   <item>
+                    <widget class="QLabel" name="label_93">
+                     <property name="text">
+                      <string>Nombre del Proyecto</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="txtbx_nameproyecto_7"/>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_91">
+                   <item>
+                    <widget class="QLabel" name="label_94">
+                     <property name="text">
+                      <string>Responsable</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_Responsable_7"/>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_92">
+                   <item>
+                    <widget class="QLabel" name="label_95">
+                     <property name="text">
+                      <string>Telefono</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLineEdit" name="txtbx_telefonoresponsable_7"/>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_93">
+                   <item>
+                    <widget class="QLabel" name="label_96">
+                     <property name="text">
+                      <string>Numero de Pedido</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="label_numeroPedido_7">
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                 </layout>
                </item>

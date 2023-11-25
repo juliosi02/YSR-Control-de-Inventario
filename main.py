@@ -56,14 +56,20 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         #metodos relacionados a equipos y maquinarias
         self.bt_reload.clicked.connect(self.reloaddataEM)
         self.reloaddataEM()
-        self.btn_edit_2.clicked.connect(self.editar_em)
-        self.btn_delete_2.clicked.connect(self.eliminar_em)
-        self.btn_agg_2.clicked.connect(self.agregarEM)
-        self.btn_buscar_2.clicked.connect(self.busquedaEM)
-        self.tableWidget_3.cellClicked.connect(self.llenar_lineeditsEM)
-        self.btn_limpiar4.clicked.connect(self.limpiarEM)
+        self.btn_edit_HM.clicked.connect(self.editar_em)
+        self.btn_delete_EM.clicked.connect(self.eliminar_em)
+        self.btn_agg_EM.clicked.connect(self.agregarEM)
+        self.btn_buscarEMagg.clicked.connect(self.busquedaEM)
+        self.tableWidget_aggEM.cellClicked.connect(self.llenar_lineeditsEM)
+        self.btn_limpiarEMagg.clicked.connect(self.limpiarEM)
         #metodos relacionados a herramientas manuales
+        self.btn_buscarHM.clicked.connect(self.busquedaHM)
+        self.btn_aggHM.clicked.connect(self.agregagrHM)
         self.bt_reload_2.clicked.connect(self.reloaddataHM)
+        self.tableWidget_aggHM.cellClicked.connect(self.llenar_lineeditsHM)
+        self.btn_editHM.clicked.connect(self.editar_hm)
+        self.btn_limpiarHM.clicked.connect(self.limpiarHM)
+        self.btn_deleteHM.clicked.connect(self.deleteHM)
         self.reloaddataHM()
         
         #metodos relacionados a consumibles
@@ -72,7 +78,6 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         
         #busqueda principal
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
-        x
        
     def verifyAdmin(self):
         if self.admin == "true":
@@ -158,13 +163,13 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             data_total = data_equipos
 
             # Configurar la tabla con los datos obtenidos
-            self.tableWidget_3.setRowCount(len(data_total))
-            self.tableWidget_3.setColumnCount(7)
+            self.tableWidget_aggEM.setRowCount(len(data_total))
+            self.tableWidget_aggEM.setColumnCount(7)
 
             for row, row_data in enumerate(data_total):
                 for col, value in enumerate(row_data):
                     item = QTableWidgetItem(str(value))
-                    self.tableWidget_3.setItem(row, col, item)
+                    self.tableWidget_aggEM.setItem(row, col, item)
 
             conexion.close()
         except Exception as e:
@@ -179,10 +184,10 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         descripcion = self.txt_descrip_EM_2.text()
         notas = self.txt_notas_EM_2.text()
         # Captura las fechas de los QDateEdit
-        fech_ult_mant = self.dateEdit_2.date().toString(Qt.ISODate)
-        fech_entr = self.dateEdit_3.date().toString(Qt.ISODate)
+        fech_ult_mant = self.dateEdit_aggEM.date().toString(Qt.ISODate)
+        fech_entr = self.dateEdit_aggEMultMant.date().toString(Qt.ISODate)
         # Captura el estado de la QComboBox
-        estado = self.comboBox_3.currentText()
+        estado = self.comboBox_aggEM.currentText()
         
         if (not codigo
             or not serial
@@ -207,13 +212,13 @@ class MenuPrincipal(QtWidgets.QMainWindow):
     #llenar los lineedits de acuerdo a los datos seleccionados en la tabla
     def llenar_lineeditsEM(self, row, col):
         # Obtener datos de la fila seleccionada
-        codigo = self.tableWidget_3.item(row, 0).text()
-        serial = self.tableWidget_3.item(row, 1).text()
-        descripcion = self.tableWidget_3.item(row, 2).text()
-        estado = self.tableWidget_3.item(row, 3).text()
-        fech_entr = self.tableWidget_3.item(row, 4).text()
-        fech_ult_mant = self.tableWidget_3.item(row, 5).text()
-        notas = self.tableWidget_3.item(row, 6).text()
+        codigo = self.tableWidget_aggEM.item(row, 0).text()
+        serial = self.tableWidget_aggEM.item(row, 1).text()
+        descripcion = self.tableWidget_aggEM.item(row, 2).text()
+        estado = self.tableWidget_aggEM.item(row, 3).text()
+        fech_entr = self.tableWidget_aggEM.item(row, 4).text()
+        fech_ult_mant = self.tableWidget_aggEM.item(row, 5).text()
+        notas = self.tableWidget_aggEM.item(row, 6).text()
 
         # Llenar LineEdits con los datos
         self.txt_codigo_EM_2.setText(codigo)
@@ -222,12 +227,12 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.txt_notas_EM_2.setText(notas)
 
         # Configurar las fechas y el estado
-        self.dateEdit_2.setDate(QDate.fromString(fech_ult_mant, Qt.ISODate))
-        self.dateEdit_3.setDate(QDate.fromString(fech_entr, Qt.ISODate))
-        index = self.comboBox_3.findText(estado)
+        self.dateEdit_aggEM.setDate(QDate.fromString(fech_ult_mant, Qt.ISODate))
+        self.dateEdit_aggEMultMant.setDate(QDate.fromString(fech_entr, Qt.ISODate))
+        index = self.comboBox_aggEM.findText(estado)
         if index >= 0:
-            self.comboBox_3.setCurrentIndex(index)
-            self.btn_agg_2.setEnabled(False)
+            self.comboBox_aggEM.setCurrentIndex(index)
+            self.btn_agg_EM.setEnabled(False)
             self.txt_codigo_EM_2.setReadOnly(True)
             
     #limpiar los lineedits y entradas de datos
@@ -247,9 +252,9 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         serial = self.txt_serial_EM_2.text()
         descripcion = self.txt_descrip_EM_2.text()
         notas = self.txt_notas_EM_2.text()
-        fech_ult_mant = self.dateEdit_2.date().toString(Qt.ISODate)
-        fech_entr = self.dateEdit_3.date().toString(Qt.ISODate)
-        estado = self.comboBox_3.currentText()
+        fech_ult_mant = self.dateEdit_aggEM.date().toString(Qt.ISODate)
+        fech_entr = self.dateEdit_aggEMultMant.date().toString(Qt.ISODate)
+        estado = self.comboBox_aggEM.currentText()
         
         # Realizar la actualización en la base de datos usando los valores obtenidos
         conexion = sqlite3.connect("./database/db.db")
@@ -312,7 +317,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                 conexion.close()
             except Exception as e:
                 QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
-    
+                
+    #busqueda de heramientas manuales en la pagina deingresos
     def busquedaHM(self):
         busqueda = self.lineEdit_busqueda_HM.text()
         try:
@@ -320,28 +326,127 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor = conexion.cursor()
             # Consultas a la base de datos
             
-            cursor.execute("SELECT * FROM  WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
-            data_equipos = cursor.fetchall()
+            cursor.execute("SELECT * FROM HerramientasManuales WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
+            data_herramientass = cursor.fetchall()
 
             # Combinar los resultados en una lista
-            data_total = data_equipos
+            data_total = data_herramientass
 
             # Configurar la tabla con los datos obtenidos
-            self.tableWidget_3.setRowCount(len(data_total))
-            self.tableWidget_3.setColumnCount(7)
+            self.tableWidget_aggHM.setRowCount(len(data_total))
+            self.tableWidget_aggHM.setColumnCount(7)
 
             for row, row_data in enumerate(data_total):
                 for col, value in enumerate(row_data):
                     item = QTableWidgetItem(str(value))
-                    self.tableWidget_3.setItem(row, col, item)
+                    self.tableWidget_aggHM.setItem(row, col, item)
 
             conexion.close()
         except Exception as e:
             # Mostrar un mensaje de error en caso de excepción
             QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}") 
-            
+    
+    #metodo de agregar herramientas en la pagiande ingresos
+    def agregagrHM(self):
+        codigo = self.txt_codigo_HM.text()
+        descripcion = self.txt_descrip_HM.text()
+        cantidad = self.txt_cant_HM.text()
+        estado = self.comboBox_agg_HM.currentText()
+        notas = self.txt_Notas_aggHM.text()
+        
+        
+        if (not codigo
+            or not descripcion
+            or not cantidad
+            or not estado
+            or not notas
+            ):
+            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+            return
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            query = "INSERT INTO HerramientasManuales (Codigo, Descripcion, Cantidad, Estado, Notas) VALUES (?, ?, ?, ?, ?)"
 
-    ### cONSUMIBLES ###
+            cursor.execute(query, (codigo, descripcion, cantidad, estado,notas))
+
+            conexion.commit()
+            QMessageBox.information(self,"Exito","Los datos se almacenaron correctamente")
+            
+    #llenar los lineedits con los datos de la celda clickeada
+    def llenar_lineeditsHM(self, row, col):
+        # Obtener datos de la fila seleccionada
+        codigo = self.tableWidget_aggHM.item(row, 0).text()
+        descripcion = self.tableWidget_aggHM.item(row, 1).text()
+        cantidad = self.tableWidget_aggHM.item(row, 2).text()
+        estado = self.tableWidget_aggHM.item(row, 3).text()
+        notas = self.tableWidget_aggHM.item(row, 4).text()
+        # Llenar LineEdits con los datos
+        self.txt_codigo_HM.setText(codigo)
+        self.txt_cant_HM.setText(cantidad)
+        self.txt_descrip_HM.setText(descripcion)
+        self.txt_Notas_aggHM.setText(notas)
+        # Configurar las fechas y el estado
+        index = self.comboBox_agg_HM.findText(estado)
+        if index >= 0:
+            self.comboBox_agg_HM.setCurrentIndex(index)
+            self.btn_aggHM.setEnabled(False)
+            self.txt_codigo_HM.setReadOnly(True)
+            
+    #editar y eliminar herramientass manuales
+    def editar_hm(self):
+        # Obtener los valores de los LineEdits
+        codigo = self.txt_codigo_HM.text()
+        descripcion = self.txt_descrip_HM.text()
+        cantidad = self.txt_cant_HM.text()
+        estado = self.comboBox_agg_HM.currentText()
+        notas = self.txt_Notas_aggHM.text()
+        
+        # Realizar la actualización en la base de datos usando los valores obtenidos
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        query = """
+        UPDATE HerramientasManuales
+        SET
+            Codigo = ?,
+            Descripcion = ?,
+            Cantidad = ?,
+            Estado = ?,
+            Notas = ?
+        WHERE Codigo = ?;
+    """
+
+        cursor.execute(query, (codigo, descripcion,cantidad, estado, notas, codigo))
+
+        conexion.commit()
+        QMessageBox.information(self,"Exito","Los datos se actualizaron correctamente")
+    def deleteHM(self):  
+        # Obtener el código del producto a eliminar
+        codigo = self.txt_codigo_HM.text()
+        # Realizar la eliminación en la base de datos usando el código obtenido
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+
+        query = """
+            DELETE FROM Herramientas Manuales
+            WHERE Codigo = ?;
+        """
+
+        cursor.execute(query, (codigo,))
+
+        conexion.commit()
+        QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
+    
+    #limpiar campos para habilitar el boton de agregar   
+    def limpiarHM(self):
+        self.txt_codigo_HM.clear()
+        self.txt_descrip_HM.clear()
+        self.txt_cant_HM.clear()
+        self.txt_Notas_aggHM.clear()
+        self.btn_aggHM.setEnabled(True)
+        self.txt_codigo_HM.setReadOnly(False)
+          
+    ### CONSUMIBLES ###
     
     #mostrar datos en la tabla de reportes de consumibles
     def reloaddataC(self):
@@ -361,6 +466,10 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                 conexion.close()
             except Exception as e:
                 QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
+    
+    
+    
+    
     
     #volver al inicio
     def backLogin(self):
