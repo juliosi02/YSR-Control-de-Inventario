@@ -53,15 +53,17 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.user_name = user_name
         self.bt_salir.clicked.connect(self.backLogin)
         self.bt_config_usser.clicked.connect(self.verifyAdmin)
+        
         #metodos relacionados a equipos y maquinarias
         self.bt_reload.clicked.connect(self.reloaddataEM)
         self.reloaddataEM()
-        self.btn_edit_HM.clicked.connect(self.editar_em)
+        self.btn_edit_EM.clicked.connect(self.editar_em)
         self.btn_delete_EM.clicked.connect(self.eliminar_em)
         self.btn_agg_EM.clicked.connect(self.agregarEM)
         self.btn_buscarEMagg.clicked.connect(self.busquedaEM)
         self.tableWidget_aggEM.cellClicked.connect(self.llenar_lineeditsEM)
         self.btn_limpiarEMagg.clicked.connect(self.limpiarEM)
+        
         #metodos relacionados a herramientas manuales
         self.btn_buscarHM.clicked.connect(self.busquedaHM)
         self.btn_aggHM.clicked.connect(self.agregagrHM)
@@ -75,9 +77,18 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         #metodos relacionados a consumibles
         self.bt_reload_3.clicked.connect(self.reloaddataC)
         self.reloaddataC()
+        self.btn_buscar_ConsAgg.clicked.connect(self.busquedacons)
+        self.btn_agg_ConsAgg.clicked.connect(self.agregagrCons)
+        self.btn_edit_ConsAgg.clicked.connect(self.editarCons)
+        self.btn_delete_ConsAgg.clicked.connect(self.deleteCons)
+        self.btn_limpiar_ConsAgg.clicked.connect(self.limpiarCons)
+        self.tableWidget_AggCons.cellClicked.connect(self.llenar_lineeditsCons)
+        
         
         #busqueda principal
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
+        #filtrar Contenido Segun el estado
+        
        
     def verifyAdmin(self):
         if self.admin == "true":
@@ -126,7 +137,25 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             # Mostrar un mensaje de error en caso de excepción
             QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
     
-    
+    def filtrarporestado(self):
+        filtro = self.comboBox_filtroEstado.currentText()
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor= conexion.cursor()
+            cursor.execute("SELECT * FROM HerramientasManuales WHERE Descripcion LIKE ?", ('%'+ filtro + '%',))
+            data_equipos = cursor.fetchall()
+            cursor.execute("SELECT * FROM HerramientasManuales WHERE Descripcion LIKE ?", ('%' + filtro + '%',))
+            data_herramientas = cursor.fetchall()
+            
+            data_total= data_herramientas + data_equipos
+            
+            self.tableWidget_Estado_EM_HM.setRowCount(len(data_total))
+            
+            for row, row_data in enumerate(data_total):
+                for col, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    self.tableWidget_Estado_EM_HM.setItem(row, col, item)
+            conexion.close()
     ### EQUIPOS Y MAQUINARIAS ###
     
     #mostrar datos en la tabla de reportes de Equipos y maquinarias
@@ -232,8 +261,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         index = self.comboBox_aggEM.findText(estado)
         if index >= 0:
             self.comboBox_aggEM.setCurrentIndex(index)
-            self.btn_agg_EM.setEnabled(False)
-            self.txt_codigo_EM_2.setReadOnly(True)
+        self.btn_agg_EM.setEnabled(False)
+        self.txt_codigo_EM_2.setReadOnly(True)
             
     #limpiar los lineedits y entradas de datos
     def limpiarEM(self):
@@ -390,8 +419,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         index = self.comboBox_agg_HM.findText(estado)
         if index >= 0:
             self.comboBox_agg_HM.setCurrentIndex(index)
-            self.btn_aggHM.setEnabled(False)
-            self.txt_codigo_HM.setReadOnly(True)
+        self.btn_aggHM.setEnabled(False)
+        self.txt_codigo_HM.setReadOnly(True)
             
     #editar y eliminar herramientass manuales
     def editar_hm(self):
@@ -428,7 +457,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         cursor = conexion.cursor()
 
         query = """
-            DELETE FROM Herramientas Manuales
+            DELETE FROM HerramientasManuales
             WHERE Codigo = ?;
         """
 
@@ -467,9 +496,142 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             except Exception as e:
                 QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
     
+    def busquedacons(self):
+        busqueda = self.lineEdit_busqueda_C.text()
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            # Consultas a la base de datos
+            
+            cursor.execute("SELECT * FROM consumibles WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
+            data_consumibless = cursor.fetchall()
+
+            # Combinar los resultados en una lista
+            data_total = data_consumibless
+
+            # Configurar la tabla con los datos obtenidos
+            self.tableWidget_AggCons.setRowCount(len(data_total))
+            self.tableWidget_AggCons.setColumnCount(7)
+
+            for row, row_data in enumerate(data_total):
+                for col, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    self.tableWidget_AggCons.setItem(row, col, item)
+
+            conexion.close()
+        except Exception as e:
+            # Mostrar un mensaje de error en caso de excepción
+            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}") 
     
+    def agregagrCons(self):
+        codigo = self.txt_codigo_consAgg.text()
+        descripcion = self.txt_descrip_consAgg.text()
+        uni_medida = self.txt_uni_medConsagg.text()
+        cantidad = self.txt_cant_ConsAgg.text()
+        fech_entrada = self.dateEdit_fechEConsAGG.date().toString(Qt.ISODate)
+        limite_reorden = self.txt_limite_reorden_AGgCons.text()
+        notas = self.txtbox_notasAggCons.text()
+        
+        
+        if (not codigo
+            or not descripcion
+            or not uni_medida
+            or not cantidad
+            or not fech_entrada
+            or not limite_reorden
+            or not notas
+            ):
+            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+            return
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            query = "INSERT INTO consumibles (Codigo, Descripcion, Unidad_de_medida, Cantidad, Fecha_de_entrada, Llimite_de_reorden, Notas) VALUES (?, ?, ?, ?, ?, ?, ?)"
+
+            cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fech_entrada, limite_reorden ,notas))
+
+            conexion.commit()
+            QMessageBox.information(self,"Exito","Los datos se almacenaron correctamente")
     
+    def llenar_lineeditsCons(self, row, col):
+        # Obtener datos de la fila seleccionada
+        codigo = self.tableWidget_AggCons.item(row, 0).text()
+        descripcion = self.tableWidget_AggCons.item(row, 1).text()
+        uni_medida = self.tableWidget_AggCons.item(row, 2).text()
+        cantidad = self.tableWidget_AggCons.item(row, 3).text()
+        fech_entrada= self.tableWidget_AggCons.item(row, 4).text()
+        limite_reorden = self.tableWidget_AggCons.item(row, 5).text()
+        notas = self.tableWidget_AggCons.item(row, 6).text()
+
+        # Llenar LineEdits con los datos
+        self.txt_codigo_consAgg.setText(codigo)
+        self.txt_descrip_consAgg.setText(descripcion)
+        self.txt_uni_medConsagg.setText(uni_medida)
+        self.txt_cant_ConsAgg.setText(cantidad)
+        self.txt_limite_reorden_AGgCons.setText(limite_reorden)
+        self.txtbox_notasAggCons.setText(notas)
+        self.dateEdit_fechEConsAGG.setDate(QDate.fromString(fech_entrada, Qt.ISODate))
+        self.btn_agg_ConsAgg.setEnabled(False)
+        self.txt_codigo_consAgg.setReadOnly(True)
     
+        #editar y eliminar herramientass manuales
+    def editarCons(self):
+        # Obtener los valores de los LineEdits
+        codigo = self.txt_codigo_consAgg.text()
+        descripcion = self.txt_descrip_consAgg.text()
+        uni_medida = self.txt_uni_medConsagg.text()
+        cantidad = self.txt_cant_ConsAgg.text()
+        fech_entrada = self.dateEdit_fechEConsAGG.date().toString(Qt.ISODate)
+        limite_reorden = self.txt_limite_reorden_AGgCons.text()
+        notas = self.txtbox_notasAggCons.text()
+        
+        # Realizar la actualización en la base de datos usando los valores obtenidos
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        query = """
+        UPDATE consumibles
+        SET
+            Codigo = ?,
+            Descripcion = ?,
+            Unidad_de_medida = ?,
+            Cantidad = ?,
+            Fecha_de_entrada = ?,
+            Llimite_de_reorden = ?,
+            Notas = ?
+        WHERE Codigo = ?;
+    """
+
+        cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fech_entrada, limite_reorden, notas, codigo))
+
+        conexion.commit()
+        QMessageBox.information(self,"Exito","Los datos se actualizaron correctamente")
+    def deleteCons(self):  
+        # Obtener el código del producto a eliminar
+        codigo = self.txt_codigo_consAgg.text()
+        # Realizar la eliminación en la base de datos usando el código obtenido
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+
+        query = """
+            DELETE FROM consumibles
+            WHERE Codigo = ?;
+        """
+
+        cursor.execute(query, (codigo,))
+
+        conexion.commit()
+        QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
+    
+    #limpiar campos para habilitar el boton de agregar   
+    def limpiarCons(self):
+        self.txt_codigo_consAgg.clear()
+        self.txt_descrip_consAgg.clear()
+        self.txt_uni_medConsagg.clear()
+        self.txt_cant_ConsAgg.clear()
+        self.txt_limite_reorden_AGgCons.clear()
+        self.txtbox_notasAggCons.clear()
+        self.btn_agg_ConsAgg.setEnabled(True)
+        self.txt_codigo_consAgg.setReadOnly(False)
     
     #volver al inicio
     def backLogin(self):
