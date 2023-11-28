@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QDate
+from PyQt5.QtGui import QBrush, QColor
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
 import sqlite3
@@ -89,7 +90,9 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
         #filtrar Contenido Segun el estado
         self.btn_filtrarEstado.clicked.connect(self.filtrarporestado)
-        
+        self.filtrarporestado()
+        #filtrar por cantidad baja cantidad en inventario
+        self.btn_actualizarTablabajaExist.clicked.connect(self.filtrar_bajaCantidad)
        
     def verifyAdmin(self):
         if self.admin == "true":
@@ -137,24 +140,24 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         except Exception as e:
             # Mostrar un mensaje de error en caso de excepción
             QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
-    
+            
+    #filtrar equipos y maquinarias & herramientas manuales en la tabla de la vista general
     def filtrarporestado(self):
+        
         filtro = self.comboBox_filtroEstado.currentText()
+        
         try:
             conexion = sqlite3.connect("./database/db.db")
             cursor = conexion.cursor()
             
             # Consultas SQL parametrizadas para evitar inyección de SQL
             #print("Query Equipos:", query_equipos)
-            query_equipos = "SELECT * FROM EquiposyMaquinarias WHERE Estado LIKE ?"
-            cursor.execute(query_equipos, ('%' + filtro + '%',))
+            query_equipos = "SELECT * FROM EquiposyMaquinarias WHERE Estado LIKE ? || '%'"
+            cursor.execute(query_equipos, (filtro,))
             data_equipos = cursor.fetchall()
-            
-            
-            
-            #print("Query Herramientas:", query_herramientas)
-            query_herramientas = "SELECT * FROM HerramientasManuales WHERE Estado LIKE ?"
-            cursor.execute(query_herramientas, ('%' + filtro + '%',))
+
+            query_herramientas = "SELECT * FROM HerramientasManuales WHERE Estado LIKE ? || '%'"
+            cursor.execute(query_herramientas, (filtro,))
             data_herramientas = cursor.fetchall()
             
             data_total = data_herramientas + data_equipos
@@ -175,6 +178,38 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         except Exception as e:
             # Mostrar un mensaje de error en caso de excepción
             QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
+    
+    # filtrar consumibles con baja cantidad en almacen
+    def filtrar_bajaCantidad(self):
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+
+        query = """
+        SELECT Codigo, Descripcion, Cantidad, Llimite_de_reorden, Fecha_de_entrada, Notas
+        FROM consumibles
+        WHERE Cantidad <= Llimite_de_reorden OR (Cantidad > Llimite_de_reorden - 5 AND Cantidad <= Llimite_de_reorden + 5);
+        """
+
+        cursor.execute(query)
+        data_resultado = cursor.fetchall()
+        conexion.close()
+
+        # Actualizar la tabla con los resultados de la consulta
+        self.tableWidget_bajacantidadStock.setRowCount(len(data_resultado))
+        self.tableWidget_bajacantidadStock.setColumnCount(len(data_resultado[0]) if data_resultado else 0)
+
+        for row, row_data in enumerate(data_resultado):
+            for col, value in enumerate(row_data):
+                item = QTableWidgetItem(str(value))
+                self.tableWidget_bajacantidadStock.setItem(row, col, item)
+
+                # Resaltar las celdas cuando la cantidad sea igual o menor al límite de reorden
+                if col == 2:  # Columna de "Cantidad"
+                    limite_reorden = row_data[3]  # Índice 3 es la columna de "Limite_de_reorden"
+                    if value <= limite_reorden:
+                        item.setBackground(QBrush(QColor(255, 0, 0)))  # Fondo rojo
+
+  
     ### EQUIPOS Y MAQUINARIAS ###
     
     #mostrar datos en la tabla de reportes de Equipos y maquinarias
@@ -226,17 +261,21 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             
     #agregar equipos y maquinarias en la tabla de ingresos                  
     def agregarEM(self):
-        
+       
         codigo = self.txt_codigo_EM_2.text()
+        # Realizar una verificación para evitar registros duplicados
+        if self.verificar_existencia_codigo(codigo):
+            QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
+            return
+
+        # Resto del código para insertar el nuevo registro
         serial = self.txt_serial_EM_2.text()
         descripcion = self.txt_descrip_EM_2.text()
         notas = self.txt_notas_EM_2.text()
-        # Captura las fechas de los QDateEdit
         fech_ult_mant = self.dateEdit_aggEM.date().toString(Qt.ISODate)
         fech_entr = self.dateEdit_aggEMultMant.date().toString(Qt.ISODate)
-        # Captura el estado de la QComboBox
         estado = self.comboBox_aggEM.currentText()
-        
+
         if (not codigo
             or not serial
             or not descripcion
@@ -255,7 +294,16 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor.execute(query, (codigo, serial, descripcion, estado, fech_entr, fech_ult_mant, notas))
 
             conexion.commit()
-            QMessageBox.information(self,"Exito","Los datos se almacenaron correctamente")
+            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
+
+    def verificar_existencia_codigo(self, codigo):
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        query = "SELECT COUNT(*) FROM EquiposyMaquinarias WHERE Codigo = ?"
+        cursor.execute(query, (codigo,))
+        count = cursor.fetchone()[0]
+        conexion.close()
+        return count > 0
     
     #llenar los lineedits de acuerdo a los datos seleccionados en la tabla
     def llenar_lineeditsEM(self, row, col):
@@ -294,17 +342,19 @@ class MenuPrincipal(QtWidgets.QMainWindow):
     
     #editar los equipos y maquinarias
     def editar_em(self):
-        # Obtener los valores de los LineEdits
+        # Obtener el código original antes de la edición
+        codigo_original = self.txt_codigo_EM_2.text()
+
+    # Obtener los valores de los LineEdits
         codigo = self.txt_codigo_EM_2.text()
-        
         serial = self.txt_serial_EM_2.text()
         descripcion = self.txt_descrip_EM_2.text()
         notas = self.txt_notas_EM_2.text()
         fech_ult_mant = self.dateEdit_aggEM.date().toString(Qt.ISODate)
         fech_entr = self.dateEdit_aggEMultMant.date().toString(Qt.ISODate)
         estado = self.comboBox_aggEM.currentText()
-        
-        # Realizar la actualización en la base de datos usando los valores obtenidos
+
+    # Realizar la actualización en la base de datos usando los valores obtenidos
         conexion = sqlite3.connect("./database/db.db")
         cursor = conexion.cursor()
         query = """
@@ -318,13 +368,13 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             Fecha_de_UltimoMantenimiento = ?,
             Notas = ?
         WHERE Codigo = ?;
-    """
+        """
 
-        cursor.execute(query, (codigo, serial, descripcion, estado, fech_entr, fech_ult_mant, notas, codigo))
+        cursor.execute(query, (codigo, serial, descripcion, estado, fech_entr, fech_ult_mant, notas, codigo_original))
 
         conexion.commit()
-        QMessageBox.information(self,"Exito","Los datos se actualizaron correctamente")
-    
+        QMessageBox.information(self, "Exito", "Los datos se actualizaron correctamente")
+        
     #eliminar los equipos y maquinarias    
     def eliminar_em(self):
         # Obtener el código del producto a eliminar
@@ -397,12 +447,17 @@ class MenuPrincipal(QtWidgets.QMainWindow):
     #metodo de agregar herramientas en la pagiande ingresos
     def agregagrHM(self):
         codigo = self.txt_codigo_HM.text()
+    # Realizar una verificación para evitar registros duplicados
+        if self.verificar_existencia_codigo_hm(codigo):
+            QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
+            return
+
+    # Resto del código para insertar el nuevo registro
         descripcion = self.txt_descrip_HM.text()
         cantidad = self.txt_cant_HM.text()
         estado = self.comboBox_agg_HM.currentText()
         notas = self.txt_Notas_aggHM.text()
-        
-        
+
         if (not codigo
             or not descripcion
             or not cantidad
@@ -416,10 +471,20 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor = conexion.cursor()
             query = "INSERT INTO HerramientasManuales (Codigo, Descripcion, Cantidad, Estado, Notas) VALUES (?, ?, ?, ?, ?)"
 
-            cursor.execute(query, (codigo, descripcion, cantidad, estado,notas))
+            cursor.execute(query, (codigo, descripcion, cantidad, estado, notas))
 
             conexion.commit()
-            QMessageBox.information(self,"Exito","Los datos se almacenaron correctamente")
+            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
+
+    def verificar_existencia_codigo_hm(self, codigo):
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        query = "SELECT COUNT(*) FROM HerramientasManuales WHERE Codigo = ?"
+        cursor.execute(query, (codigo,))
+        count = cursor.fetchone()[0]
+        conexion.close()
+        return count > 0
+
             
     #llenar los lineedits con los datos de la celda clickeada
     def llenar_lineeditsHM(self, row, col):
@@ -443,13 +508,13 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             
     #editar y eliminar herramientass manuales
     def editar_hm(self):
-        # Obtener los valores de los LineEdits
+    # Obtener los valores de los LineEdits
         codigo = self.txt_codigo_HM.text()
         descripcion = self.txt_descrip_HM.text()
         cantidad = self.txt_cant_HM.text()
         estado = self.comboBox_agg_HM.currentText()
         notas = self.txt_Notas_aggHM.text()
-        
+    
         # Realizar la actualización en la base de datos usando los valores obtenidos
         conexion = sqlite3.connect("./database/db.db")
         cursor = conexion.cursor()
@@ -462,12 +527,12 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             Estado = ?,
             Notas = ?
         WHERE Codigo = ?;
-    """
+        """
 
-        cursor.execute(query, (codigo, descripcion,cantidad, estado, notas, codigo))
+        cursor.execute(query, (codigo, descripcion, cantidad, estado, notas, codigo))
 
         conexion.commit()
-        QMessageBox.information(self,"Exito","Los datos se actualizaron correctamente")
+        QMessageBox.information(self, "Exito", "Los datos se actualizaron correctamente")        
     def deleteHM(self):  
         # Obtener el código del producto a eliminar
         codigo = self.txt_codigo_HM.text()
@@ -496,7 +561,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
           
     ### CONSUMIBLES ###
     
-    #mostrar datos en la tabla de reportes de consumibles
+    # mostrar datos en la tabla de reportes de consumibles
     def reloaddataC(self):
             try:
                 conexion = sqlite3.connect("./database/db.db")
@@ -515,6 +580,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             except Exception as e:
                 QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
     
+    # busca consumibles en la pagina de agregar consumibles
     def busquedacons(self):
         busqueda = self.lineEdit_busqueda_C.text()
         try:
@@ -541,17 +607,22 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         except Exception as e:
             # Mostrar un mensaje de error en caso de excepción
             QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}") 
-    
+    # agregar consumibles
     def agregagrCons(self):
         codigo = self.txt_codigo_consAgg.text()
+        # Realizar una verificación para evitar registros duplicados
+        if self.verificar_existencia_codigo_consumibles(codigo):
+            QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
+            return
+
+        # Resto del código para insertar el nuevo registro
         descripcion = self.txt_descrip_consAgg.text()
         uni_medida = self.txt_uni_medConsagg.text()
         cantidad = self.txt_cant_ConsAgg.text()
         fech_entrada = self.dateEdit_fechEConsAGG.date().toString(Qt.ISODate)
         limite_reorden = self.txt_limite_reorden_AGgCons.text()
         notas = self.txtbox_notasAggCons.text()
-        
-        
+
         if (not codigo
             or not descripcion
             or not uni_medida
@@ -565,13 +636,25 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         else:
             conexion = sqlite3.connect("./database/db.db")
             cursor = conexion.cursor()
-            query = "INSERT INTO consumibles (Codigo, Descripcion, Unidad_de_medida, Cantidad, Fecha_de_entrada, Llimite_de_reorden, Notas) VALUES (?, ?, ?, ?, ?, ?, ?)"
+            query = """
+            INSERT INTO consumibles (Codigo, Descripcion, Unidad_de_medida, Cantidad, Fecha_de_entrada, Llimite_de_reorden, Notas)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """
 
-            cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fech_entrada, limite_reorden ,notas))
+            cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fech_entrada, limite_reorden, notas))
 
             conexion.commit()
-            QMessageBox.information(self,"Exito","Los datos se almacenaron correctamente")
+            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
+    def verificar_existencia_codigo_consumibles(self, codigo):
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        query = "SELECT COUNT(*) FROM consumibles WHERE Codigo = ?"
+        cursor.execute(query, (codigo,))
+        count = cursor.fetchone()[0]
+        conexion.close()
+        return count > 0
     
+    # llenar los lineedits con los valores de la celdda seleccionada    
     def llenar_lineeditsCons(self, row, col):
         # Obtener datos de la fila seleccionada
         codigo = self.tableWidget_AggCons.item(row, 0).text()
@@ -593,7 +676,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_agg_ConsAgg.setEnabled(False)
         self.txt_codigo_consAgg.setReadOnly(True)
     
-        #editar y eliminar herramientass manuales
+    
+    #editar y eliminar consumibles
     def editarCons(self):
         # Obtener los valores de los LineEdits
         codigo = self.txt_codigo_consAgg.text()
@@ -651,6 +735,9 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.txtbox_notasAggCons.clear()
         self.btn_agg_ConsAgg.setEnabled(True)
         self.txt_codigo_consAgg.setReadOnly(False)
+    
+    
+    #METODOS DE LA CLASE DE MENU PRINCIPAL
     
     #volver al inicio
     def backLogin(self):
