@@ -88,6 +88,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         #busqueda principal
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
         #filtrar Contenido Segun el estado
+        self.btn_filtrarEstado.clicked.connect(self.filtrarporestado)
         
        
     def verifyAdmin(self):
@@ -141,21 +142,39 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         filtro = self.comboBox_filtroEstado.currentText()
         try:
             conexion = sqlite3.connect("./database/db.db")
-            cursor= conexion.cursor()
-            cursor.execute("SELECT * FROM HerramientasManuales WHERE Descripcion LIKE ?", ('%'+ filtro + '%',))
+            cursor = conexion.cursor()
+            
+            # Consultas SQL parametrizadas para evitar inyección de SQL
+            #print("Query Equipos:", query_equipos)
+            query_equipos = "SELECT * FROM EquiposyMaquinarias WHERE Estado LIKE ?"
+            cursor.execute(query_equipos, ('%' + filtro + '%',))
             data_equipos = cursor.fetchall()
-            cursor.execute("SELECT * FROM HerramientasManuales WHERE Descripcion LIKE ?", ('%' + filtro + '%',))
+            
+            
+            
+            #print("Query Herramientas:", query_herramientas)
+            query_herramientas = "SELECT * FROM HerramientasManuales WHERE Estado LIKE ?"
+            cursor.execute(query_herramientas, ('%' + filtro + '%',))
             data_herramientas = cursor.fetchall()
             
-            data_total= data_herramientas + data_equipos
+            data_total = data_herramientas + data_equipos
             
+            # Establecer el número de filas y columnas en la tabla
             self.tableWidget_Estado_EM_HM.setRowCount(len(data_total))
+            self.tableWidget_Estado_EM_HM.setColumnCount(7)
             
+            # Llenar la tabla con los datos recuperados
             for row, row_data in enumerate(data_total):
                 for col, value in enumerate(row_data):
                     item = QTableWidgetItem(str(value))
                     self.tableWidget_Estado_EM_HM.setItem(row, col, item)
+            print("Data Equipos:", data_equipos)
+            print("Data Herramientas:", data_herramientas)
+            print("Data Total:", data_total)
             conexion.close()
+        except Exception as e:
+            # Mostrar un mensaje de error en caso de excepción
+            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
     ### EQUIPOS Y MAQUINARIAS ###
     
     #mostrar datos en la tabla de reportes de Equipos y maquinarias
@@ -270,7 +289,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.txt_serial_EM_2.clear()
         self.txt_descrip_EM_2.clear()
         self.txt_notas_EM_2.clear()
-        self.btn_agg_2.setEnabled(True)
+        self.btn_agg_EM.setEnabled(True)
         self.txt_codigo_EM_2.setReadOnly(False)
     
     #editar los equipos y maquinarias
