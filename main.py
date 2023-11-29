@@ -6,6 +6,8 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
 import sqlite3
 
+
+# Clase Login 
 class IngresoUsuario(QtWidgets.QMainWindow):
     def __init__(self):
         super(IngresoUsuario, self).__init__()
@@ -85,6 +87,9 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_limpiar_ConsAgg.clicked.connect(self.limpiarCons)
         self.tableWidget_AggCons.cellClicked.connect(self.llenar_lineeditsCons)
         
+        #metodos de Pedidos:
+        self.btn_guardar_pedid.clicked.connect(self.agregar_pedido)
+        self.btn_aggtblPedidos.clicked.connect(self.agregarprod_pedido)
         
         #busqueda principal
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
@@ -106,7 +111,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         widget.addWidget(Usuario)
         widget.setCurrentIndex(widget.currentIndex() + 1)
         
-    ### BUSQUEDA PRINCIPAL EN LA PAGIAN GENERAL ###
+    ### BUSQUEDA PRINCIPAL EN LA PAGINa GENERAL ###
     
     #buscar y mostrar resultados de la busqueda en una tabla en la seccion "General"
     def busquedaprincipal(self):
@@ -736,22 +741,81 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_agg_ConsAgg.setEnabled(True)
         self.txt_codigo_consAgg.setReadOnly(False)
     
-    
+    ### PEDIDOS ###
+    def agregar_pedido(self):
+        
+        numerodepedido = self.lineEdit_numeroPedido.text()
+    # Realizar una verificación para evitar registros duplicados
+        if self.verificar_existencia_numeroPedido(numerodepedido):
+            QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
+            return
+
+    # Resto del código para insertar el nuevo registro
+        nombreproyecto = self.txt_descrip_HM.text()
+        responsableretiro = self.txtbx_telefonoresponsablePed.text()
+        telefonresponsable = self.comboBox_agg_HM.currentText()
+
+        if (not numerodepedido
+            or not nombreproyecto
+            or not responsableretiro
+            or not telefonresponsable
+            ):
+            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+            return
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            query = "INSERT INTO pedidos (numero_pedido, Nombre_Proyecto, Responsable_pedido, telefon_responsable) VALUES (?, ?, ?, ?)"
+
+            cursor.execute(query, (numerodepedido, nombreproyecto, responsableretiro, telefonresponsable))
+
+            conexion.commit()
+            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
+            
+    def verificar_existencia_numeroPedido(self, numerodepedido):
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            query = "SELECT COUNT(*) FROM pedidos WHERE numero_pedido = ?"
+            cursor.execute(query, (numerodepedido,))
+            count = cursor.fetchone()[0]
+            conexion.close()
+            return count > 0
+     
+    def agregarprod_pedido(self):
+        numerodepedido = self.lineEdit_nombreP.text()
+        nonmbreProd = self.lineEdit_nombreP.text()
+        espTecnicas= self.lineEdit_espsTecP.text()
+        cantidad = self.lineEdit_cantP.text()
+        unidadMEdida = self.lineEdit_undmedP.text()
+        fechaTope= self.lineEdit_fechtP.text()
+        necesidadProducto = self.lineEdit_necesP.text()
+        if (not numerodepedido or not nonmbreProd or not espTecnicas or not cantidad or not unidadMEdida or not fechaTope or not necesidadProducto):
+            QMessageBox .warning(self, "Error", "Todos los campos osn obligatorios")
+            return
+        else: 
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            query = "INSERT INTO contenido_pedido ( nombre_producto, especificaciones_tecnicas, cantidad, unidad_de_medida, fecha_tope, necesidad_del_pedido, numero_pedido) VALUES (?,?,?,?,?,?,?)"
+            
+            cursor.execute(query, (nonmbreProd, espTecnicas, cantidad, unidadMEdida, fechaTope, necesidadProducto, numerodepedido))
+            conexion.commit()
+            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
+        
     #METODOS DE LA CLASE DE MENU PRINCIPAL
     
     #volver al inicio
     def backLogin(self):
-        ingreso_usuario = self.widget.widget(0)
+        ingreso_usuario = IngresoUsuario()  # Crear una instancia de IngresoUsuario
+        ingreso_usuario.showMaximized()
         ingreso_usuario.txt_user.clear()
         ingreso_usuario.txt_password.clear()
-        ingreso_usuario.showMaximized()
         self.widget.setCurrentIndex(0)
         self.hide()
     # otros métodos de la clase MenuPrincipal
     
 # clase Configuracionn de usuarios
 class Users(QtWidgets.QMainWindow):
-    def __init__(self, admin, widget,user_name):
+    def __init__(self, admin, widget ,user_name):
         super(Users, self).__init__()
         uic.loadUi("./ui/usuarios.ui", self)
         self.admin = admin
@@ -940,12 +1004,13 @@ class Users(QtWidgets.QMainWindow):
         widget.setCurrentIndex(widget.currentIndex() + 1)
     # metodo de volver al login
     def backLogin(self):
-        ingreso_usuario = self.widget.widget(0)
+        ingreso_usuario = IngresoUsuario()  # Crear una instancia de IngresoUsuario
+        ingreso_usuario.showMaximized()
         ingreso_usuario.txt_user.clear()
         ingreso_usuario.txt_password.clear()
-        ingreso_usuario.showMaximized()
         self.widget.setCurrentIndex(0)
         self.hide()
+
         
    
 if __name__ == "__main__":

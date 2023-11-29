@@ -78,7 +78,7 @@ background-color:white;
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <property name="movable">
           <bool>true</bool>
@@ -1481,7 +1481,7 @@ background-color:white;
            <item>
             <widget class="QTabWidget" name="tabWidget_3">
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tab_12">
               <attribute name="title">
@@ -2307,7 +2307,7 @@ background-color:white;
                         <widget class="QLineEdit" name="lineEdit_busqueda_pedido"/>
                        </item>
                        <item>
-                        <widget class="QPushButton" name="pushButton">
+                        <widget class="QPushButton" name="btn_buscarPedido">
                          <property name="text">
                           <string>Buscar</string>
                          </property>
@@ -2329,7 +2329,7 @@ background-color:white;
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLineEdit" name="txtbx_nameproyecto"/>
+                        <widget class="QLineEdit" name="txtbx_nameproyectoPed"/>
                        </item>
                       </layout>
                      </item>
@@ -2343,7 +2343,7 @@ background-color:white;
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLineEdit" name="lineEdit_Responsable"/>
+                        <widget class="QLineEdit" name="lineEdit_ResponsablePed"/>
                        </item>
                       </layout>
                      </item>
@@ -2357,7 +2357,7 @@ background-color:white;
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLineEdit" name="txtbx_telefonoresponsable"/>
+                        <widget class="QLineEdit" name="txtbx_telefonoresponsablePed"/>
                        </item>
                       </layout>
                      </item>
@@ -2371,11 +2371,7 @@ background-color:white;
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLabel" name="label_numeroPedido">
-                         <property name="text">
-                          <string/>
-                         </property>
-                        </widget>
+                        <widget class="QLineEdit" name="lineEdit_numeroPedido"/>
                        </item>
                       </layout>
                      </item>
@@ -2404,7 +2400,7 @@ background-color:white;
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="btn_">
+                     <widget class="QPushButton" name="btn_limpiarCampos_pedid">
                       <property name="text">
                        <string>Limpiar</string>
                       </property>
@@ -2502,7 +2498,7 @@ background-color:white;
                       </spacer>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="lineEdit_espsTec">
+                      <widget class="QLineEdit" name="lineEdit_espsTecP">
                        <property name="minimumSize">
                         <size>
                          <width>250</width>
@@ -2542,7 +2538,7 @@ background-color:white;
                       </spacer>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="lineEdit_cant">
+                      <widget class="QLineEdit" name="lineEdit_cantP">
                        <property name="minimumSize">
                         <size>
                          <width>250</width>
@@ -2582,7 +2578,7 @@ background-color:white;
                       </spacer>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="lineEdit_undmed">
+                      <widget class="QLineEdit" name="lineEdit_undmedP">
                        <property name="minimumSize">
                         <size>
                          <width>250</width>
@@ -2622,7 +2618,7 @@ background-color:white;
                       </spacer>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="lineEdit_fecht">
+                      <widget class="QLineEdit" name="lineEdit_fechtP">
                        <property name="minimumSize">
                         <size>
                          <width>250</width>
@@ -2662,7 +2658,7 @@ background-color:white;
                       </spacer>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="lineEdit_neces">
+                      <widget class="QLineEdit" name="lineEdit_necesP">
                        <property name="minimumSize">
                         <size>
                          <width>250</width>
@@ -2684,14 +2680,21 @@ background-color:white;
                  <item>
                   <layout class="QVBoxLayout" name="verticalLayout_63">
                    <item>
-                    <widget class="QPushButton" name="pushButton_3">
+                    <widget class="QPushButton" name="btn_aggtblPedidos">
                      <property name="text">
                       <string>Agregar</string>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="btn_editarPedido_3">
+                    <widget class="QPushButton" name="btn_elimiarPedido_1">
+                     <property name="text">
+                      <string>Editar</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="btn_editartblPedido_">
                      <property name="text">
                       <string>Editar</string>
                      </property>
@@ -2733,7 +2736,7 @@ background-color:white;
                   </spacer>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="btn_editarPedido_6">
+                  <widget class="QPushButton" name="btn_printPedido_">
                    <property name="text">
                     <string>Imprimir</string>
                    </property>
@@ -2873,11 +2876,7 @@ background-color:white;
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="label_numeroPedido_7">
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
+                    <widget class="QLineEdit" name="lineEdit"/>
                    </item>
                   </layout>
                  </item>
