@@ -90,7 +90,15 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         #metodos de Pedidos:
         self.btn_guardar_pedid.clicked.connect(self.agregar_pedido)
         self.btn_aggtblPedidos.clicked.connect(self.agregarprod_pedido)
+        self.btn_buscarPedido.clicked.connect(self.buscar_pedido)
+        self.btn_limpiarCampos_pedid.clicked.connect(self.limpiar_pedido)
+        self.btn_editarPedido.clicked.connect(self.editar_pedido)
         
+        #metodos de Salidas:
+        self.bt_buscarsalida.clicked.connect(self.buscar_salida)
+        self.btn_guardar_salida.clicked.connect(self.guardarResponsable_salida)
+        self.btn_limpiarsalida.clicked.connect(self.limpiar_salida)
+        self.btn_editarSalida.clicked.connect(self.editar_salida)
         #busqueda principal
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
         #filtrar Contenido Segun el estado
@@ -740,8 +748,80 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.txtbox_notasAggCons.clear()
         self.btn_agg_ConsAgg.setEnabled(True)
         self.txt_codigo_consAgg.setReadOnly(False)
-    
+        self.tablapedidocrear.setRowCount(0)
+        self.tablapedidocrear.clearContents()
     ### PEDIDOS ###
+   
+    def editar_pedido(self):
+        numeroPedido = self.lineEdit_numeroPedido.text()
+        if not numeroPedido:
+            QMessageBox.warning(self,'Error','No ha ingresado un número de pedido')
+            return
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            nombreProyecto = self.txtbx_nameproyectoPed.text()
+            responsableProyecto = self.lineEdit_ResponsablePed.text()
+            telefono = self.txtbx_telefonoresponsablePed.text()
+            cursor.execute("UPDATE pedidos SET Nombre_Proyecto=?,Responsable_pedido=?,telefon_responsable=? WHERE numero_pedido=?",(nombreProyecto,responsableProyecto,telefono,numeroPedido))
+            if cursor.execute:
+                QMessageBox.information(self,"Datos actualizados","Los datos se actualizaron correctamente")
+                
+            conexion.commit()
+            conexion.close()
+            
+    def limpiar_pedido(self):
+        self.txtbx_nameproyectoPed.clear()
+        self.lineEdit_ResponsablePed.clear()
+        self.txtbx_telefonoresponsablePed.clear()
+        self.lineEdit_numeroPedido.clear()
+        self.btn_guardar_pedid.setEnabled(True)
+        self.lineEdit_numeroPedido.setReadOnly(False)
+    def buscar_pedido(self):
+        NumeroPedido = self.lineEdit_busqueda_pedido.text()
+        if not NumeroPedido:
+            QMessageBox.information(self,"Error","Ingresa un numero de pedido")
+            return
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            cursor.execute("SELECT numero_pedido,Nombre_Proyecto,Responsable_pedido,telefon_responsable FROM pedidos WHERE numero_pedido=?",(NumeroPedido,))
+            resultado = cursor.fetchone()
+            if resultado:
+                self.txtbx_nameproyectoPed.setText(resultado[1])
+                self.lineEdit_ResponsablePed.setText(resultado[2])
+                self.txtbx_telefonoresponsablePed.setText(str(resultado[3]))
+                self.lineEdit_numeroPedido.setText(str(resultado[0]))
+                self.lineEdit_numeroPedido.setReadOnly(True)
+                self.btn_guardar_pedid.setEnabled(False)
+                self.cargar_pedido()
+            if not resultado:
+                QMessageBox.information(self,"Error","No hay pedido actual con ese numero ")
+                
+    
+    def cargar_pedido(self):
+        NumeroPedido = self.lineEdit_busqueda_pedido.text()
+        if not NumeroPedido:
+            QMessageBox.information(self,"Error","Ingresa un numero de pedido")
+            return
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            cursor.execute("SELECT nombre_producto,especificaciones_tecnicas,cantidad,unidad_de_medida,fecha_tope,necesidadPedido FROM contenido_pedido WHERE numero_pedido=? ",(NumeroPedido,))
+            resultado = cursor.fetchall()
+            print (resultado)
+            if resultado:
+                  # Configurar la tabla con los datos obtenidos
+                self.tablapedidocrear.setRowCount(len(resultado))
+                self.tablapedidocrear.setColumnCount(len(resultado[0]))
+                headers = ["Nombre Producto", "Especificaciones Técnicas", "Cantidad", "Unidad de Medida", "Fecha Tope", "Necesidad de Pedido"]
+                self.tablapedidocrear.setHorizontalHeaderLabels(headers)
+                
+                for row, row_data in enumerate(resultado):
+                    for col, value in enumerate(row_data):
+                        item = QTableWidgetItem(str(value))
+                        self.tablapedidocrear.setItem(row, col, item)
+                
     def agregar_pedido(self):
         
         numerodepedido = self.lineEdit_numeroPedido.text()
@@ -782,7 +862,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             return count > 0
      
     def agregarprod_pedido(self):
-        numerodepedido = self.lineEdit_nombreP.text()
+        
+        numerodepedido = self.lineEdit_numeroPedido.text()
         nonmbreProd = self.lineEdit_nombreP.text()
         espTecnicas= self.lineEdit_espsTecP.text()
         cantidad = self.lineEdit_cantP.text()
@@ -795,21 +876,86 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         else: 
             conexion = sqlite3.connect("./database/db.db")
             cursor = conexion.cursor()
-            query = "INSERT INTO contenido_pedido ( nombre_producto, especificaciones_tecnicas, cantidad, unidad_de_medida, fecha_tope, necesidad_del_pedido, numero_pedido) VALUES (?,?,?,?,?,?,?)"
+            query = "INSERT INTO contenido_pedido ( nombre_producto, especificaciones_tecnicas, cantidad, unidad_de_medida, fecha_tope, necesidadPedido,numero_pedido) VALUES (?,?,?,?,?,?,?)"
             
             cursor.execute(query, (nonmbreProd, espTecnicas, cantidad, unidadMEdida, fechaTope, necesidadProducto, numerodepedido))
             conexion.commit()
             QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
         
+    #Metodos para salidas:
+    def editar_salida(self):
+        numeroSalida = self.txt_salidanumero.text()
+        if not numeroSalida:
+            QMessageBox.warning(self, "Error", "Ingrese el número de la salida")
+            return
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            nombreProyecto = self.txtbx_nameproyecto_3.text()
+            responsableRetiro = self.lineEdit_Responsable_3.text()
+            cedula = self.txtbx_cedula_Responsable.text()
+            
+            telefono = self.txtbx_telefonoresponsable_3.text()
+            numeroRetiro = self.txt_salidanumero.text()
+            cursor.execute("UPDATE SalidaResponsable SET Nombre_Responsable=?,Nombre_Proyecto=?,Telefono=?, Cedula=? WHERE Nro_retiro=?",(responsableRetiro,nombreProyecto,telefono,cedula,numeroRetiro))
+            if cursor.execute:
+                QMessageBox.information(self,"Datos actualizados","Los datos se actualizaron correctamente")
+                
+            conexion.commit()
+            conexion.close()
+    def limpiar_salida(self):
+        self.txtbx_nameproyecto_3.clear()
+        self.lineEdit_Responsable_3.clear()
+        self.txtbx_cedula_Responsable.clear()
+        self.txt_salidanumero.clear()
+        self.txtbx_telefonoresponsable_3.clear()
+        self.btn_guardar_salida.setEnabled(True)
+    def guardarResponsable_salida(self):
+        nombreProyecto = self.txtbx_nameproyecto_3.text()
+        responsableProyecto= self.lineEdit_Responsable_3.text()
+        cedulaResponsable = self.txtbx_cedula_Responsable.text()
+        telefonoResponsable = self.txtbx_telefonoresponsable_3.text()
+        if not (nombreProyecto or 
+                responsableProyecto or 
+                cedulaResponsable or telefonoResponsable):
+            QMessageBox.information(self, "Error", "Es necesario ingresar los datos")
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+           
+            cursor.execute("INSERT INTO SalidaResponsable (Nombre_Responsable,Telefono,Cedula,Nombre_Proyecto) VALUES (?,?,?,?)",(responsableProyecto,telefonoResponsable,cedulaResponsable,nombreProyecto))
+            conexion.commit()
+            QMessageBox.information(self,"Almacenado correctamente","Los datos fueron guardados correctamente")
+            
+            
+    def buscar_salida(self):
+        numeroSalida = self.lineEdit_busqueda_salida.text()
+        if not numeroSalida:
+            QMessageBox.information(self,"Error","Ingresa un numero de salida")
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            cursor.execute("SELECT Nombre_Responsable,Telefono,Cedula,Nro_retiro,Nombre_Proyecto FROM SalidaResponsable WHERE Nro_retiro=?",(numeroSalida,))
+            resultado = cursor.fetchone()
+            if resultado:
+                self.txtbx_nameproyecto_3.setText(resultado[4])
+                self.lineEdit_Responsable_3.setText(resultado[0])
+                self.txtbx_cedula_Responsable.setText(str(resultado[2]))
+                self.txtbx_telefonoresponsable_3.setText(str(resultado[1]))
+                self.txt_salidanumero.setText(str(resultado[3]))
+               
+                self.btn_guardar_salida.setEnabled(False)
+            if not resultado:
+                QMessageBox.information(self,"Error","No hay saluda actual con ese numero ")
+                
     #METODOS DE LA CLASE DE MENU PRINCIPAL
     
     #volver al inicio
     def backLogin(self):
-        ingreso_usuario = IngresoUsuario()  # Crear una instancia de IngresoUsuario
-        ingreso_usuario.showMaximized()
+        ingreso_usuario.show()
         ingreso_usuario.txt_user.clear()
         ingreso_usuario.txt_password.clear()
-        self.widget.setCurrentIndex(0)
+        ingreso_usuario.showFullScreen()
         self.hide()
     # otros métodos de la clase MenuPrincipal
     

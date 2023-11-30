@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1201</width>
+    <width>1187</width>
     <height>748</height>
    </rect>
   </property>
@@ -78,7 +78,7 @@ background-color:white;
        <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="currentIndex">
-          <number>3</number>
+          <number>2</number>
          </property>
          <property name="movable">
           <bool>true</bool>
@@ -1523,10 +1523,10 @@ background-color:white;
                         </spacer>
                        </item>
                        <item>
-                        <widget class="QLineEdit" name="lineEdit_busqueda_pedido_3"/>
+                        <widget class="QLineEdit" name="lineEdit_busqueda_salida"/>
                        </item>
                        <item>
-                        <widget class="QPushButton" name="pushButton_7">
+                        <widget class="QPushButton" name="bt_buscarsalida">
                          <property name="text">
                           <string>Buscar</string>
                          </property>
@@ -1664,9 +1664,9 @@ background-color:white;
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLabel" name="label_numeroPedido_3">
-                         <property name="text">
-                          <string/>
+                        <widget class="QLineEdit" name="txt_salidanumero">
+                         <property name="readOnly">
+                          <bool>true</bool>
                          </property>
                         </widget>
                        </item>
@@ -1683,21 +1683,21 @@ background-color:white;
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_140">
                     <item>
-                     <widget class="QPushButton" name="btn_editarPedido_9">
+                     <widget class="QPushButton" name="btn_editarSalida">
                       <property name="text">
                        <string>Editar</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="btn_guardar_pedid_3">
+                     <widget class="QPushButton" name="btn_guardar_salida">
                       <property name="text">
                        <string>Guardar</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="btn_2">
+                     <widget class="QPushButton" name="btn_limpiarsalida">
                       <property name="text">
                        <string>Limpiar</string>
                       </property>
@@ -2371,7 +2371,11 @@ background-color:white;
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLineEdit" name="lineEdit_numeroPedido"/>
+                        <widget class="QLineEdit" name="lineEdit_numeroPedido">
+                         <property name="readOnly">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
                        </item>
                       </layout>
                      </item>
@@ -2689,7 +2693,7 @@ background-color:white;
                    <item>
                     <widget class="QPushButton" name="btn_elimiarPedido_1">
                      <property name="text">
-                      <string>Editar</string>
+                      <string>Eliminar</string>
                      </property>
                     </widget>
                    </item>
@@ -2718,7 +2722,7 @@ background-color:white;
                 </spacer>
                </item>
                <item>
-                <widget class="QTableWidget" name="tableWidget"/>
+                <widget class="QTableWidget" name="tablapedidocrear"/>
                </item>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_46">
