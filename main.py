@@ -93,7 +93,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_buscarPedido.clicked.connect(self.buscar_pedido)
         self.btn_limpiarCampos_pedid.clicked.connect(self.limpiar_pedido)
         self.btn_editarPedido.clicked.connect(self.editar_pedido)
-        self..cellClicked.connect(self.llenar_lineeditspedidos)
+        self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditspedidos)
         
         #metodos de Salidas:
         self.bt_buscarsalida.clicked.connect(self.buscar_salida)
@@ -659,6 +659,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
 
             conexion.commit()
             QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
+    # Verificar exixtencia de consumibles para evitar resgistrar dos consumibles con el mismo codigo
     def verificar_existencia_codigo_consumibles(self, codigo):
         conexion = sqlite3.connect("./database/db.db")
         cursor = conexion.cursor()
@@ -689,8 +690,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.dateEdit_fechEConsAGG.setDate(QDate.fromString(fech_entrada, Qt.ISODate))
         self.btn_agg_ConsAgg.setEnabled(False)
         self.txt_codigo_consAgg.setReadOnly(True)
-    
-    
+       
     #editar y eliminar consumibles
     def editarCons(self):
         # Obtener los valores de los LineEdits
@@ -757,14 +757,22 @@ class MenuPrincipal(QtWidgets.QMainWindow):
    
     def llenar_lineeditspedidos(self, row, col):
         # Obtener datos de la fila seleccionada
-        codigo = self.tableWidget_AggCons.item(row, 0).text()
-        descripcion = self.tableWidget_AggCons.item(row, 1).text()
-        uni_medida = self.tableWidget_AggCons.item(row, 2).text()
-        cantidad = self.tableWidget_AggCons.item(row, 3).text()
-        fech_entrada= self.tableWidget_AggCons.item(row, 4).text()
-        limite_reorden = self.tableWidget_AggCons.item(row, 5).text()
-        notas = self.tableWidget_AggCons.item(row, 6).text()
+        codigo = self.tablapedidocrear.item(row, 0).text()
+        descripcion = self.tablapedidocrear.item(row, 1).text()
+        uni_medida = self.tablapedidocrear.item(row, 2).text()
+        cantidad = self.tablapedidocrear.item(row, 3).text()
+        fech_entrada= self.tablapedidocrear.item(row, 4).text()
+        limite_reorden = self.tablapedidocrear.item(row, 5).text()
+        notas = self.tablapedidocrear.item(row, 6).text()
 
+        numerodepedido = self.lineEdit_numeroPedido.text()
+        nonmbreProd = self.lineEdit_nombreP.text()
+        espTecnicas= self.lineEdit_espsTecP.text()
+        cantidad = self.lineEdit_cantP.text()
+        unidadMEdida = self.lineEdit_undmedP.text()
+        fechaTope= self.lineEdit_fechtP.text()
+        necesidadProducto = self.lineEdit_necesP.text()
+        
         # Llenar LineEdits con los datos
         self.txt_codigo_consAgg.setText(codigo)
         self.txt_descrip_consAgg.setText(descripcion)
@@ -970,7 +978,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                
                 self.btn_guardar_salida.setEnabled(False)
             if not resultado:
-                QMessageBox.information(self,"Error","No hay saluda actual con ese numero ")
+                QMessageBox.information(self,"Error","No hay salida actual con ese numero ")
                 
     #METODOS DE LA CLASE DE MENU PRINCIPAL
     
