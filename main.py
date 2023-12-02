@@ -93,6 +93,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_buscarPedido.clicked.connect(self.buscar_pedido)
         self.btn_limpiarCampos_pedid.clicked.connect(self.limpiar_pedido)
         self.btn_editarPedido.clicked.connect(self.editar_pedido)
+        self..cellClicked.connect(self.llenar_lineeditspedidos)
         
         #metodos de Salidas:
         self.bt_buscarsalida.clicked.connect(self.buscar_salida)
@@ -750,7 +751,30 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.txt_codigo_consAgg.setReadOnly(False)
         self.tablapedidocrear.setRowCount(0)
         self.tablapedidocrear.clearContents()
+    
     ### PEDIDOS ###
+   
+   
+    def llenar_lineeditspedidos(self, row, col):
+        # Obtener datos de la fila seleccionada
+        codigo = self.tableWidget_AggCons.item(row, 0).text()
+        descripcion = self.tableWidget_AggCons.item(row, 1).text()
+        uni_medida = self.tableWidget_AggCons.item(row, 2).text()
+        cantidad = self.tableWidget_AggCons.item(row, 3).text()
+        fech_entrada= self.tableWidget_AggCons.item(row, 4).text()
+        limite_reorden = self.tableWidget_AggCons.item(row, 5).text()
+        notas = self.tableWidget_AggCons.item(row, 6).text()
+
+        # Llenar LineEdits con los datos
+        self.txt_codigo_consAgg.setText(codigo)
+        self.txt_descrip_consAgg.setText(descripcion)
+        self.txt_uni_medConsagg.setText(uni_medida)
+        self.txt_cant_ConsAgg.setText(cantidad)
+        self.txt_limite_reorden_AGgCons.setText(limite_reorden)
+        self.txtbox_notasAggCons.setText(notas)
+        self.dateEdit_fechEConsAGG.setDate(QDate.fromString(fech_entrada, Qt.ISODate))
+        self.btn_agg_ConsAgg.setEnabled(False)
+        self.txt_codigo_consAgg.setReadOnly(True)
    
     def editar_pedido(self):
         numeroPedido = self.lineEdit_numeroPedido.text()
