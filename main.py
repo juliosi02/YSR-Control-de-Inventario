@@ -3,7 +3,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QDate
 from PyQt5.QtGui import QBrush, QColor
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QLabel
 import sqlite3
 
 
@@ -14,7 +14,7 @@ class IngresoUsuario(QtWidgets.QMainWindow):
         uic.loadUi("./ui/login.ui", self)
         self.btn_acceder.clicked.connect(self.ingreso)
         self.showMaximized()
-        
+        self.setWindowTitle("Manejo de inventario YSR Soluciones, C.A")
 
     def menuPrincipal_access(self, admin, user_name):
         menuview = MenuPrincipal(admin, user_name )
@@ -51,12 +51,22 @@ class IngresoUsuario(QtWidgets.QMainWindow):
 class MenuPrincipal(QtWidgets.QMainWindow):
     def __init__(self, admin, user_name ):
         super(MenuPrincipal, self).__init__()
-        uic.loadUi("./ui/menuprincipal.ui", self)
+        uic.loadUi("./ui/menu_principal.ui", self)
         self.admin = admin
         self.user_name = user_name
+        if self.admin == "True":
+           self.Label_nameUser.setText("Bienvenido Administrador")
+        else : 
+            self.Label_nameUser.setText("Bievenido, {user_name} ")
+        self.setWindowTitle("Manejo de Inventario")
         self.bt_salir.clicked.connect(self.backLogin)
+        # dirigir a la pagina de  gestion de usuarios
         self.bt_config_usser.clicked.connect(self.verifyAdmin)
-        
+        # pagina de gestion de ver inventario en el menu principal
+        self.btn_pagePrincipal.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_principal) )
+        self.btn_page_em.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_EquiposMaquinarias) )
+        self.bt_page_hm.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_herramientas_manuales) )
+        self.btn_pageC.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_Consumibles) )
         #metodos relacionados a equipos y maquinarias
         self.bt_reload.clicked.connect(self.reloaddataEM)
         self.reloaddataEM()
@@ -88,18 +98,23 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.tableWidget_AggCons.cellClicked.connect(self.llenar_lineeditsCons)
         
         #metodos de Pedidos:
+        self.btn_generarPedidos.clicked.connect( lambda:self.stackedWidget_pedidos.setCurrentWidget(self.page_generarPedidos) )
+        self.btn_visualizarPedidos.clicked.connect(lambda:self.stackedWidget_pedidos.setCurrentWidget(self.page_VisualizaPedidos))
         self.btn_guardar_pedid.clicked.connect(self.agregar_pedido)
         self.btn_aggtblPedidos.clicked.connect(self.agregarprod_pedido)
         self.btn_buscarPedido.clicked.connect(self.buscar_pedido)
         self.btn_limpiarCampos_pedid.clicked.connect(self.limpiar_pedido)
         self.btn_editarPedido.clicked.connect(self.editar_pedido)
-        self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditspedidos)
+        #self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditspedidos)
         
         #metodos de Salidas:
+        self.btn_generarSalidas.clicked.connect( lambda:self.stackedWidget_salidas.setCurrentWidget(self.page_GenerarSalidas) )
+        self.btn_visualizarSalidas.clicked.connect(lambda:self.stackedWidget_salidas.setCurrentWidget(self.page_Visualizar_salidas))
         self.bt_buscarsalida.clicked.connect(self.buscar_salida)
         self.btn_guardar_salida.clicked.connect(self.guardarResponsable_salida)
         self.btn_limpiarsalida.clicked.connect(self.limpiar_salida)
         self.btn_editarSalida.clicked.connect(self.editar_salida)
+        
         #busqueda principal
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
         #filtrar Contenido Segun el estado
@@ -107,7 +122,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.filtrarporestado()
         #filtrar por cantidad baja cantidad en inventario
         self.btn_actualizarTablabajaExist.clicked.connect(self.filtrar_bajaCantidad)
-       
+        
     def verifyAdmin(self):
         if self.admin == "true":
             self.userView()
@@ -755,35 +770,10 @@ class MenuPrincipal(QtWidgets.QMainWindow):
     ### PEDIDOS ###
    
    
-    def llenar_lineeditspedidos(self, row, col):
+    #def llenar_lineeditspedidos(self, row, col):
         # Obtener datos de la fila seleccionada
-        codigo = self.tablapedidocrear.item(row, 0).text()
-        descripcion = self.tablapedidocrear.item(row, 1).text()
-        uni_medida = self.tablapedidocrear.item(row, 2).text()
-        cantidad = self.tablapedidocrear.item(row, 3).text()
-        fech_entrada= self.tablapedidocrear.item(row, 4).text()
-        limite_reorden = self.tablapedidocrear.item(row, 5).text()
-        notas = self.tablapedidocrear.item(row, 6).text()
-
-        numerodepedido = self.lineEdit_numeroPedido.text()
-        nonmbreProd = self.lineEdit_nombreP.text()
-        espTecnicas= self.lineEdit_espsTecP.text()
-        cantidad = self.lineEdit_cantP.text()
-        unidadMEdida = self.lineEdit_undmedP.text()
-        fechaTope= self.lineEdit_fechtP.text()
-        necesidadProducto = self.lineEdit_necesP.text()
         
-        # Llenar LineEdits con los datos
-        self.txt_codigo_consAgg.setText(codigo)
-        self.txt_descrip_consAgg.setText(descripcion)
-        self.txt_uni_medConsagg.setText(uni_medida)
-        self.txt_cant_ConsAgg.setText(cantidad)
-        self.txt_limite_reorden_AGgCons.setText(limite_reorden)
-        self.txtbox_notasAggCons.setText(notas)
-        self.dateEdit_fechEConsAGG.setDate(QDate.fromString(fech_entrada, Qt.ISODate))
-        self.btn_agg_ConsAgg.setEnabled(False)
-        self.txt_codigo_consAgg.setReadOnly(True)
-   
+        
     def editar_pedido(self):
         numeroPedido = self.lineEdit_numeroPedido.text()
         if not numeroPedido:
@@ -997,8 +987,9 @@ class Users(QtWidgets.QMainWindow):
         super(Users, self).__init__()
         uic.loadUi("./ui/usuarios.ui", self)
         self.admin = admin
-        
         self.user_name = user_name
+        self.widget = widget
+        self.setWindowTitle("Gestion de Usuarios")
         self.btn_backmenu.clicked.connect(self.backMenu)
         self.btn_cerrarSesion_1.clicked.connect(self.backLogin)
         self.bt_buscarUsser.clicked.connect(self.busquedauser)
@@ -1182,7 +1173,7 @@ class Users(QtWidgets.QMainWindow):
         widget.setCurrentIndex(widget.currentIndex() + 1)
     # metodo de volver al login
     def backLogin(self):
-        ingreso_usuario = IngresoUsuario()  # Crear una instancia de IngresoUsuario
+        ingreso_usuario = IngresoUsuario()  
         ingreso_usuario.showMaximized()
         ingreso_usuario.txt_user.clear()
         ingreso_usuario.txt_password.clear()
