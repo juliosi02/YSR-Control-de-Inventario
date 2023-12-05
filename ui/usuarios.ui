@@ -228,6 +228,9 @@ background-color: rgb(147, 147, 147, 0.5);}</string>
                   <height>25</height>
                  </size>
                 </property>
+                <property name="maxLength">
+                 <number>15</number>
+                </property>
                </widget>
               </item>
              </layout>
@@ -268,6 +271,9 @@ background-color: rgb(147, 147, 147, 0.5);}</string>
                   <height>25</height>
                  </size>
                 </property>
+                <property name="maxLength">
+                 <number>15</number>
+                </property>
                </widget>
               </item>
              </layout>
@@ -290,7 +296,7 @@ background-color: rgb(147, 147, 147, 0.5);}</string>
               <item>
                <widget class="QLabel" name="label_7">
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nombres&lt;/p&gt;&lt;p&gt;de Usuario&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nombre  y Apellido&lt;/p&gt;&lt;p&gt;del Usuario&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>

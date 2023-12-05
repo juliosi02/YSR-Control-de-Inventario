@@ -6,6 +6,9 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QLabel
 import sqlite3
 
+import os
+os.environ["QT_LOGGING_RULES"] = "qt.gui.icc=false"
+
 
 # Clase Login 
 class IngresoUsuario(QtWidgets.QMainWindow):
@@ -158,7 +161,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
 
             # Configurar la tabla con los datos obtenidos
             self.tabla_resultados.setRowCount(len(data_total))
-            self.tabla_resultados.setColumnCount(7)
+            #self.tabla_resultados.setColumnCount(7)
 
             for row, row_data in enumerate(data_total):
                 for col, value in enumerate(row_data):
@@ -193,16 +196,16 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             
             # Establecer el número de filas y columnas en la tabla
             self.tableWidget_Estado_EM_HM.setRowCount(len(data_total))
-            self.tableWidget_Estado_EM_HM.setColumnCount(7)
+            #self.tableWidget_Estado_EM_HM.setColumnCount(7)
             
             # Llenar la tabla con los datos recuperados
             for row, row_data in enumerate(data_total):
                 for col, value in enumerate(row_data):
                     item = QTableWidgetItem(str(value))
                     self.tableWidget_Estado_EM_HM.setItem(row, col, item)
-            print("Data Equipos:", data_equipos)
-            print("Data Herramientas:", data_herramientas)
-            print("Data Total:", data_total)
+            #print("Data Equipos:", data_equipos)
+            #print("Data Herramientas:", data_herramientas)
+            #print("Data Total:", data_total)
             conexion.close()
         except Exception as e:
             # Mostrar un mensaje de error en caso de excepción
@@ -475,36 +478,50 @@ class MenuPrincipal(QtWidgets.QMainWindow):
     
     #metodo de agregar herramientas en la pagiande ingresos
     def agregagrHM(self):
-        codigo = self.txt_codigo_HM.text()
-    # Realizar una verificación para evitar registros duplicados
-        if self.verificar_existencia_codigo_hm(codigo):
-            QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
-            return
-
-    # Resto del código para insertar el nuevo registro
-        descripcion = self.txt_descrip_HM.text()
+        codigo_base = self.txt_codigo_HM.text()
         cantidad = self.txt_cant_HM.text()
-        estado = self.comboBox_agg_HM.currentText()
-        notas = self.txt_Notas_aggHM.text()
 
-        if (not codigo
-            or not descripcion
-            or not cantidad
-            or not estado
-            or not notas
-            ):
-            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+        # Validaciones para la cantidad
+        try:
+            cantidad = int(cantidad)
+            if cantidad <= 0:
+                raise ValueError
+        except ValueError:
+            QMessageBox.warning(self, "Error", "La cantidad debe ser un número entero positivo.")
             return
-        else:
+
+        for i in range(1, cantidad + 1):
+            codigo = f"{self.agregar_prefijo_ysr(codigo_base)}{i}"
+
+            # Realizar una verificación para evitar registros duplicados
+            if self.verificar_existencia_codigo_hm(codigo):
+                QMessageBox.warning(self, "Error", f"Ya existe un registro con el código {codigo}.")
+                return
+
+            # Resto del código para insertar el nuevo registro
+            descripcion = self.txt_descrip_HM.text()
+            estado = self.comboBox_agg_HM.currentText()
+            notas = self.txt_Notas_aggHM.text()
+            fecha_ingreso = self.calendar_ingresoHM_fechaIngreso.selectedDate()
+            fecha_formato_cadena = fecha_ingreso.toString("yyyy-MM-dd")
+
+            if (not codigo or not descripcion or not estado or not fecha_ingreso or not notas):
+                QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+                return
+
             conexion = sqlite3.connect("./database/db.db")
             cursor = conexion.cursor()
-            query = "INSERT INTO HerramientasManuales (Codigo, Descripcion, Cantidad, Estado, Notas) VALUES (?, ?, ?, ?, ?)"
+            query = "INSERT INTO HerramientasManuales (Codigo, Descripcion, Cantidad, Estado, FechaIngreso, Notas) VALUES (?, ?, 1, ?, ?, ?)"
 
-            cursor.execute(query, (codigo, descripcion, cantidad, estado, notas))
+            cursor.execute(query, (codigo, descripcion, estado, fecha_formato_cadena, notas))
 
             conexion.commit()
-            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
 
+        QMessageBox.information(self, "Éxito", "Los datos se almacenaron correctamente")
+    def agregar_prefijo_ysr(self, codigo):
+        if codigo and not codigo.startswith("ysr-"):
+            return f"ysr-{codigo}"
+        return codigo
     def verificar_existencia_codigo_hm(self, codigo):
         conexion = sqlite3.connect("./database/db.db")
         cursor = conexion.cursor()
@@ -522,16 +539,25 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         descripcion = self.tableWidget_aggHM.item(row, 1).text()
         cantidad = self.tableWidget_aggHM.item(row, 2).text()
         estado = self.tableWidget_aggHM.item(row, 3).text()
-        notas = self.tableWidget_aggHM.item(row, 4).text()
+        notas = self.tableWidget_aggHM.item(row, 5).text()
         # Llenar LineEdits con los datos
         self.txt_codigo_HM.setText(codigo)
         self.txt_cant_HM.setText(cantidad)
         self.txt_descrip_HM.setText(descripcion)
         self.txt_Notas_aggHM.setText(notas)
+        
         # Configurar las fechas y el estado
+        
+        # Configurar la fecha y el estado
+        # AJUSTE DE FORMATO DE FECHA
+        fecha_str = self.tableWidget_aggHM.item(row, 4).text()
+        fecha = QDate.fromString(fecha_str, 'yyyy-MM-dd')
+        self.calendar_ingresoHM_fechaIngreso.setSelectedDate(fecha)
+        
         index = self.comboBox_agg_HM.findText(estado)
         if index >= 0:
             self.comboBox_agg_HM.setCurrentIndex(index)
+            
         self.btn_aggHM.setEnabled(False)
         self.txt_codigo_HM.setReadOnly(True)
             
@@ -543,7 +569,9 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         cantidad = self.txt_cant_HM.text()
         estado = self.comboBox_agg_HM.currentText()
         notas = self.txt_Notas_aggHM.text()
-    
+        fechaingreso = self.calendar_ingresoHM_fechaIngreso.selectedDate()
+        fecha_formato_cadena = fechaingreso.toString("yyyy-MM-dd")
+        
         # Realizar la actualización en la base de datos usando los valores obtenidos
         conexion = sqlite3.connect("./database/db.db")
         cursor = conexion.cursor()
@@ -554,11 +582,12 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             Descripcion = ?,
             Cantidad = ?,
             Estado = ?,
+            FechaIngreso = ?,
             Notas = ?
         WHERE Codigo = ?;
         """
 
-        cursor.execute(query, (codigo, descripcion, cantidad, estado, notas, codigo))
+        cursor.execute(query, (codigo, descripcion, cantidad, estado, fecha_formato_cadena, notas, codigo))
 
         conexion.commit()
         QMessageBox.information(self, "Exito", "Los datos se actualizaron correctamente")        
@@ -625,7 +654,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
 
             # Configurar la tabla con los datos obtenidos
             self.tableWidget_AggCons.setRowCount(len(data_total))
-            self.tableWidget_AggCons.setColumnCount(7)
+            #self.tableWidget_AggCons.setColumnCount(7)
 
             for row, row_data in enumerate(data_total):
                 for col, value in enumerate(row_data):
@@ -639,7 +668,15 @@ class MenuPrincipal(QtWidgets.QMainWindow):
     # agregar consumibles
     def agregagrCons(self):
         codigo = self.txt_codigo_consAgg.text()
-        # Realizar una verificación para evitar registros duplicados
+       #reaizar verificacion para que no se pueda insertar letras en el campo de cantidad
+        try:
+            cantidad = int(cantidad)
+            if cantidad <= 0:
+                raise ValueError
+        except ValueError:
+            QMessageBox.warning(self, "Error", "La cantidad debe ser un número entero positivo.")
+            return
+         # Realizar una verificación para evitar registros duplicados
         if self.verificar_existencia_codigo_consumibles(codigo):
             QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
             return
@@ -648,15 +685,17 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         descripcion = self.txt_descrip_consAgg.text()
         uni_medida = self.txt_uni_medConsagg.text()
         cantidad = self.txt_cant_ConsAgg.text()
-        fech_entrada = self.dateEdit_fechEConsAGG.date().toString(Qt.ISODate)
+        fecha_ingreso = self.calendar_ingresodecons.selectedDate()
+        fecha_formato_cadena = fecha_ingreso.toString("yyyy-MM-dd")
         limite_reorden = self.txt_limite_reorden_AGgCons.text()
         notas = self.txtbox_notasAggCons.text()
 
+        codigo = f"{self.agregar_prefijo_ysr(codigo)}"
         if (not codigo
             or not descripcion
             or not uni_medida
             or not cantidad
-            or not fech_entrada
+            or not fecha_formato_cadena
             or not limite_reorden
             or not notas
             ):
@@ -670,10 +709,15 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """
 
-            cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fech_entrada, limite_reorden, notas))
+            cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fecha_formato_cadena, limite_reorden, notas))
 
             conexion.commit()
             QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
+    # agregar el prefijo de "ysr-" al codigo en caso de que no lo tenga
+    def agregar_prefijo_ysr(self, codigo):
+        if codigo and not codigo.startswith("ysr-"):
+            return f"ysr-{codigo}"
+        return codigo
     # Verificar exixtencia de consumibles para evitar resgistrar dos consumibles con el mismo codigo
     def verificar_existencia_codigo_consumibles(self, codigo):
         conexion = sqlite3.connect("./database/db.db")
@@ -691,20 +735,23 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         descripcion = self.tableWidget_AggCons.item(row, 1).text()
         uni_medida = self.tableWidget_AggCons.item(row, 2).text()
         cantidad = self.tableWidget_AggCons.item(row, 3).text()
-        fech_entrada= self.tableWidget_AggCons.item(row, 4).text()
         limite_reorden = self.tableWidget_AggCons.item(row, 5).text()
         notas = self.tableWidget_AggCons.item(row, 6).text()
 
+        fech_entrada = self.tableWidget_AggCons.item(row, 4).text()
+        fecha = QDate.fromString(fech_entrada, 'yyyy-MM-dd')
+        self.calendar_ingresodecons.setSelectedDate(fecha)
+        
         # Llenar LineEdits con los datos
         self.txt_codigo_consAgg.setText(codigo)
         self.txt_descrip_consAgg.setText(descripcion)
         self.txt_uni_medConsagg.setText(uni_medida)
-        self.txt_cant_ConsAgg.setText(cantidad)
+        self.txt_stock_ConsAgg.setText(cantidad)
         self.txt_limite_reorden_AGgCons.setText(limite_reorden)
         self.txtbox_notasAggCons.setText(notas)
-        self.dateEdit_fechEConsAGG.setDate(QDate.fromString(fech_entrada, Qt.ISODate))
         self.btn_agg_ConsAgg.setEnabled(False)
         self.txt_codigo_consAgg.setReadOnly(True)
+        self.txt_stock_ConsAgg.setREadOnly(True)
        
     #editar y eliminar consumibles
     def editarCons(self):
@@ -713,7 +760,15 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         descripcion = self.txt_descrip_consAgg.text()
         uni_medida = self.txt_uni_medConsagg.text()
         cantidad = self.txt_cant_ConsAgg.text()
-        fech_entrada = self.dateEdit_fechEConsAGG.date().toString(Qt.ISODate)
+        try:
+            cantidad = int(cantidad)
+            if cantidad <= 0:
+                raise ValueError
+        except ValueError:
+            QMessageBox.warning(self, "Error", "La cantidad debe ser un número entero positivo.")
+            return
+        fechaingreso = self.calendar_ingresoHM_fechaIngreso.selectedDate()
+        fecha_formato_cadena = fechaingreso.toString("yyyy-MM-dd")
         limite_reorden = self.txt_limite_reorden_AGgCons.text()
         notas = self.txtbox_notasAggCons.text()
         
@@ -733,7 +788,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         WHERE Codigo = ?;
     """
 
-        cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fech_entrada, limite_reorden, notas, codigo))
+        cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fecha_formato_cadena, limite_reorden, notas, codigo))
 
         conexion.commit()
         QMessageBox.information(self,"Exito","Los datos se actualizaron correctamente")
@@ -762,6 +817,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.txt_cant_ConsAgg.clear()
         self.txt_limite_reorden_AGgCons.clear()
         self.txtbox_notasAggCons.clear()
+        self.txt_stock_ConsAgg.clear()
         self.btn_agg_ConsAgg.setEnabled(True)
         self.txt_codigo_consAgg.setReadOnly(False)
         self.tablapedidocrear.setRowCount(0)

@@ -34,7 +34,8 @@
 QLineEdit{
 	color: rgb(0, 0, 0);
 	border:0;
-	background-color: rgb(106, 106, 106, 0.5);
+	background-color: rgba(106, 106, 106, 0.5);
+	font: 75 11pt &quot;Arial&quot;;
 }
 QMainWindow{
 	background-color: rgb(255, 255, 255);
@@ -46,11 +47,11 @@ QMainWindow::item:selected {
 
 QTabWidget{
 	border:0; 
-	font: 75 12pt &quot;Arial&quot;;
+
 }
 QLabel{
 	
-	font: 75 11pt &quot;Arial&quot;;
+	font: 75 14pt &quot;Arial&quot;;
 }
 QGroupBox{
 	
@@ -58,7 +59,7 @@ QGroupBox{
 }
 QComboBox{
 	
-	background-color: rgb(102, 102, 102, 0.5);
+	background-color: rgba(102, 102, 102, 0.5);
 	font: 75 11pt &quot;Arial&quot;;
 }
 QTableWidget{
@@ -183,7 +184,7 @@ QTableWidget{
         <item>
          <widget class="QGroupBox" name="groupBox">
           <property name="styleSheet">
-           <string notr="true">QGroupBox{background-color: rgb(106, 106, 106, 0.5);
+           <string notr="true">QGroupBox{background-color: rgba(106, 106, 106, 0.5);
 border:0;
 font: 75 16pt &quot;Arial&quot;;}</string>
           </property>
@@ -258,6 +259,9 @@ font: 75 16pt &quot;Arial&quot;;}</string>
                     <string notr="true">border:none;
 border-bottom:2px solid blue;</string>
                    </property>
+                   <property name="text">
+                    <string/>
+                   </property>
                    <property name="maxLength">
                     <number>15</number>
                    </property>
@@ -326,6 +330,9 @@ border-bottom:2px solid blue;</string>
                    <property name="styleSheet">
                     <string notr="true">border:none;
 border-bottom:2px solid blue;</string>
+                   </property>
+                   <property name="text">
+                    <string/>
                    </property>
                    <property name="maxLength">
                     <number>10</number>
@@ -451,16 +458,6 @@ border-radius:24px;</string>
      </layout>
     </item>
    </layout>
-   <zorder>groupBox</zorder>
-   <zorder>label_4</zorder>
-   <zorder>horizontalSpacer_9</zorder>
-   <zorder>horizontalSpacer_10</zorder>
-   <zorder>label_5</zorder>
-   <zorder>horizontalSpacer</zorder>
-   <zorder>horizontalSpacer_2</zorder>
-   <zorder>line</zorder>
-   <zorder>verticalSpacer_3</zorder>
-   <zorder>label_3</zorder>
   </widget>
  </widget>
  <resources/>
