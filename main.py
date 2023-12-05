@@ -1005,7 +1005,6 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             conexion.commit()
             QMessageBox.information(self,"Almacenado correctamente","Los datos fueron guardados correctamente")
             
-            
     def buscar_salida(self):
         numeroSalida = self.lineEdit_busqueda_salida.text()
         if not numeroSalida:
