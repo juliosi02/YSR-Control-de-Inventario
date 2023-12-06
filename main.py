@@ -60,7 +60,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         if self.admin == "True":
            self.Label_nameUser.setText("Bienvenido Administrador")
         else : 
-            self.Label_nameUser.setText("Bievenido, {user_name} ")
+            self.Label_nameUser.setText(f"Bievenido, {user_name} ")
         self.setWindowTitle("Manejo de Inventario")
         self.bt_salir.clicked.connect(self.backLogin)
         # dirigir a la pagina de  gestion de usuarios
@@ -79,6 +79,9 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_buscarEMagg.clicked.connect(self.busquedaEM)
         self.tableWidget_aggEM.cellClicked.connect(self.llenar_lineeditsEM)
         self.btn_limpiarEMagg.clicked.connect(self.limpiarEM)
+        
+        
+        self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditsPDidos)
         
         #metodos relacionados a herramientas manuales
         self.btn_buscarHM.clicked.connect(self.busquedaHM)
@@ -108,6 +111,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_buscarPedido.clicked.connect(self.buscar_pedido)
         self.btn_limpiarCampos_pedid.clicked.connect(self.limpiar_pedido)
         self.btn_editarPedido.clicked.connect(self.editar_pedido)
+        self.btn_elimiarPedido_1.clicked.connect(self.eliminarPedido)
         #self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditspedidos)
         
         #metodos de Salidas:
@@ -829,7 +833,41 @@ class MenuPrincipal(QtWidgets.QMainWindow):
     #def llenar_lineeditspedidos(self, row, col):
         # Obtener datos de la fila seleccionada
         
+    def eliminarPedido(self):
+        nombrePedido = self.lineEdit_nombreP.text()
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            cursor.execute("DELETE FROM contenido_pedido WHERE nombre_producto=?",(nombrePedido,))
+            conexion.commit()
+            conexion.close()
+            QMessageBox.information(self,"Eliminado","Ha sido elimindo correctamente")
+            self.lineEdit_nombreP.clear()
+            self.lineEdit_espsTecP.clear()
+            self.lineEdit_espsTecP.clear()
+            self.lineEdit_undmedP.clear()
+            self.lineEdit_cantP.clear()
+            self.lineEdit_necesP.clear()
+            
+        except:
+            print ("Error al conectarse a SQLite")
+    def llenar_lineeditsPDidos(self, row, col):
+        # Obtener datos de la fila seleccionada
+        Nombre = self.tablapedidocrear.item(row, 0).text()
+        especificaciones = self.tablapedidocrear.item(row, 1).text()
+        cantidad = self.tablapedidocrear.item(row, 2).text()
+        UMedida = self.tablapedidocrear.item(row, 3).text()
+      
+        Necesidad= self.tablapedidocrear.item(row, 5).text()
         
+        fech_entrada = self.tablapedidocrear.item(row, 4).text()
+        fecha = QDate.fromString(fech_entrada, 'yyyy-MM-dd')
+        self.calendarWidget.setSelectedDate(fecha)
+        self.lineEdit_nombreP.setText(Nombre)
+        self.lineEdit_espsTecP.setText(especificaciones)
+        self.lineEdit_undmedP.setText(UMedida)
+        self.lineEdit_cantP.setText(cantidad)
+        self.lineEdit_necesP.setText(Necesidad)
     def editar_pedido(self):
         numeroPedido = self.lineEdit_numeroPedido.text()
         if not numeroPedido:
@@ -840,6 +878,9 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor = conexion.cursor()
             nombreProyecto = self.txtbx_nameproyectoPed.text()
             responsableProyecto = self.lineEdit_ResponsablePed.text()
+          
+          
+          
             telefono = self.txtbx_telefonoresponsablePed.text()
             cursor.execute("UPDATE pedidos SET Nombre_Proyecto=?,Responsable_pedido=?,telefon_responsable=? WHERE numero_pedido=?",(nombreProyecto,responsableProyecto,telefono,numeroPedido))
             if cursor.execute:
@@ -946,9 +987,11 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         espTecnicas= self.lineEdit_espsTecP.text()
         cantidad = self.lineEdit_cantP.text()
         unidadMEdida = self.lineEdit_undmedP.text()
-        fechaTope= self.lineEdit_fechtP.text()
+        
+        fecha_ingreso = self.calendarWidget.selectedDate()
+        fecha_formato_cadena = fecha_ingreso.toString("yyyy-MM-dd")
         necesidadProducto = self.lineEdit_necesP.text()
-        if (not numerodepedido or not nonmbreProd or not espTecnicas or not cantidad or not unidadMEdida or not fechaTope or not necesidadProducto):
+        if (not numerodepedido or not nonmbreProd or not espTecnicas or not cantidad or not unidadMEdida or not fecha_formato_cadena or not necesidadProducto):
             QMessageBox .warning(self, "Error", "Todos los campos osn obligatorios")
             return
         else: 
@@ -956,7 +999,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor = conexion.cursor()
             query = "INSERT INTO contenido_pedido ( nombre_producto, especificaciones_tecnicas, cantidad, unidad_de_medida, fecha_tope, necesidadPedido,numero_pedido) VALUES (?,?,?,?,?,?,?)"
             
-            cursor.execute(query, (nonmbreProd, espTecnicas, cantidad, unidadMEdida, fechaTope, necesidadProducto, numerodepedido))
+            cursor.execute(query, (nonmbreProd, espTecnicas, cantidad, unidadMEdida, fecha_formato_cadena, necesidadProducto, numerodepedido))
             conexion.commit()
             QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
         
@@ -1004,6 +1047,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor.execute("INSERT INTO SalidaResponsable (Nombre_Responsable,Telefono,Cedula,Nombre_Proyecto) VALUES (?,?,?,?)",(responsableProyecto,telefonoResponsable,cedulaResponsable,nombreProyecto))
             conexion.commit()
             QMessageBox.information(self,"Almacenado correctamente","Los datos fueron guardados correctamente")
+            
             
     def buscar_salida(self):
         numeroSalida = self.lineEdit_busqueda_salida.text()
@@ -1240,7 +1284,7 @@ class Users(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     widget = QtWidgets.QStackedWidget()
-    
+    app.setApplicationName("Manejo de Inventario") 
     ingreso_usuario = IngresoUsuario()
     widget.addWidget(ingreso_usuario)
     widget.show()

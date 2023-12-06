@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\reybe\OneDrive\Escritorio\ysr Control de inventario\ui\login.ui'
+# Form implementation generated from reading ui file '/home/reinaldo/Documentos/dev/YSR-Control-de-Inventario/ui/login.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -14,69 +14,174 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(548, 404)
-        MainWindow.setMaximumSize(QtCore.QSize(548, 404))
+        MainWindow.resize(754, 406)
+        MainWindow.setMinimumSize(QtCore.QSize(754, 406))
+        MainWindow.setMaximumSize(QtCore.QSize(800, 450))
+        MainWindow.setStyleSheet("QPushButton{\n"
+"    color: rgb(255, 255, 255);\n"
+"    background-color: rgb(0, 0, 127);\n"
+"    font: 75 11pt \"Arial\";\n"
+"}\n"
+"QLineEdit{\n"
+"    color: rgb(0, 0, 0);\n"
+"    border:0;\n"
+"    background-color: rgba(106, 106, 106, 0.5);\n"
+"    font: 75 11pt \"Arial\";\n"
+"}\n"
+"QMainWindow{\n"
+"    background-color: rgb(255, 255, 255);\n"
+"}\n"
+"QMainWindow::item:selected {\n"
+"    background-color: #555;\n"
+"\n"
+"}\n"
+"\n"
+"QTabWidget{\n"
+"    border:0; \n"
+"\n"
+"}\n"
+"QLabel{\n"
+"    \n"
+"    font: 75 14pt \"Arial\";\n"
+"}\n"
+"QGroupBox{\n"
+"    \n"
+"    font: italic 11pt \"Arial\";\n"
+"}\n"
+"QComboBox{\n"
+"    \n"
+"    background-color: rgba(102, 102, 102, 0.5);\n"
+"    font: 75 11pt \"Arial\";\n"
+"}\n"
+"QTableWidget{\n"
+"    \n"
+"    font: 16pt \"Arial\";\n"
+"}")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setMinimumSize(QtCore.QSize(548, 404))
-        self.centralwidget.setMaximumSize(QtCore.QSize(548, 404))
         self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout.setSpacing(0)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.frame = QtWidgets.QFrame(self.centralwidget)
-        self.frame.setMinimumSize(QtCore.QSize(548, 404))
-        self.frame.setMaximumSize(QtCore.QSize(548, 404))
-        self.frame.setStyleSheet("background-color:white;")
-        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame.setObjectName("frame")
-        self.btn_acceder = QtWidgets.QPushButton(self.frame)
-        self.btn_acceder.setGeometry(QtCore.QRect(230, 290, 141, 81))
-        self.btn_acceder.setStyleSheet("color:white;\n"
-"font-size:18px;\n"
-"background-color:blue;\n"
-"border-radius:24px;")
-        self.btn_acceder.setObjectName("btn_acceder")
-        self.label_3 = QtWidgets.QLabel(self.frame)
-        self.label_3.setGeometry(QtCore.QRect(280, 30, 61, 41))
-        font = QtGui.QFont()
-        font.setFamily("Hack Nerd Font Mono")
-        font.setPointSize(14)
-        font.setItalic(True)
-        self.label_3.setFont(font)
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_7.setObjectName("horizontalLayout_7")
+        self.label_5 = QtWidgets.QLabel(self.centralwidget)
+        self.label_5.setMinimumSize(QtCore.QSize(300, 80))
+        self.label_5.setMaximumSize(QtCore.QSize(300, 80))
+        self.label_5.setText("")
+        self.label_5.setPixmap(QtGui.QPixmap("/home/reinaldo/Documentos/dev/YSR-Control-de-Inventario/ui/imagenes/logo pendon ysr.jpg"))
+        self.label_5.setScaledContents(True)
+        self.label_5.setObjectName("label_5")
+        self.horizontalLayout_7.addWidget(self.label_5)
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_6.addItem(spacerItem)
+        self.label_4 = QtWidgets.QLabel(self.centralwidget)
+        self.label_4.setStyleSheet("font: 87 24pt \"Arial Black\";")
+        self.label_4.setObjectName("label_4")
+        self.horizontalLayout_6.addWidget(self.label_4)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_6.addItem(spacerItem1)
+        self.horizontalLayout_7.addLayout(self.horizontalLayout_6)
+        self.verticalLayout_4.addLayout(self.horizontalLayout_7)
+        self.line = QtWidgets.QFrame(self.centralwidget)
+        self.line.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line.setObjectName("line")
+        self.verticalLayout_4.addWidget(self.line)
+        self.label_3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_3.setMinimumSize(QtCore.QSize(0, 0))
+        self.label_3.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.label_3.setText("")
         self.label_3.setObjectName("label_3")
-        self.widget = QtWidgets.QWidget(self.frame)
-        self.widget.setGeometry(QtCore.QRect(100, 120, 72, 101))
-        self.widget.setObjectName("widget")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.widget)
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.label = QtWidgets.QLabel(self.widget)
-        self.label.setStyleSheet("font-size:14px;")
-        self.label.setObjectName("label")
-        self.verticalLayout_2.addWidget(self.label)
-        self.label_2 = QtWidgets.QLabel(self.widget)
-        self.label_2.setStyleSheet("font-size:14px;")
-        self.label_2.setObjectName("label_2")
-        self.verticalLayout_2.addWidget(self.label_2)
-        self.widget1 = QtWidgets.QWidget(self.frame)
-        self.widget1.setGeometry(QtCore.QRect(400, 120, 108, 111))
-        self.widget1.setObjectName("widget1")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.widget1)
-        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_4.addWidget(self.label_3)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem2)
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.txt_user = QtWidgets.QLineEdit(self.widget1)
+        self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
+        self.groupBox.setStyleSheet("QGroupBox{background-color: rgba(106, 106, 106, 0.5);\n"
+"border:0;\n"
+"font: 75 16pt \"Arial\";}")
+        self.groupBox.setObjectName("groupBox")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
+        self.verticalLayout.setObjectName("verticalLayout")
+        spacerItem3 = QtWidgets.QSpacerItem(20, 24, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem3)
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_5.addItem(spacerItem4)
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.label = QtWidgets.QLabel(self.groupBox)
+        self.label.setStyleSheet("")
+        self.label.setObjectName("label")
+        self.horizontalLayout_2.addWidget(self.label)
+        spacerItem5 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem5)
+        self.txt_user = QtWidgets.QLineEdit(self.groupBox)
+        self.txt_user.setMinimumSize(QtCore.QSize(200, 35))
         self.txt_user.setStyleSheet("border:none;\n"
 "border-bottom:2px solid blue;")
+        self.txt_user.setText("")
+        self.txt_user.setMaxLength(15)
+        self.txt_user.setEchoMode(QtWidgets.QLineEdit.PasswordEchoOnEdit)
+        self.txt_user.setAlignment(QtCore.Qt.AlignCenter)
         self.txt_user.setObjectName("txt_user")
-        self.verticalLayout_3.addWidget(self.txt_user)
-        self.txt_password = QtWidgets.QLineEdit(self.widget1)
+        self.horizontalLayout_2.addWidget(self.txt_user)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_2)
+        spacerItem6 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_2.addItem(spacerItem6)
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.label_2 = QtWidgets.QLabel(self.groupBox)
+        self.label_2.setStyleSheet("")
+        self.label_2.setObjectName("label_2")
+        self.horizontalLayout_3.addWidget(self.label_2)
+        spacerItem7 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem7)
+        self.txt_password = QtWidgets.QLineEdit(self.groupBox)
+        self.txt_password.setMinimumSize(QtCore.QSize(200, 35))
+        self.txt_password.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.txt_password.setStyleSheet("border:none;\n"
 "border-bottom:2px solid blue;")
+        self.txt_password.setText("")
+        self.txt_password.setMaxLength(10)
+        self.txt_password.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.txt_password.setAlignment(QtCore.Qt.AlignCenter)
         self.txt_password.setObjectName("txt_password")
-        self.verticalLayout_3.addWidget(self.txt_password)
-        self.verticalLayout.addWidget(self.frame)
+        self.horizontalLayout_3.addWidget(self.txt_password)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_3)
+        self.horizontalLayout_5.addLayout(self.verticalLayout_2)
+        spacerItem8 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_5.addItem(spacerItem8)
+        self.verticalLayout.addLayout(self.horizontalLayout_5)
+        spacerItem9 = QtWidgets.QSpacerItem(20, 24, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem9)
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        spacerItem10 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_4.addItem(spacerItem10)
+        self.btn_acceder = QtWidgets.QPushButton(self.groupBox)
+        self.btn_acceder.setMinimumSize(QtCore.QSize(121, 51))
+        self.btn_acceder.setStyleSheet("\n"
+"border-radius:24px;")
+        self.btn_acceder.setObjectName("btn_acceder")
+        self.horizontalLayout_4.addWidget(self.btn_acceder)
+        spacerItem11 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_4.addItem(spacerItem11)
+        self.verticalLayout.addLayout(self.horizontalLayout_4)
+        self.verticalLayout_3.addWidget(self.groupBox)
+        spacerItem12 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem12)
+        self.horizontalLayout.addLayout(self.verticalLayout_3)
+        spacerItem13 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem13)
+        self.verticalLayout_4.addLayout(self.horizontalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -84,8 +189,9 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.btn_acceder.setText(_translate("MainWindow", "Ingresar"))
-        self.label_3.setText(_translate("MainWindow", "Login"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Inicio de Sesión"))
+        self.label_4.setText(_translate("MainWindow", "Manejo de Inventario"))
+        self.groupBox.setTitle(_translate("MainWindow", "Iniciar Sesión"))
         self.label.setText(_translate("MainWindow", "Usuario"))
         self.label_2.setText(_translate("MainWindow", "Contraseña"))
+        self.btn_acceder.setText(_translate("MainWindow", "Ingresar"))
