@@ -66,6 +66,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         # dirigir a la pagina de  gestion de usuarios
         self.bt_config_usser.clicked.connect(self.verifyAdmin)
         # pagina de gestion de ver inventario en el menu principal
+        self.pushButton_aggalInventario.clicked.connect(self.geestInventView)
         self.btn_pagePrincipal.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_principal) )
         self.btn_page_em.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_EquiposMaquinarias) )
         self.bt_page_hm.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_herramientas_manuales) )
@@ -73,36 +74,13 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         #metodos relacionados a equipos y maquinarias
         self.bt_reload.clicked.connect(self.reloaddataEM)
         self.reloaddataEM()
-        self.btn_edit_EM.clicked.connect(self.editar_em)
-        self.btn_delete_EM.clicked.connect(self.eliminar_em)
-        self.btn_agg_EM.clicked.connect(self.agregarEM)
-        self.btn_buscarEMagg.clicked.connect(self.busquedaEM)
-        self.tableWidget_aggEM.cellClicked.connect(self.llenar_lineeditsEM)
-        self.btn_limpiarEMagg.clicked.connect(self.limpiarEM)
-        
-        
-        self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditsPDidos)
         
         #metodos relacionados a herramientas manuales
-        self.btn_buscarHM.clicked.connect(self.busquedaHM)
-        self.btn_aggHM.clicked.connect(self.agregagrHM)
-        self.bt_reload_2.clicked.connect(self.reloaddataHM)
-        self.tableWidget_aggHM.cellClicked.connect(self.llenar_lineeditsHM)
-        self.btn_editHM.clicked.connect(self.editar_hm)
-        self.btn_limpiarHM.clicked.connect(self.limpiarHM)
-        self.btn_deleteHM.clicked.connect(self.deleteHM)
         self.reloaddataHM()
-        
+        self.bt_reload_2.clicked.connect(self.reloaddataHM)
         #metodos relacionados a consumibles
         self.bt_reload_3.clicked.connect(self.reloaddataC)
         self.reloaddataC()
-        self.btn_buscar_ConsAgg.clicked.connect(self.busquedacons)
-        self.btn_agg_ConsAgg.clicked.connect(self.agregagrCons)
-        self.btn_edit_ConsAgg.clicked.connect(self.editarCons)
-        self.btn_delete_ConsAgg.clicked.connect(self.deleteCons)
-        self.btn_limpiar_ConsAgg.clicked.connect(self.limpiarCons)
-        self.tableWidget_AggCons.cellClicked.connect(self.llenar_lineeditsCons)
-        
         #metodos de Pedidos:
         self.btn_generarPedidos.clicked.connect( lambda:self.stackedWidget_pedidos.setCurrentWidget(self.page_generarPedidos) )
         self.btn_visualizarPedidos.clicked.connect(lambda:self.stackedWidget_pedidos.setCurrentWidget(self.page_VisualizaPedidos))
@@ -112,8 +90,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_limpiarCampos_pedid.clicked.connect(self.limpiar_pedido)
         self.btn_editarPedido.clicked.connect(self.editar_pedido)
         self.btn_elimiarPedido_1.clicked.connect(self.eliminarPedido)
+        self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditsPDidos)
         #self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditspedidos)
-        
         #metodos de Salidas:
         self.btn_generarSalidas.clicked.connect( lambda:self.stackedWidget_salidas.setCurrentWidget(self.page_GenerarSalidas) )
         self.btn_visualizarSalidas.clicked.connect(lambda:self.stackedWidget_salidas.setCurrentWidget(self.page_Visualizar_salidas))
@@ -121,12 +99,11 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_guardar_salida.clicked.connect(self.guardarResponsable_salida)
         self.btn_limpiarsalida.clicked.connect(self.limpiar_salida)
         self.btn_editarSalida.clicked.connect(self.editar_salida)
-        
         #busqueda principal
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
         #filtrar Contenido Segun el estado
         self.btn_filtrarEstado.clicked.connect(self.filtrarporestado)
-        self.filtrarporestado()
+        #self.filtrarporestado()
         #filtrar por cantidad baja cantidad en inventario
         self.btn_actualizarTablabajaExist.clicked.connect(self.filtrar_bajaCantidad)
         
@@ -141,6 +118,12 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         Usuario = Users(admin=self.admin, widget=widget, user_name=self.user_name)
         widget.addWidget(Usuario)
         widget.setCurrentIndex(widget.currentIndex() + 1)
+        
+    def geestInventView(self):
+        GestionarInvent = gestionInventario(admin=self.admin, widget=widget, user_name=self.user_name)
+        widget.addWidget(GestionarInvent)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
+
         
     ### BUSQUEDA PRINCIPAL EN LA PAGINa GENERAL ###
     
@@ -165,7 +148,6 @@ class MenuPrincipal(QtWidgets.QMainWindow):
 
             # Configurar la tabla con los datos obtenidos
             self.tabla_resultados.setRowCount(len(data_total))
-            #self.tabla_resultados.setColumnCount(7)
 
             for row, row_data in enumerate(data_total):
                 for col, value in enumerate(row_data):
@@ -196,20 +178,19 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor.execute(query_herramientas, (filtro,))
             data_herramientas = cursor.fetchall()
             
-            data_total = data_herramientas + data_equipos
-            
             # Establecer el número de filas y columnas en la tabla
-            self.tableWidget_Estado_EM_HM.setRowCount(len(data_total))
-            #self.tableWidget_Estado_EM_HM.setColumnCount(7)
+            self.tableWidget_Estado_HM.setRowCount(len(data_herramientas))
+            self.tableWidget_Estado_EM.setRowCount(len(data_equipos))
             
-            # Llenar la tabla con los datos recuperados
-            for row, row_data in enumerate(data_total):
+            # Llenar las tablas con los datos recuperados
+            for row, row_data in enumerate(data_equipos):
                 for col, value in enumerate(row_data):
                     item = QTableWidgetItem(str(value))
-                    self.tableWidget_Estado_EM_HM.setItem(row, col, item)
-            #print("Data Equipos:", data_equipos)
-            #print("Data Herramientas:", data_herramientas)
-            #print("Data Total:", data_total)
+                    self.tableWidget_Estado_EM.setItem(row, col, item)
+            for row, row_data in enumerate(data_herramientas):
+                for col, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    self.tableWidget_Estado_HM.setItem(row, col, item)
             conexion.close()
         except Exception as e:
             # Mostrar un mensaje de error en caso de excepción
@@ -246,8 +227,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                         item.setBackground(QBrush(QColor(255, 0, 0)))  # Fondo rojo
 
   
-    ### EQUIPOS Y MAQUINARIAS ###
-    
+    ### EQUIPOS Y MAQUINARIAS ###  
     #mostrar datos en la tabla de reportes de Equipos y maquinarias
     def reloaddataEM(self):
             try:
@@ -267,172 +247,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             except Exception as e:
                 QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
     
-    #buscar equipos y maquinarias en la pagina de ingresos
-    def busquedaEM(self):
-        busqueda = self.lineEdit_busqueda_EM.text()
-        try:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            # Consultas a la base de datos
-            
-            cursor.execute("SELECT * FROM EquiposyMaquinarias WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
-            data_equipos = cursor.fetchall()
-
-            # Combinar los resultados en una lista
-            data_total = data_equipos
-
-            # Configurar la tabla con los datos obtenidos
-            self.tableWidget_aggEM.setRowCount(len(data_total))
-            self.tableWidget_aggEM.setColumnCount(7)
-
-            for row, row_data in enumerate(data_total):
-                for col, value in enumerate(row_data):
-                    item = QTableWidgetItem(str(value))
-                    self.tableWidget_aggEM.setItem(row, col, item)
-
-            conexion.close()
-        except Exception as e:
-            # Mostrar un mensaje de error en caso de excepción
-            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}") 
-            
-    #agregar equipos y maquinarias en la tabla de ingresos                  
-    def agregarEM(self):
-       
-        codigo = self.txt_codigo_EM_2.text()
-        # Realizar una verificación para evitar registros duplicados
-        if self.verificar_existencia_codigo(codigo):
-            QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
-            return
-
-        # Resto del código para insertar el nuevo registro
-        serial = self.txt_serial_EM_2.text()
-        descripcion = self.txt_descrip_EM_2.text()
-        notas = self.txt_notas_EM_2.text()
-        fech_ult_mant = self.dateEdit_aggEM.date().toString(Qt.ISODate)
-        fech_entr = self.dateEdit_aggEMultMant.date().toString(Qt.ISODate)
-        estado = self.comboBox_aggEM.currentText()
-
-        if (not codigo
-            or not serial
-            or not descripcion
-            or not notas
-            or not fech_ult_mant
-            or not fech_entr
-            or not estado
-            ):
-            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
-            return
-        else:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            query = "INSERT INTO EquiposyMaquinarias (Codigo, Serial, Descripcion, Estado, Fecha_de_ingreso, Fecha_de_UltimoMantenimiento, Notas) VALUES (?, ?, ?, ?, ?, ?, ?)"
-
-            cursor.execute(query, (codigo, serial, descripcion, estado, fech_entr, fech_ult_mant, notas))
-
-            conexion.commit()
-            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
-
-    def verificar_existencia_codigo(self, codigo):
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
-        query = "SELECT COUNT(*) FROM EquiposyMaquinarias WHERE Codigo = ?"
-        cursor.execute(query, (codigo,))
-        count = cursor.fetchone()[0]
-        conexion.close()
-        return count > 0
-    
-    #llenar los lineedits de acuerdo a los datos seleccionados en la tabla
-    def llenar_lineeditsEM(self, row, col):
-        # Obtener datos de la fila seleccionada
-        codigo = self.tableWidget_aggEM.item(row, 0).text()
-        serial = self.tableWidget_aggEM.item(row, 1).text()
-        descripcion = self.tableWidget_aggEM.item(row, 2).text()
-        estado = self.tableWidget_aggEM.item(row, 3).text()
-        fech_entr = self.tableWidget_aggEM.item(row, 4).text()
-        fech_ult_mant = self.tableWidget_aggEM.item(row, 5).text()
-        notas = self.tableWidget_aggEM.item(row, 6).text()
-
-        # Llenar LineEdits con los datos
-        self.txt_codigo_EM_2.setText(codigo)
-        self.txt_serial_EM_2.setText(serial)
-        self.txt_descrip_EM_2.setText(descripcion)
-        self.txt_notas_EM_2.setText(notas)
-
-        # Configurar las fechas y el estado
-        self.dateEdit_aggEM.setDate(QDate.fromString(fech_ult_mant, Qt.ISODate))
-        self.dateEdit_aggEMultMant.setDate(QDate.fromString(fech_entr, Qt.ISODate))
-        index = self.comboBox_aggEM.findText(estado)
-        if index >= 0:
-            self.comboBox_aggEM.setCurrentIndex(index)
-        self.btn_agg_EM.setEnabled(False)
-        self.txt_codigo_EM_2.setReadOnly(True)
-            
-    #limpiar los lineedits y entradas de datos
-    def limpiarEM(self):
-        self.txt_codigo_EM_2.clear()
-        self.txt_serial_EM_2.clear()
-        self.txt_descrip_EM_2.clear()
-        self.txt_notas_EM_2.clear()
-        self.btn_agg_EM.setEnabled(True)
-        self.txt_codigo_EM_2.setReadOnly(False)
-    
-    #editar los equipos y maquinarias
-    def editar_em(self):
-        # Obtener el código original antes de la edición
-        codigo_original = self.txt_codigo_EM_2.text()
-
-    # Obtener los valores de los LineEdits
-        codigo = self.txt_codigo_EM_2.text()
-        serial = self.txt_serial_EM_2.text()
-        descripcion = self.txt_descrip_EM_2.text()
-        notas = self.txt_notas_EM_2.text()
-        fech_ult_mant = self.dateEdit_aggEM.date().toString(Qt.ISODate)
-        fech_entr = self.dateEdit_aggEMultMant.date().toString(Qt.ISODate)
-        estado = self.comboBox_aggEM.currentText()
-
-    # Realizar la actualización en la base de datos usando los valores obtenidos
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
-        query = """
-        UPDATE EquiposyMaquinarias
-        SET
-            Codigo = ?,
-            Serial = ?,
-            Descripcion = ?,
-            Estado = ?,
-            Fecha_de_ingreso = ?,
-            Fecha_de_UltimoMantenimiento = ?,
-            Notas = ?
-        WHERE Codigo = ?;
-        """
-
-        cursor.execute(query, (codigo, serial, descripcion, estado, fech_entr, fech_ult_mant, notas, codigo_original))
-
-        conexion.commit()
-        QMessageBox.information(self, "Exito", "Los datos se actualizaron correctamente")
-        
-    #eliminar los equipos y maquinarias    
-    def eliminar_em(self):
-        # Obtener el código del producto a eliminar
-        codigo = self.txt_codigo_EM_2.text()
-
-        # Realizar la eliminación en la base de datos usando el código obtenido
-        # (similar a tu función agregarEM pero utilizando una sentencia DELETE)
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
-
-        query = """
-            DELETE FROM EquiposyMaquinarias
-            WHERE Codigo = ?;
-        """
-
-        cursor.execute(query, (codigo,))
-
-        conexion.commit()
-        QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
-    
-    ### HERRAMIENTAS MANUALES ###
-    
+    ### HERRAMIENTAS MANUALES ###   
     #mostrar datos en la tabla de herramientass manuales    
     def reloaddataHM(self):
             try:
@@ -452,177 +267,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             except Exception as e:
                 QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
                 
-    #busqueda de heramientas manuales en la pagina deingresos
-    def busquedaHM(self):
-        busqueda = self.lineEdit_busqueda_HM.text()
-        try:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            # Consultas a la base de datos
-            
-            cursor.execute("SELECT * FROM HerramientasManuales WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
-            data_herramientass = cursor.fetchall()
-
-            # Combinar los resultados en una lista
-            data_total = data_herramientass
-
-            # Configurar la tabla con los datos obtenidos
-            self.tableWidget_aggHM.setRowCount(len(data_total))
-            self.tableWidget_aggHM.setColumnCount(7)
-
-            for row, row_data in enumerate(data_total):
-                for col, value in enumerate(row_data):
-                    item = QTableWidgetItem(str(value))
-                    self.tableWidget_aggHM.setItem(row, col, item)
-
-            conexion.close()
-        except Exception as e:
-            # Mostrar un mensaje de error en caso de excepción
-            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}") 
-    
-    #metodo de agregar herramientas en la pagiande ingresos
-    def agregagrHM(self):
-        codigo_base = self.txt_codigo_HM.text()
-        cantidad = self.txt_cant_HM.text()
-
-        # Validaciones para la cantidad
-        try:
-            cantidad = int(cantidad)
-            if cantidad <= 0:
-                raise ValueError
-        except ValueError:
-            QMessageBox.warning(self, "Error", "La cantidad debe ser un número entero positivo.")
-            return
-
-        for i in range(1, cantidad + 1):
-            codigo = f"{self.agregar_prefijo_ysr(codigo_base)}{i}"
-
-            # Realizar una verificación para evitar registros duplicados
-            if self.verificar_existencia_codigo_hm(codigo):
-                QMessageBox.warning(self, "Error", f"Ya existe un registro con el código {codigo}.")
-                return
-
-            # Resto del código para insertar el nuevo registro
-            descripcion = self.txt_descrip_HM.text()
-            estado = self.comboBox_agg_HM.currentText()
-            notas = self.txt_Notas_aggHM.text()
-            fecha_ingreso = self.calendar_ingresoHM_fechaIngreso.selectedDate()
-            fecha_formato_cadena = fecha_ingreso.toString("yyyy-MM-dd")
-
-            if (not codigo or not descripcion or not estado or not fecha_ingreso or not notas):
-                QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
-                return
-
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            query = "INSERT INTO HerramientasManuales (Codigo, Descripcion, Cantidad, Estado, FechaIngreso, Notas) VALUES (?, ?, 1, ?, ?, ?)"
-
-            cursor.execute(query, (codigo, descripcion, estado, fecha_formato_cadena, notas))
-
-            conexion.commit()
-
-        QMessageBox.information(self, "Éxito", "Los datos se almacenaron correctamente")
-    def agregar_prefijo_ysr(self, codigo):
-        if codigo and not codigo.startswith("ysr-"):
-            return f"ysr-{codigo}"
-        return codigo
-    def verificar_existencia_codigo_hm(self, codigo):
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
-        query = "SELECT COUNT(*) FROM HerramientasManuales WHERE Codigo = ?"
-        cursor.execute(query, (codigo,))
-        count = cursor.fetchone()[0]
-        conexion.close()
-        return count > 0
-
-            
-    #llenar los lineedits con los datos de la celda clickeada
-    def llenar_lineeditsHM(self, row, col):
-        # Obtener datos de la fila seleccionada
-        codigo = self.tableWidget_aggHM.item(row, 0).text()
-        descripcion = self.tableWidget_aggHM.item(row, 1).text()
-        cantidad = self.tableWidget_aggHM.item(row, 2).text()
-        estado = self.tableWidget_aggHM.item(row, 3).text()
-        notas = self.tableWidget_aggHM.item(row, 5).text()
-        # Llenar LineEdits con los datos
-        self.txt_codigo_HM.setText(codigo)
-        self.txt_cant_HM.setText(cantidad)
-        self.txt_descrip_HM.setText(descripcion)
-        self.txt_Notas_aggHM.setText(notas)
-        
-        # Configurar las fechas y el estado
-        
-        # Configurar la fecha y el estado
-        # AJUSTE DE FORMATO DE FECHA
-        fecha_str = self.tableWidget_aggHM.item(row, 4).text()
-        fecha = QDate.fromString(fecha_str, 'yyyy-MM-dd')
-        self.calendar_ingresoHM_fechaIngreso.setSelectedDate(fecha)
-        
-        index = self.comboBox_agg_HM.findText(estado)
-        if index >= 0:
-            self.comboBox_agg_HM.setCurrentIndex(index)
-            
-        self.btn_aggHM.setEnabled(False)
-        self.txt_codigo_HM.setReadOnly(True)
-            
-    #editar y eliminar herramientass manuales
-    def editar_hm(self):
-    # Obtener los valores de los LineEdits
-        codigo = self.txt_codigo_HM.text()
-        descripcion = self.txt_descrip_HM.text()
-        cantidad = self.txt_cant_HM.text()
-        estado = self.comboBox_agg_HM.currentText()
-        notas = self.txt_Notas_aggHM.text()
-        fechaingreso = self.calendar_ingresoHM_fechaIngreso.selectedDate()
-        fecha_formato_cadena = fechaingreso.toString("yyyy-MM-dd")
-        
-        # Realizar la actualización en la base de datos usando los valores obtenidos
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
-        query = """
-        UPDATE HerramientasManuales
-        SET
-            Codigo = ?,
-            Descripcion = ?,
-            Cantidad = ?,
-            Estado = ?,
-            FechaIngreso = ?,
-            Notas = ?
-        WHERE Codigo = ?;
-        """
-
-        cursor.execute(query, (codigo, descripcion, cantidad, estado, fecha_formato_cadena, notas, codigo))
-
-        conexion.commit()
-        QMessageBox.information(self, "Exito", "Los datos se actualizaron correctamente")        
-    def deleteHM(self):  
-        # Obtener el código del producto a eliminar
-        codigo = self.txt_codigo_HM.text()
-        # Realizar la eliminación en la base de datos usando el código obtenido
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
-
-        query = """
-            DELETE FROM HerramientasManuales
-            WHERE Codigo = ?;
-        """
-
-        cursor.execute(query, (codigo,))
-
-        conexion.commit()
-        QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
-    
-    #limpiar campos para habilitar el boton de agregar   
-    def limpiarHM(self):
-        self.txt_codigo_HM.clear()
-        self.txt_descrip_HM.clear()
-        self.txt_cant_HM.clear()
-        self.txt_Notas_aggHM.clear()
-        self.btn_aggHM.setEnabled(True)
-        self.txt_codigo_HM.setReadOnly(False)
-          
-    ### CONSUMIBLES ###
-    
+    ### CONSUMIBLES ###   
     # mostrar datos en la tabla de reportes de consumibles
     def reloaddataC(self):
             try:
@@ -642,197 +287,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             except Exception as e:
                 QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
     
-    # busca consumibles en la pagina de agregar consumibles
-    def busquedacons(self):
-        busqueda = self.lineEdit_busqueda_C.text()
-        try:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            # Consultas a la base de datos
-            
-            cursor.execute("SELECT * FROM consumibles WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
-            data_consumibless = cursor.fetchall()
-
-            # Combinar los resultados en una lista
-            data_total = data_consumibless
-
-            # Configurar la tabla con los datos obtenidos
-            self.tableWidget_AggCons.setRowCount(len(data_total))
-            #self.tableWidget_AggCons.setColumnCount(7)
-
-            for row, row_data in enumerate(data_total):
-                for col, value in enumerate(row_data):
-                    item = QTableWidgetItem(str(value))
-                    self.tableWidget_AggCons.setItem(row, col, item)
-
-            conexion.close()
-        except Exception as e:
-            # Mostrar un mensaje de error en caso de excepción
-            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}") 
-    # agregar consumibles
-    def agregagrCons(self):
-        codigo = self.txt_codigo_consAgg.text()
-       #reaizar verificacion para que no se pueda insertar letras en el campo de cantidad
-        try:
-            cantidad = int(cantidad)
-            if cantidad <= 0:
-                raise ValueError
-        except ValueError:
-            QMessageBox.warning(self, "Error", "La cantidad debe ser un número entero positivo.")
-            return
-         # Realizar una verificación para evitar registros duplicados
-        if self.verificar_existencia_codigo_consumibles(codigo):
-            QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
-            return
-
-        # Resto del código para insertar el nuevo registro
-        descripcion = self.txt_descrip_consAgg.text()
-        uni_medida = self.txt_uni_medConsagg.text()
-        cantidad = self.txt_cant_ConsAgg.text()
-        fecha_ingreso = self.calendar_ingresodecons.selectedDate()
-        fecha_formato_cadena = fecha_ingreso.toString("yyyy-MM-dd")
-        limite_reorden = self.txt_limite_reorden_AGgCons.text()
-        notas = self.txtbox_notasAggCons.text()
-
-        codigo = f"{self.agregar_prefijo_ysr(codigo)}"
-        if (not codigo
-            or not descripcion
-            or not uni_medida
-            or not cantidad
-            or not fecha_formato_cadena
-            or not limite_reorden
-            or not notas
-            ):
-            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
-            return
-        else:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            query = """
-            INSERT INTO consumibles (Codigo, Descripcion, Unidad_de_medida, Cantidad, Fecha_de_entrada, Llimite_de_reorden, Notas)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """
-
-            cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fecha_formato_cadena, limite_reorden, notas))
-
-            conexion.commit()
-            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
-    # agregar el prefijo de "ysr-" al codigo en caso de que no lo tenga
-    def agregar_prefijo_ysr(self, codigo):
-        if codigo and not codigo.startswith("ysr-"):
-            return f"ysr-{codigo}"
-        return codigo
-    # Verificar exixtencia de consumibles para evitar resgistrar dos consumibles con el mismo codigo
-    def verificar_existencia_codigo_consumibles(self, codigo):
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
-        query = "SELECT COUNT(*) FROM consumibles WHERE Codigo = ?"
-        cursor.execute(query, (codigo,))
-        count = cursor.fetchone()[0]
-        conexion.close()
-        return count > 0
-    
-    # llenar los lineedits con los valores de la celdda seleccionada    
-    def llenar_lineeditsCons(self, row, col):
-        # Obtener datos de la fila seleccionada
-        codigo = self.tableWidget_AggCons.item(row, 0).text()
-        descripcion = self.tableWidget_AggCons.item(row, 1).text()
-        uni_medida = self.tableWidget_AggCons.item(row, 2).text()
-        cantidad = self.tableWidget_AggCons.item(row, 3).text()
-        limite_reorden = self.tableWidget_AggCons.item(row, 5).text()
-        notas = self.tableWidget_AggCons.item(row, 6).text()
-
-        fech_entrada = self.tableWidget_AggCons.item(row, 4).text()
-        fecha = QDate.fromString(fech_entrada, 'yyyy-MM-dd')
-        self.calendar_ingresodecons.setSelectedDate(fecha)
-        
-        # Llenar LineEdits con los datos
-        self.txt_codigo_consAgg.setText(codigo)
-        self.txt_descrip_consAgg.setText(descripcion)
-        self.txt_uni_medConsagg.setText(uni_medida)
-        self.txt_stock_ConsAgg.setText(cantidad)
-        self.txt_limite_reorden_AGgCons.setText(limite_reorden)
-        self.txtbox_notasAggCons.setText(notas)
-        self.btn_agg_ConsAgg.setEnabled(False)
-        self.txt_codigo_consAgg.setReadOnly(True)
-        self.txt_stock_ConsAgg.setREadOnly(True)
-       
-    #editar y eliminar consumibles
-    def editarCons(self):
-        # Obtener los valores de los LineEdits
-        codigo = self.txt_codigo_consAgg.text()
-        descripcion = self.txt_descrip_consAgg.text()
-        uni_medida = self.txt_uni_medConsagg.text()
-        cantidad = self.txt_cant_ConsAgg.text()
-        try:
-            cantidad = int(cantidad)
-            if cantidad <= 0:
-                raise ValueError
-        except ValueError:
-            QMessageBox.warning(self, "Error", "La cantidad debe ser un número entero positivo.")
-            return
-        fechaingreso = self.calendar_ingresoHM_fechaIngreso.selectedDate()
-        fecha_formato_cadena = fechaingreso.toString("yyyy-MM-dd")
-        limite_reorden = self.txt_limite_reorden_AGgCons.text()
-        notas = self.txtbox_notasAggCons.text()
-        
-        # Realizar la actualización en la base de datos usando los valores obtenidos
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
-        query = """
-        UPDATE consumibles
-        SET
-            Codigo = ?,
-            Descripcion = ?,
-            Unidad_de_medida = ?,
-            Cantidad = ?,
-            Fecha_de_entrada = ?,
-            Llimite_de_reorden = ?,
-            Notas = ?
-        WHERE Codigo = ?;
-    """
-
-        cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fecha_formato_cadena, limite_reorden, notas, codigo))
-
-        conexion.commit()
-        QMessageBox.information(self,"Exito","Los datos se actualizaron correctamente")
-    def deleteCons(self):  
-        # Obtener el código del producto a eliminar
-        codigo = self.txt_codigo_consAgg.text()
-        # Realizar la eliminación en la base de datos usando el código obtenido
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
-
-        query = """
-            DELETE FROM consumibles
-            WHERE Codigo = ?;
-        """
-
-        cursor.execute(query, (codigo,))
-
-        conexion.commit()
-        QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
-    
-    #limpiar campos para habilitar el boton de agregar   
-    def limpiarCons(self):
-        self.txt_codigo_consAgg.clear()
-        self.txt_descrip_consAgg.clear()
-        self.txt_uni_medConsagg.clear()
-        self.txt_cant_ConsAgg.clear()
-        self.txt_limite_reorden_AGgCons.clear()
-        self.txtbox_notasAggCons.clear()
-        self.txt_stock_ConsAgg.clear()
-        self.btn_agg_ConsAgg.setEnabled(True)
-        self.txt_codigo_consAgg.setReadOnly(False)
-        self.tablapedidocrear.setRowCount(0)
-        self.tablapedidocrear.clearContents()
-    
     ### PEDIDOS ###
    
-   
-    #def llenar_lineeditspedidos(self, row, col):
-        # Obtener datos de la fila seleccionada
-        
     def eliminarPedido(self):
         nombrePedido = self.lineEdit_nombreP.text()
         try:
@@ -916,8 +372,6 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                 self.cargar_pedido()
             if not resultado:
                 QMessageBox.information(self,"Error","No hay pedido actual con ese numero ")
-                
-    
     def cargar_pedido(self):
         NumeroPedido = self.lineEdit_busqueda_pedido.text()
         if not NumeroPedido:
@@ -939,8 +393,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                 for row, row_data in enumerate(resultado):
                     for col, value in enumerate(row_data):
                         item = QTableWidgetItem(str(value))
-                        self.tablapedidocrear.setItem(row, col, item)
-                
+                        self.tablapedidocrear.setItem(row, col, item)             
     def agregar_pedido(self):
         
         numerodepedido = self.lineEdit_numeroPedido.text()
@@ -969,8 +422,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor.execute(query, (numerodepedido, nombreproyecto, responsableretiro, telefonresponsable))
 
             conexion.commit()
-            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
-            
+            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")           
     def verificar_existencia_numeroPedido(self, numerodepedido):
             conexion = sqlite3.connect("./database/db.db")
             cursor = conexion.cursor()
@@ -978,8 +430,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor.execute(query, (numerodepedido,))
             count = cursor.fetchone()[0]
             conexion.close()
-            return count > 0
-     
+            return count > 0    
     def agregarprod_pedido(self):
         
         numerodepedido = self.lineEdit_numeroPedido.text()
@@ -1003,7 +454,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             conexion.commit()
             QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
         
-    #Metodos para salidas:
+    ### SALIDAS ###
+    
     def editar_salida(self):
         numeroSalida = self.txt_salidanumero.text()
         if not numeroSalida:
@@ -1047,8 +499,6 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor.execute("INSERT INTO SalidaResponsable (Nombre_Responsable,Telefono,Cedula,Nombre_Proyecto) VALUES (?,?,?,?)",(responsableProyecto,telefonoResponsable,cedulaResponsable,nombreProyecto))
             conexion.commit()
             QMessageBox.information(self,"Almacenado correctamente","Los datos fueron guardados correctamente")
-            
-            
     def buscar_salida(self):
         numeroSalida = self.lineEdit_busqueda_salida.text()
         if not numeroSalida:
@@ -1069,18 +519,580 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             if not resultado:
                 QMessageBox.information(self,"Error","No hay salida actual con ese numero ")
                 
-    #METODOS DE LA CLASE DE MENU PRINCIPAL
+# otros métodos de la clase MenuPrincipal
     
     #volver al inicio
     def backLogin(self):
         ingreso_usuario.show()
         ingreso_usuario.txt_user.clear()
         ingreso_usuario.txt_password.clear()
-        ingreso_usuario.showFullScreen()
+        #ingreso_usuario.showFullScreen()
         self.hide()
-    # otros métodos de la clase MenuPrincipal
+
+
+#### CLASE DE GESTION DE INVENTARIO ###
+class gestionInventario(QtWidgets.QMainWindow):
+    def __init__(self, admin, widget, user_name):
+        super(gestionInventario, self).__init__()
+        uic.loadUi("./ui/agginventario.ui", self)
+        self.admin = admin
+        self.user_name = user_name
+        self.widget = widget
+        self.setWindowTitle("Gestionar Inventario")
+        self.btn_EM.clicked.connect(lambda:self.stackedWidget.setCurrentWidget(self.page_equipos))
+        self.btn_Herr.clicked.connect(lambda:self.stackedWidget.setCurrentWidget(self.page_herramientas))
+        self.btn_cons.clicked.connect(lambda:self.stackedWidget.setCurrentWidget(self.page_consumibles))
+        # METODOS DE CONSUMIBLES 
+        self.btn_buscar_ConsAgg.clicked.connect(self.busquedacons)
+        self.btn_agg_ConsAgg.clicked.connect(self.agregagrCons)
+        self.btn_edit_ConsAgg.clicked.connect(self.editarCons)
+        self.btn_delete_ConsAgg.clicked.connect(self.deleteCons)
+        self.btn_limpiar_ConsAgg.clicked.connect(self.limpiarCons)
+        self.tableWidget_AggCons.cellClicked.connect(self.llenar_lineeditsCons)
+        # METODOS DE HERRAMIENTAS
+        self.btn_buscarHM.clicked.connect(self.busquedaHM)
+        self.btn_aggHM.clicked.connect(self.agregagrHM)
+        self.tableWidget_aggHM.cellClicked.connect(self.llenar_lineeditsHM)
+        self.btn_editHM.clicked.connect(self.editar_hm)
+        self.btn_limpiarHM.clicked.connect(self.limpiarHM)
+        self.btn_deleteHM.clicked.connect(self.deleteHM)
+        # METODOS DE EQUIPOS Y MAQUINARIAS
+        self.btn_edit_EM.clicked.connect(self.editar_em)
+        self.btn_delete_EM.clicked.connect(self.eliminar_em)
+        self.btn_agg_EM.clicked.connect(self.agregarEM)
+        self.btn_buscarEMagg.clicked.connect(self.busquedaEM)
+        self.tableWidget_aggEM.cellClicked.connect(self.llenar_lineeditsEM)
+        self.btn_limpiarEMagg.clicked.connect(self.limpiarEM)
+        
+    ### CONSUMIBLES ###
     
-# clase Configuracionn de usuarios
+    # busca consumibles en la pagina de agregar consumibles
+    def busquedacons(self):
+        busqueda = self.lineEdit_busqueda_C.text()
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            # Consultas a la base de datos
+            
+            cursor.execute("SELECT * FROM consumibles WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
+            data_consumibless = cursor.fetchall()
+
+            # Combinar los resultados en una lista
+            data_total = data_consumibless
+
+            # Configurar la tabla con los datos obtenidos
+            self.tableWidget_AggCons.setRowCount(len(data_total))
+            #self.tableWidget_AggCons.setColumnCount(7)
+
+            for row, row_data in enumerate(data_total):
+                for col, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    self.tableWidget_AggCons.setItem(row, col, item)
+
+            conexion.close()
+        except Exception as e:
+            # Mostrar un mensaje de error en caso de excepción
+            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}") 
+    # agregar consumibles
+    def agregagrCons(self):
+        codigo = self.txt_codigo_consAgg.text()
+       #reaizar verificacion para que no se pueda insertar letras en el campo de cantidad
+        try:
+            #cantidad = int(cantidad)
+            cantidad = int(self.txt_cant_ConsAgg.text())
+            if cantidad <= 0:
+                raise ValueError
+        except ValueError:
+            QMessageBox.warning(self, "Error", "La cantidad debe ser un número entero positivo.")
+            return
+         # Realizar una verificación para evitar registros duplicados
+        if self.verificar_existencia_codigo_consumibles(codigo):
+            QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
+            return
+
+        # Resto del código para insertar el nuevo registro
+        descripcion = self.txt_descrip_consAgg.text()
+        uni_medida = self.txt_uni_medConsagg.text()
+        cantidad = self.txt_cant_ConsAgg.text()
+        fecha_ingreso = self.calendar_ingresodecons.selectedDate()
+        fecha_formato_cadena = fecha_ingreso.toString("yyyy-MM-dd")
+        limite_reorden = self.txt_limite_reorden_AGgCons.text()
+        notas = self.txtbox_notasAggCons.text()
+
+        codigo = f"{self.agregar_prefijo_ysr(codigo)}"
+        if (not codigo
+            or not descripcion
+            or not uni_medida
+            or not cantidad
+            or not fecha_formato_cadena
+            or not limite_reorden
+            or not notas
+            ):
+            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+            return
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            query = """
+            INSERT INTO consumibles (Codigo, Descripcion, Unidad_de_medida, Cantidad, Fecha_de_entrada, Llimite_de_reorden, Notas)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """
+
+            cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fecha_formato_cadena, limite_reorden, notas))
+
+            conexion.commit()
+            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
+    # agregar el prefijo de "ysr-" al codigo en caso de que no lo tenga
+    def agregar_prefijo_ysr(self, codigo):
+        if codigo and not codigo.startswith("ysr-"):
+            return f"ysr-{codigo}"
+        return codigo
+    # Verificar exixtencia de consumibles para evitar resgistrar dos consumibles con el mismo codigo
+    def verificar_existencia_codigo_consumibles(self, codigo):
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        query = "SELECT COUNT(*) FROM consumibles WHERE Codigo = ?"
+        cursor.execute(query, (codigo,))
+        count = cursor.fetchone()[0]
+        conexion.close()
+        return count > 0
+    # llenar los lineedits con los valores de la celdda seleccionada    
+    def llenar_lineeditsCons(self, row, col):
+        # Obtener datos de la fila seleccionada
+        codigo = self.tableWidget_AggCons.item(row, 0).text()
+        descripcion = self.tableWidget_AggCons.item(row, 1).text()
+        uni_medida = self.tableWidget_AggCons.item(row, 2).text()
+        cantidad = self.tableWidget_AggCons.item(row, 3).text()
+        limite_reorden = self.tableWidget_AggCons.item(row, 5).text()
+        notas = self.tableWidget_AggCons.item(row, 6).text()
+
+        fech_entrada = self.tableWidget_AggCons.item(row, 4).text()
+        fecha = QDate.fromString(fech_entrada, 'yyyy-MM-dd')
+        
+        self.calendar_ingresodecons.setSelectedDate(fecha)
+        
+        # Llenar LineEdits con los datos
+        self.txt_codigo_consAgg.setText(codigo)
+        self.txt_descrip_consAgg.setText(descripcion)
+        self.txt_uni_medConsagg.setText(uni_medida)
+        self.txt_stock_ConsAgg.setText(cantidad)
+        self.txt_limite_reorden_AGgCons.setText(limite_reorden)
+        self.txtbox_notasAggCons.setText(notas)
+        self.btn_agg_ConsAgg.setEnabled(False)
+        self.txt_codigo_consAgg.setReadOnly(True)
+        self.txt_stock_ConsAgg.setReadOnly(True)      
+    #editar y eliminar consumibles
+    def editarCons(self):
+        # Obtener los valores de los LineEdits
+        codigo = self.txt_codigo_consAgg.text()
+        descripcion = self.txt_descrip_consAgg.text()
+        uni_medida = self.txt_uni_medConsagg.text()
+        cantidad = self.txt_cant_ConsAgg.text()
+        try:
+            cantidad = int(cantidad)
+            if cantidad <= 0:
+                raise ValueError
+        except ValueError:
+            QMessageBox.warning(self, "Error", "La cantidad debe ser un número entero positivo.")
+            return
+        fechaingreso = self.calendar_ingresoHM_fechaIngreso.selectedDate()
+        fecha_formato_cadena = fechaingreso.toString("yyyy-MM-dd")
+        limite_reorden = self.txt_limite_reorden_AGgCons.text()
+        notas = self.txtbox_notasAggCons.text()
+        
+        # Realizar la actualización en la base de datos usando los valores obtenidos
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        query = """
+        UPDATE consumibles
+        SET
+            Codigo = ?,
+            Descripcion = ?,
+            Unidad_de_medida = ?,
+            Cantidad = ?,
+            Fecha_de_entrada = ?,
+            Llimite_de_reorden = ?,
+            Notas = ?
+        WHERE Codigo = ?;
+    """
+
+        cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fecha_formato_cadena, limite_reorden, notas, codigo))
+
+        conexion.commit()
+        QMessageBox.information(self,"Exito","Los datos se actualizaron correctamente")
+    def deleteCons(self):  
+        # Obtener el código del producto a eliminar
+        codigo = self.txt_codigo_consAgg.text()
+        # Realizar la eliminación en la base de datos usando el código obtenido
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+
+        query = """
+            DELETE FROM consumibles
+            WHERE Codigo = ?;
+        """
+
+        cursor.execute(query, (codigo,))
+
+        conexion.commit()
+        QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
+    #limpiar campos para habilitar el boton de agregar   
+    def limpiarCons(self):
+        self.txt_codigo_consAgg.clear()
+        self.txt_descrip_consAgg.clear()
+        self.txt_uni_medConsagg.clear()
+        self.txt_cant_ConsAgg.clear()
+        self.txt_limite_reorden_AGgCons.clear()
+        self.txtbox_notasAggCons.clear()
+        self.txt_stock_ConsAgg.clear()
+        self.btn_agg_ConsAgg.setEnabled(True)
+        self.txt_codigo_consAgg.setReadOnly(False)
+        
+   
+    ### HERRAMIENTAS ###
+    
+    #busqueda de heramientas manuales en la pagina deingresos
+    def busquedaHM(self):
+        busqueda = self.lineEdit_busqueda_HM.text()
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            # Consultas a la base de datos
+            
+            cursor.execute("SELECT * FROM HerramientasManuales WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
+            data_herramientass = cursor.fetchall()
+
+            # Combinar los resultados en una lista
+            data_total = data_herramientass
+
+            # Configurar la tabla con los datos obtenidos
+            self.tableWidget_aggHM.setRowCount(len(data_total))
+            self.tableWidget_aggHM.setColumnCount(7)
+
+            for row, row_data in enumerate(data_total):
+                for col, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    self.tableWidget_aggHM.setItem(row, col, item)
+
+            conexion.close()
+        except Exception as e:
+            # Mostrar un mensaje de error en caso de excepción
+            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}") 
+    #metodo de agregar herramientas en la pagiande ingresos
+    def agregagrHM(self):
+        codigo_base = self.txt_codigo_HM.text()
+        cantidad = self.txt_cant_HM.text()
+
+        # Validaciones para la cantidad
+        try:
+            cantidad = int(cantidad)
+            if cantidad <= 0:
+                raise ValueError
+        except ValueError:
+            QMessageBox.warning(self, "Error", "La cantidad debe ser un número entero positivo.")
+            return
+
+        for i in range(1, cantidad + 1):
+            codigo = f"{self.agregar_prefijo_ysr(codigo_base)}{i}"
+
+            # Realizar una verificación para evitar registros duplicados
+            if self.verificar_existencia_codigo_hm(codigo):
+                QMessageBox.warning(self, "Error", f"Ya existe un registro con el código {codigo}.")
+                return
+
+            # Resto del código para insertar el nuevo registro
+            descripcion = self.txt_descrip_HM.text()
+            estado = self.comboBox_agg_HM.currentText()
+            notas = self.txt_Notas_aggHM.text()
+            fecha_ingreso = self.calendar_ingresoHM_fechaIngreso.selectedDate()
+            fecha_formato_cadena = fecha_ingreso.toString("yyyy-MM-dd")
+
+            if (not codigo or not descripcion or not estado or not fecha_ingreso or not notas):
+                QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+                return
+
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            query = "INSERT INTO HerramientasManuales (Codigo, Descripcion, Cantidad, Estado, FechaIngreso, Notas) VALUES (?, ?, 1, ?, ?, ?)"
+
+            cursor.execute(query, (codigo, descripcion, estado, fecha_formato_cadena, notas))
+
+            conexion.commit()
+
+        QMessageBox.information(self, "Éxito", "Los datos se almacenaron correctamente")
+    def agregar_prefijo_ysr(self, codigo):
+        if codigo and not codigo.startswith("ysr-"):
+            return f"ysr-{codigo}"
+        return codigo
+    def verificar_existencia_codigo_hm(self, codigo):
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        query = "SELECT COUNT(*) FROM HerramientasManuales WHERE Codigo = ?"
+        cursor.execute(query, (codigo,))
+        count = cursor.fetchone()[0]
+        conexion.close()
+        return count > 0        
+    #llenar los lineedits con los datos de la celda clickeada
+    def llenar_lineeditsHM(self, row, col):
+        # Obtener datos de la fila seleccionada
+        codigo = self.tableWidget_aggHM.item(row, 0).text()
+        descripcion = self.tableWidget_aggHM.item(row, 1).text()
+        cantidad = self.tableWidget_aggHM.item(row, 2).text()
+        estado = self.tableWidget_aggHM.item(row, 3).text()
+        notas = self.tableWidget_aggHM.item(row, 5).text()
+        # Llenar LineEdits con los datos
+        self.txt_codigo_HM.setText(codigo)
+        self.txt_cant_HM.setText(cantidad)
+        self.txt_descrip_HM.setText(descripcion)
+        self.txt_Notas_aggHM.setText(notas)
+        
+        # Configurar las fechas y el estado
+        
+        # Configurar la fecha y el estado
+        # AJUSTE DE FORMATO DE FECHA
+        fecha_str = self.tableWidget_aggHM.item(row, 4).text()
+        fecha = QDate.fromString(fecha_str, 'yyyy-MM-dd')
+        self.calendar_ingresoHM_fechaIngreso.setSelectedDate(fecha)
+        
+        index = self.comboBox_agg_HM.findText(estado)
+        if index >= 0:
+            self.comboBox_agg_HM.setCurrentIndex(index)
+            
+        self.btn_aggHM.setEnabled(False)
+        self.txt_codigo_HM.setReadOnly(True)
+    #editar y eliminar herramientass manuales
+    def editar_hm(self):
+    # Obtener los valores de los LineEdits
+        codigo = self.txt_codigo_HM.text()
+        descripcion = self.txt_descrip_HM.text()
+        cantidad = self.txt_cant_HM.text()
+        estado = self.comboBox_agg_HM.currentText()
+        notas = self.txt_Notas_aggHM.text()
+        fechaingreso = self.calendar_ingresoHM_fechaIngreso.selectedDate()
+        fecha_formato_cadena = fechaingreso.toString("yyyy-MM-dd")
+        
+        # Realizar la actualización en la base de datos usando los valores obtenidos
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        query = """
+        UPDATE HerramientasManuales
+        SET
+            Codigo = ?,
+            Descripcion = ?,
+            Cantidad = ?,
+            Estado = ?,
+            FechaIngreso = ?,
+            Notas = ?
+        WHERE Codigo = ?;
+        """
+
+        cursor.execute(query, (codigo, descripcion, cantidad, estado, fecha_formato_cadena, notas, codigo))
+
+        conexion.commit()
+        QMessageBox.information(self, "Exito", "Los datos se actualizaron correctamente")        
+    def deleteHM(self):  
+        # Obtener el código del producto a eliminar
+        codigo = self.txt_codigo_HM.text()
+        # Realizar la eliminación en la base de datos usando el código obtenido
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+
+        query = """
+            DELETE FROM HerramientasManuales
+            WHERE Codigo = ?;
+        """
+
+        cursor.execute(query, (codigo,))
+
+        conexion.commit()
+        QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
+    #limpiar campos para habilitar el boton de agregar   
+    def limpiarHM(self):
+        self.txt_codigo_HM.clear()
+        self.txt_descrip_HM.clear()
+        self.txt_cant_HM.clear()
+        self.txt_Notas_aggHM.clear()
+        self.btn_aggHM.setEnabled(True)
+        self.txt_codigo_HM.setReadOnly(False)
+    
+    ### EQUIPOS Y MAQUINARIAS ###
+    
+    #buscar equipos y maquinarias en la pagina de ingresos
+    def busquedaEM(self):
+        busqueda = self.lineEdit_busqueda_EM.text()
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            # Consultas a la base de datos
+            
+            cursor.execute("SELECT * FROM EquiposyMaquinarias WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
+            data_equipos = cursor.fetchall()
+
+            # Combinar los resultados en una lista
+            data_total = data_equipos
+
+            # Configurar la tabla con los datos obtenidos
+            self.tableWidget_aggEM.setRowCount(len(data_total))
+            self.tableWidget_aggEM.setColumnCount(7)
+
+            for row, row_data in enumerate(data_total):
+                for col, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    self.tableWidget_aggEM.setItem(row, col, item)
+
+            conexion.close()
+        except Exception as e:
+            # Mostrar un mensaje de error en caso de excepción
+            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")          
+    #agregar equipos y maquinarias en la tabla de ingresos                  
+    def agregarEM(self):
+       
+        codigo = self.txt_codigo_EM_2.text()
+        # Realizar una verificación para evitar registros duplicados
+        if self.verificar_existencia_codigo(codigo):
+            QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
+            return
+
+        # Resto del código para insertar el nuevo registro
+        serial = self.txt_serial_EM_2.text()
+        descripcion = self.txt_descrip_EM_2.text()
+        notas = self.txt_notas_EM_2.text()
+        fecha_ingreso = self.calendarWidget_aggEM_ingreso.selectedDate()
+        fecha_formato_cadena_ing = fecha_ingreso.toString("yyyy-MM-dd")
+        fecha_ult_mant = self.calendarWidget_agg_fechultMant_em.selectedDate()
+        fecha_formato_cadena_um = fecha_ult_mant.toString("yyyy-MM-dd")
+        estado = self.comboBox_aggEM.currentText()
+
+        if (not codigo
+            or not serial
+            or not descripcion
+            or not notas
+            or not fecha_ult_mant
+            or not fecha_ingreso
+            or not estado
+            ):
+            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+            return
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            query = "INSERT INTO EquiposyMaquinarias (Codigo, Serial, Descripcion, Estado, Fecha_de_ingreso, Fecha_de_UltimoMantenimiento, Notas) VALUES (?, ?, ?, ?, ?, ?, ?)"
+
+            cursor.execute(query, (codigo, serial, descripcion, estado, fecha_formato_cadena_ing, fecha_formato_cadena_um, notas))
+
+            conexion.commit()
+            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
+    def verificar_existencia_codigo(self, codigo):
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        query = "SELECT COUNT(*) FROM EquiposyMaquinarias WHERE Codigo = ?"
+        cursor.execute(query, (codigo,))
+        count = cursor.fetchone()[0]
+        conexion.close()
+        return count > 0   
+    #llenar los lineedits de acuerdo a los datos seleccionados en la tabla
+    def llenar_lineeditsEM(self, row, col):
+        # Obtener datos de la fila seleccionada
+        codigo = self.tableWidget_aggEM.item(row, 0).text()
+        serial = self.tableWidget_aggEM.item(row, 1).text()
+        descripcion = self.tableWidget_aggEM.item(row, 2).text()
+        estado = self.tableWidget_aggEM.item(row, 3).text()
+        #fech_entr = self.tableWidget_aggEM.item(row, 4).text()
+        #fech_ult_mant = self.tableWidget_aggEM.item(row, 5).text()
+        notas = self.tableWidget_aggEM.item(row, 6).text()
+
+        # Llenar LineEdits con los datos
+        self.txt_codigo_EM_2.setText(codigo)
+        self.txt_serial_EM_2.setText(serial)
+        self.txt_descrip_EM_2.setText(descripcion)
+        self.txt_notas_EM_2.setText(notas)
+
+        # Configurar las fechas y el estado
+        #self.dateEdit_aggEM.setDate(QDate.fromString(fech_ult_mant, Qt.ISODate))
+        #self.dateEdit_aggEMultMant.setDate(QDate.fromString(fech_entr, Qt.ISODate))
+        
+        fecha_ing = self.tableWidget_aggEM.item(row, 4).text()
+        fecha = QDate.fromString(fecha_ing, 'yyyy-MM-dd')
+        self.calendarWidget_aggEM_ingreso.setSelectedDate(fecha)
+        
+        fecha_ult_mant= self.tableWidget_aggEM.item(row, 4).text()
+        fecha = QDate.fromString(fecha_ult_mant, 'yyyy-MM-dd')
+        self.calendarWidget_agg_fechultMant_em.setSelectedDate(fecha)
+        
+        index = self.comboBox_aggEM.findText(estado)
+        if index >= 0:
+            self.comboBox_aggEM.setCurrentIndex(index)
+        self.btn_agg_EM.setEnabled(False)
+        self.txt_codigo_EM_2.setReadOnly(True)         
+    #limpiar los lineedits y entradas de datos
+    def limpiarEM(self):
+        self.txt_codigo_EM_2.clear()
+        self.txt_serial_EM_2.clear()
+        self.txt_descrip_EM_2.clear()
+        self.txt_notas_EM_2.clear()
+        self.btn_agg_EM.setEnabled(True)
+        self.txt_codigo_EM_2.setReadOnly(False)   
+    #editar los equipos y maquinarias
+    def editar_em(self):
+        # Obtener el código original antes de la edición
+        codigo_original = self.txt_codigo_EM_2.text()
+
+    # Obtener los valores de los LineEdits
+        codigo = self.txt_codigo_EM_2.text()
+        serial = self.txt_serial_EM_2.text()
+        descripcion = self.txt_descrip_EM_2.text()
+        notas = self.txt_notas_EM_2.text()
+        
+        fecha_ingreso = self.calendarWidget_aggEM_ingreso.selectedDate()
+        fecha_formato_cadena_ing = fecha_ingreso.toString("yyyy-MM-dd")
+        fecha_ult_mant = self.calendarWidget_agg_fechultMant_em.selectedDate()
+        fecha_formato_cadena_um = fecha_ult_mant.toString("yyyy-MM-dd")
+        
+        #fech_ult_mant = self.dateEdit_aggEM.date().toString(Qt.ISODate)
+        #fech_entr = self.dateEdit_aggEMultMant.date().toString(Qt.ISODate)
+        estado = self.comboBox_aggEM.currentText()
+
+    # Realizar la actualización en la base de datos usando los valores obtenidos
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        query = """
+        UPDATE EquiposyMaquinarias
+        SET
+            Codigo = ?,
+            Serial = ?,
+            Descripcion = ?,
+            Estado = ?,
+            Fecha_de_ingreso = ?,
+            Fecha_de_UltimoMantenimiento = ?,
+            Notas = ?
+        WHERE Codigo = ?;
+        """
+
+        cursor.execute(query, (codigo, serial, descripcion, estado, fecha_formato_cadena_ing, fecha_formato_cadena_um, notas, codigo_original))
+
+        conexion.commit()
+        QMessageBox.information(self, "Exito", "Los datos se actualizaron correctamente")       
+    #eliminar los equipos y maquinarias    
+    def eliminar_em(self):
+        # Obtener el código del producto a eliminar
+        codigo = self.txt_codigo_EM_2.text()
+
+        # Realizar la eliminación en la base de datos usando el código obtenido
+        # (similar a tu función agregarEM pero utilizando una sentencia DELETE)
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+
+        query = """
+            DELETE FROM EquiposyMaquinarias
+            WHERE Codigo = ?;
+        """
+
+        cursor.execute(query, (codigo,))
+
+        conexion.commit()
+        QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
+
+#### CLASE DE GESTION DE USUARIOS ####
 class Users(QtWidgets.QMainWindow):
     def __init__(self, admin, widget ,user_name):
         super(Users, self).__init__()
@@ -1279,8 +1291,7 @@ class Users(QtWidgets.QMainWindow):
         self.widget.setCurrentIndex(0)
         self.hide()
 
-        
-   
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     widget = QtWidgets.QStackedWidget()
