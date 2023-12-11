@@ -1,9 +1,10 @@
 import sys
+import shutil
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QDate
 from PyQt5.QtGui import QBrush, QColor
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QLabel
+from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QLabel, QDialog,QVBoxLayout, QLineEdit, QPushButton, QFileDialog, QProgressDialog
 import sqlite3
 
 import os
@@ -57,31 +58,32 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         uic.loadUi("./ui/menu_principal.ui", self)
         self.admin = admin
         self.user_name = user_name
-        if self.admin == "True":
-           self.Label_nameUser.setText("Bienvenido Administrador")
+        if self.admin == "true":
+           self.Label_nameUser.setText(f"Bienvenido Administrador, {user_name}")
         else : 
             self.Label_nameUser.setText(f"Bievenido, {user_name} ")
         self.setWindowTitle("Manejo de Inventario")
         self.bt_salir.clicked.connect(self.backLogin)
         # dirigir a la pagina de  gestion de usuarios
         self.bt_config_usser.clicked.connect(self.verifyAdmin)
+        self.bt_BDD.clicked.connect(self.bddView)
         # pagina de gestion de ver inventario en el menu principal
         self.pushButton_aggalInventario.clicked.connect(self.geestInventView)
         self.btn_pagePrincipal.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_principal) )
         self.btn_page_em.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_EquiposMaquinarias) )
         self.bt_page_hm.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_herramientas_manuales) )
         self.btn_pageC.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_Consumibles) )
-        #metodos relacionados a equipos y maquinarias
+        # metodos relacionados a equipos y maquinarias
         self.bt_reload.clicked.connect(self.reloaddataEM)
         self.reloaddataEM()
         
-        #metodos relacionados a herramientas manuales
+        # metodos relacionados a herramientas manuales
         self.reloaddataHM()
         self.bt_reload_2.clicked.connect(self.reloaddataHM)
-        #metodos relacionados a consumibles
+        # metodos relacionados a consumibles
         self.bt_reload_3.clicked.connect(self.reloaddataC)
         self.reloaddataC()
-        #metodos de Pedidos:
+        # metodos de Pedidos:
         self.btn_generarPedidos.clicked.connect( lambda:self.stackedWidget_pedidos.setCurrentWidget(self.page_generarPedidos) )
         self.btn_visualizarPedidos.clicked.connect(lambda:self.stackedWidget_pedidos.setCurrentWidget(self.page_VisualizaPedidos))
         self.btn_guardar_pedid.clicked.connect(self.agregar_pedido)
@@ -91,14 +93,15 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_editarPedido.clicked.connect(self.editar_pedido)
         self.btn_elimiarPedido_1.clicked.connect(self.eliminarPedido)
         self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditsPDidos)
-        #self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditspedidos)
-        #metodos de Salidas:
+        # metodos de Salidas:
         self.btn_generarSalidas.clicked.connect( lambda:self.stackedWidget_salidas.setCurrentWidget(self.page_GenerarSalidas) )
         self.btn_visualizarSalidas.clicked.connect(lambda:self.stackedWidget_salidas.setCurrentWidget(self.page_Visualizar_salidas))
         self.bt_buscarsalida.clicked.connect(self.buscar_salida)
         self.btn_guardar_salida.clicked.connect(self.guardarResponsable_salida)
         self.btn_limpiarsalida.clicked.connect(self.limpiar_salida)
         self.btn_editarSalida.clicked.connect(self.editar_salida)
+        self.btn_buscar_consumibles_salidas.clicked.connect(self.busquedacons_salida)
+        
         #busqueda principal
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
         #filtrar Contenido Segun el estado
@@ -124,6 +127,21 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         widget.addWidget(GestionarInvent)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
+    #def verifyAdminbdd(self):
+        #if self.admin == "true":
+            #self.userView()
+        #else:
+            #QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            #return
+    def bddView(self):
+        if self.admin == "true":
+            bddVentana = bddMenu(admin=self.admin, widget=widget, user_name=self.user_name)
+            widget.addWidget(bddVentana)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+        else:
+            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            return
+        
         
     ### BUSQUEDA PRINCIPAL EN LA PAGINa GENERAL ###
     
@@ -397,12 +415,12 @@ class MenuPrincipal(QtWidgets.QMainWindow):
     def agregar_pedido(self):
         
         numerodepedido = self.lineEdit_numeroPedido.text()
-    # Realizar una verificación para evitar registros duplicados
+        # Realizar una verificación para evitar registros duplicados
         if self.verificar_existencia_numeroPedido(numerodepedido):
             QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
             return
 
-    # Resto del código para insertar el nuevo registro
+        # Resto del código para insertar el nuevo registro
         nombreproyecto = self.txt_descrip_HM.text()
         responsableretiro = self.txtbx_telefonoresponsablePed.text()
         telefonresponsable = self.comboBox_agg_HM.currentText()
@@ -456,6 +474,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         
     ### SALIDAS ###
     
+    #editar los datos del "encabezado" de las ssalidas, informacion de responsable de retiro
     def editar_salida(self):
         numeroSalida = self.txt_salidanumero.text()
         if not numeroSalida:
@@ -476,6 +495,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                 
             conexion.commit()
             conexion.close()
+    # metodo para limpiar los campos y tablas una vez terminados los registros
     def limpiar_salida(self):
         self.txtbx_nameproyecto_3.clear()
         self.lineEdit_Responsable_3.clear()
@@ -483,6 +503,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.txt_salidanumero.clear()
         self.txtbx_telefonoresponsable_3.clear()
         self.btn_guardar_salida.setEnabled(True)
+    # metodo para guardar informacion de los responsables del retiro de la salida y numero de salida
     def guardarResponsable_salida(self):
         nombreProyecto = self.txtbx_nameproyecto_3.text()
         responsableProyecto= self.lineEdit_Responsable_3.text()
@@ -499,6 +520,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor.execute("INSERT INTO SalidaResponsable (Nombre_Responsable,Telefono,Cedula,Nombre_Proyecto) VALUES (?,?,?,?)",(responsableProyecto,telefonoResponsable,cedulaResponsable,nombreProyecto))
             conexion.commit()
             QMessageBox.information(self,"Almacenado correctamente","Los datos fueron guardados correctamente")
+    # metodo para realizar la busqueda de una salida de acuerdo al numero de salida insertado ### por editar ###
     def buscar_salida(self):
         numeroSalida = self.lineEdit_busqueda_salida.text()
         if not numeroSalida:
@@ -518,7 +540,34 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                 self.btn_guardar_salida.setEnabled(False)
             if not resultado:
                 QMessageBox.information(self,"Error","No hay salida actual con ese numero ")
-                
+    # metodo para mostrar los datos en la tabla de herramientas en la seccion de salidas o retiros
+    #metodo para mostrar los datos en la tabla de consumibles en la seccion de salidas o retiros
+    def busquedacons_salida(self):
+        busqueda = self.txt_busqueda_cons_salida.text()
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            # Consultas a la base de datos
+            
+            cursor.execute("SELECT * FROM consumibles WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
+            data_consumibless = cursor.fetchall()
+
+            # Combinar los resultados en una lista
+            data_total = data_consumibless
+
+            # Configurar la tabla con los datos obtenidos
+            self.tableWidget_consumibles_salidas.setRowCount(len(data_total))
+
+            for row, row_data in enumerate(data_total):
+                for col, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    self.tableWidget_consumibles_salidas.setItem(row, col, item)
+
+            conexion.close()
+        except Exception as e:
+            # Mostrar un mensaje de error en caso de excepción
+            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
+    
 # otros métodos de la clase MenuPrincipal
     
     #volver al inicio
@@ -526,9 +575,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         ingreso_usuario.show()
         ingreso_usuario.txt_user.clear()
         ingreso_usuario.txt_password.clear()
-        #ingreso_usuario.showFullScreen()
         self.hide()
-
 
 #### CLASE DE GESTION DE INVENTARIO ###
 class gestionInventario(QtWidgets.QMainWindow):
@@ -539,6 +586,9 @@ class gestionInventario(QtWidgets.QMainWindow):
         self.user_name = user_name
         self.widget = widget
         self.setWindowTitle("Gestionar Inventario")
+        self.btn_VolverMenu.clicked.connect(self.backMenu)
+        self.bt_salir_2.clicked.connect(self.backLogin)
+        # Cambio de paginas del stacked widget 
         self.btn_EM.clicked.connect(lambda:self.stackedWidget.setCurrentWidget(self.page_equipos))
         self.btn_Herr.clicked.connect(lambda:self.stackedWidget.setCurrentWidget(self.page_herramientas))
         self.btn_cons.clicked.connect(lambda:self.stackedWidget.setCurrentWidget(self.page_consumibles))
@@ -563,7 +613,20 @@ class gestionInventario(QtWidgets.QMainWindow):
         self.btn_buscarEMagg.clicked.connect(self.busquedaEM)
         self.tableWidget_aggEM.cellClicked.connect(self.llenar_lineeditsEM)
         self.btn_limpiarEMagg.clicked.connect(self.limpiarEM)
-        
+    
+    # volver al menu principal
+    def backMenu(self):
+        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name)
+        widget.addWidget(menuprincipal)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
+    
+    #volver al inicio
+    def backLogin(self):
+        ingreso_usuario.show()
+        ingreso_usuario.txt_user.clear()
+        ingreso_usuario.txt_password.clear()
+        self.hide()
+    
     ### CONSUMIBLES ###
     
     # busca consumibles en la pagina de agregar consumibles
@@ -714,7 +777,7 @@ class gestionInventario(QtWidgets.QMainWindow):
             Llimite_de_reorden = ?,
             Notas = ?
         WHERE Codigo = ?;
-    """
+        """
 
         cursor.execute(query, (codigo, descripcion, uni_medida, cantidad, fecha_formato_cadena, limite_reorden, notas, codigo))
 
@@ -933,7 +996,7 @@ class gestionInventario(QtWidgets.QMainWindow):
 
             # Configurar la tabla con los datos obtenidos
             self.tableWidget_aggEM.setRowCount(len(data_total))
-            self.tableWidget_aggEM.setColumnCount(7)
+            #self.tableWidget_aggEM.setColumnCount(7)
 
             for row, row_data in enumerate(data_total):
                 for col, value in enumerate(row_data):
@@ -948,12 +1011,15 @@ class gestionInventario(QtWidgets.QMainWindow):
     def agregarEM(self):
        
         codigo = self.txt_codigo_EM_2.text()
+        
+        if not codigo.startswith("ysr-"):
+            codigo = "ysr-" + codigo
         # Realizar una verificación para evitar registros duplicados
         if self.verificar_existencia_codigo(codigo):
             QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
             return
-
         # Resto del código para insertar el nuevo registro
+        placa = self.txt_placa_EM.text()
         serial = self.txt_serial_EM_2.text()
         descripcion = self.txt_descrip_EM_2.text()
         notas = self.txt_notas_EM_2.text()
@@ -964,6 +1030,7 @@ class gestionInventario(QtWidgets.QMainWindow):
         estado = self.comboBox_aggEM.currentText()
 
         if (not codigo
+            or not placa
             or not serial
             or not descripcion
             or not notas
@@ -976,9 +1043,9 @@ class gestionInventario(QtWidgets.QMainWindow):
         else:
             conexion = sqlite3.connect("./database/db.db")
             cursor = conexion.cursor()
-            query = "INSERT INTO EquiposyMaquinarias (Codigo, Serial, Descripcion, Estado, Fecha_de_ingreso, Fecha_de_UltimoMantenimiento, Notas) VALUES (?, ?, ?, ?, ?, ?, ?)"
+            query = "INSERT INTO EquiposyMaquinarias (Codigo, Placa, Serial, Descripcion, Estado, Fecha_de_ingreso, Fecha_de_UltimoMantenimiento, Notas) VALUES (?, ?, ?, ?, ?, ?, ?)"
 
-            cursor.execute(query, (codigo, serial, descripcion, estado, fecha_formato_cadena_ing, fecha_formato_cadena_um, notas))
+            cursor.execute(query, (codigo, placa, serial, descripcion, estado, fecha_formato_cadena_ing, fecha_formato_cadena_um, notas))
 
             conexion.commit()
             QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
@@ -994,30 +1061,38 @@ class gestionInventario(QtWidgets.QMainWindow):
     def llenar_lineeditsEM(self, row, col):
         # Obtener datos de la fila seleccionada
         codigo = self.tableWidget_aggEM.item(row, 0).text()
-        serial = self.tableWidget_aggEM.item(row, 1).text()
-        descripcion = self.tableWidget_aggEM.item(row, 2).text()
-        estado = self.tableWidget_aggEM.item(row, 3).text()
+        placa= self.tableWidget_aggEM.item(row,1).text()
+        serial = self.tableWidget_aggEM.item(row, 2).text()
+        descripcion = self.tableWidget_aggEM.item(row, 3).text()
+        estado = self.tableWidget_aggEM.item(row, 4).text()
         #fech_entr = self.tableWidget_aggEM.item(row, 4).text()
         #fech_ult_mant = self.tableWidget_aggEM.item(row, 5).text()
-        notas = self.tableWidget_aggEM.item(row, 6).text()
-
+        notas = self.tableWidget_aggEM.item(row, 7).text()
+        fech_entr = self.tableWidget_aggEM.item(row, 5).text()
+        fech_ult_mant = self.tableWidget_aggEM.item(row, 6).text()
         # Llenar LineEdits con los datos
         self.txt_codigo_EM_2.setText(codigo)
+        self.txt_placa_EM.setText(placa)
         self.txt_serial_EM_2.setText(serial)
         self.txt_descrip_EM_2.setText(descripcion)
         self.txt_notas_EM_2.setText(notas)
+        fecha_ing = QDate.fromString(fech_entr, 'yyyy-MM-dd')
+        self.calendarWidget_aggEM_ingreso.setSelectedDate(fecha_ing)
+
+        fecha_ult_mant = QDate.fromString(fech_ult_mant, 'yyyy-MM-dd')
+        self.calendarWidget_agg_fechultMant_em.setSelectedDate(fecha_ult_mant)
 
         # Configurar las fechas y el estado
         #self.dateEdit_aggEM.setDate(QDate.fromString(fech_ult_mant, Qt.ISODate))
         #self.dateEdit_aggEMultMant.setDate(QDate.fromString(fech_entr, Qt.ISODate))
         
-        fecha_ing = self.tableWidget_aggEM.item(row, 4).text()
-        fecha = QDate.fromString(fecha_ing, 'yyyy-MM-dd')
-        self.calendarWidget_aggEM_ingreso.setSelectedDate(fecha)
+        #fecha_ing = self.tableWidget_aggEM.item(row, 5).text()
+        #fecha = QDate.fromString(fecha_ing, 'yyyy-MM-dd')
+        #self.calendarWidget_aggEM_ingreso.setSelectedDate(fecha)
         
-        fecha_ult_mant= self.tableWidget_aggEM.item(row, 4).text()
-        fecha = QDate.fromString(fecha_ult_mant, 'yyyy-MM-dd')
-        self.calendarWidget_agg_fechultMant_em.setSelectedDate(fecha)
+        #fecha_ult_mant= self.tableWidget_aggEM.item(row, 6).text()
+        #fecha = QDate.fromString(fecha_ult_mant, 'yyyy-MM-dd')
+        #self.calendarWidget_agg_fechultMant_em.setSelectedDate(fecha)
         
         index = self.comboBox_aggEM.findText(estado)
         if index >= 0:
@@ -1027,6 +1102,7 @@ class gestionInventario(QtWidgets.QMainWindow):
     #limpiar los lineedits y entradas de datos
     def limpiarEM(self):
         self.txt_codigo_EM_2.clear()
+        self.txt_placa_EM.clear()
         self.txt_serial_EM_2.clear()
         self.txt_descrip_EM_2.clear()
         self.txt_notas_EM_2.clear()
@@ -1037,8 +1113,9 @@ class gestionInventario(QtWidgets.QMainWindow):
         # Obtener el código original antes de la edición
         codigo_original = self.txt_codigo_EM_2.text()
 
-    # Obtener los valores de los LineEdits
+        # Obtener los valores de los LineEdits
         codigo = self.txt_codigo_EM_2.text()
+        placa= self.txt_placa_EM.text()
         serial = self.txt_serial_EM_2.text()
         descripcion = self.txt_descrip_EM_2.text()
         notas = self.txt_notas_EM_2.text()
@@ -1052,13 +1129,14 @@ class gestionInventario(QtWidgets.QMainWindow):
         #fech_entr = self.dateEdit_aggEMultMant.date().toString(Qt.ISODate)
         estado = self.comboBox_aggEM.currentText()
 
-    # Realizar la actualización en la base de datos usando los valores obtenidos
+        # Realizar la actualización en la base de datos usando los valores obtenidos
         conexion = sqlite3.connect("./database/db.db")
         cursor = conexion.cursor()
         query = """
         UPDATE EquiposyMaquinarias
         SET
             Codigo = ?,
+            Placa = ?,
             Serial = ?,
             Descripcion = ?,
             Estado = ?,
@@ -1068,7 +1146,7 @@ class gestionInventario(QtWidgets.QMainWindow):
         WHERE Codigo = ?;
         """
 
-        cursor.execute(query, (codigo, serial, descripcion, estado, fecha_formato_cadena_ing, fecha_formato_cadena_um, notas, codigo_original))
+        cursor.execute(query, (codigo, placa, serial, descripcion, estado, fecha_formato_cadena_ing, fecha_formato_cadena_um, notas, codigo_original))
 
         conexion.commit()
         QMessageBox.information(self, "Exito", "Los datos se actualizaron correctamente")       
@@ -1291,7 +1369,269 @@ class Users(QtWidgets.QMainWindow):
         self.widget.setCurrentIndex(0)
         self.hide()
 
+### CLASE DE MENU DE BASSE DE DATOS ###
+class bddMenu(QtWidgets.QMainWindow):
+    def __init__(self, admin, widget, user_name):
+        super(bddMenu, self).__init__()
+        uic.loadUi("./ui/bdd.ui", self)
+        self.admin = admin
+        self.user_name = user_name
+        self.widget = widget
+        self.btn_VolverMenu.clicked.connect(self.volver_menu)
+        self.btn_gest_usuario.clicked.connect(self.verifyAdmin_user)
+        self.bt_salir_2.clicked.connect(self.cerrarSesion)
+        self.btn_limpiarbdd.clicked.connect(self.LimpiarBDD)
+        self.btn_importar.clicked.connect(self.importbdd)
+        self.btn_respaldar.clicked.connect(self.exportarbdd)
+        self.btn_ajustesInvent.clicked.connect(self.HistorialView)
 
+    ### Exportar basse de datos ###
+    def exportarBDD(self):
+        # El usuario selecciona la carpeta de destino
+        carpeta_destino = QFileDialog.getExistingDirectory(self, "Seleccionar Carpeta de Destino")
+
+        if not carpeta_destino:
+            return
+
+        # El usuario selecciona el nombre del archivo de destino
+        nombre_archivo_destino, _ = QFileDialog.getSaveFileName(self, "Guardar como", carpeta_destino, "SQLite Database Files (*.db *.sqlite *.sqlite3)")
+
+        if not nombre_archivo_destino:
+            return
+
+        # Configurar la barra de progreso
+        progress_dialog = QProgressDialog("Exportando base de datos...", "Cancelar", 0, 0, self)
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.show()
+
+        try:
+            # Copiar el archivo de origen a la carpeta y nombre de destino seleccionados por el usuario
+            shutil.copy("./database/db.db", nombre_archivo_destino)
+
+            # Cerrar la barra de progreso
+            progress_dialog.close()
+
+            # Mostrar mensaje de éxito
+            QMessageBox.information(self, "Exportación Exitosa", f"Base de datos exportada a:\n{nombre_archivo_destino}")
+        except FileNotFoundError:
+            # Cerrar la barra de progreso y mostrar mensaje de error
+            progress_dialog.close()
+            QMessageBox.critical(self, "Error", f"Error: El archivo de origen no se encuentra.")
+        except PermissionError:
+            # Cerrar la barra de progreso y mostrar mensaje de error
+            progress_dialog.close()
+            QMessageBox.critical(self, "Error", f"Error: Permiso denegado para copiar el archivo.")
+        except Exception as e:
+            # Cerrar la barra de progreso y mostrar mensaje de error
+            progress_dialog.close()
+            QMessageBox.critical(self, "Error", f"Error al exportar la base de datos:\n{str(e)}")
+    
+    ### Importar datos de la base de datos copia (respaldo) ###
+    def importbdd(self):
+        # Solicitar al usuario que seleccione un archivo de base de datos SQLite
+        archivo_a_importar, _ = QFileDialog.getOpenFileName(self, "Seleccionar Archivo de Base de Datos", "", "SQLite Database Files (*.db *.sqlite *.sqlite3)")
+
+        # Verificar si el usuario canceló la selección del archivo
+        if not archivo_a_importar:
+            return
+
+        try:
+            # Copiar el archivo seleccionado al destino (nombre temporal)
+            shutil.copy(archivo_a_importar, "InventarioBDD_import.db")
+
+            # Mostrar un mensaje informativo sobre la importación exitosa
+            QMessageBox.information(self, "Importación Exitosa", f"Base de datos importada desde:\n{archivo_a_importar}")
+
+            # Realizar consultas en el archivo temporal y aplicar cambios
+            if self.aplicarCambiosDesdeTemporal():
+                QMessageBox.information(self, "Cambios Aplicados", "Cambios aplicados correctamente en la base de datos del sistema.")
+            else:
+                QMessageBox.warning(self, "Advertencia", "No se pudieron aplicar los cambios en la base de datos del sistema.")
+
+        except Exception as e:
+            # Mostrar un mensaje de error si ocurre algún problema durante la importación
+            QMessageBox.critical(self, "Error", f"Error al importar la base de datos:\n{str(e)}")
+    def aplicarCambiosDesdeTemporal(self):
+        try:
+            # Conectar a la base de datos temporal
+            conexion_temporal = sqlite3.connect("InventarioBDD_import.db")
+            cursor_temporal = conexion_temporal.cursor()
+
+            # Consultar datos de la tabla EquiposyMaquinarias en la base de datos temporal
+            cursor_temporal.execute("SELECT * FROM EquiposyMaquinarias;")
+            datos_equipos_temporales = cursor_temporal.fetchall()
+
+            # Consultar datos de la tabla HerramientasManuales en la base de datos temporal
+            cursor_temporal.execute("SELECT * FROM HerramientasManuales;")
+            datos_herramientas_temporales = cursor_temporal.fetchall()
+
+            # Consultar datos de la tabla Consumibles en la base de datos temporal
+            cursor_temporal.execute("SELECT * FROM Consumibles;")
+            datos_consumibles_temporales = cursor_temporal.fetchall()
+
+            # Aplicar cambios en la base de datos del sistema
+            conexion_sistema = sqlite3.connect("InventarioBDD.db")
+            cursor_sistema = conexion_sistema.cursor()
+
+            # Truncar (borrar completamente) las tablas del sistema
+            cursor_sistema.execute("DELETE FROM EquiposyMaquinarias;")
+            cursor_sistema.execute("DELETE FROM HerramientasManuales;")
+            cursor_sistema.execute("DELETE FROM Consumibles;")
+
+            # Ejemplo: insertar datos en la tabla EquiposyMaquinarias del sistema
+            for fila in datos_equipos_temporales:
+                cursor_sistema.execute("INSERT INTO EquiposyMaquinarias VALUES (?, ?, ?, ...);", fila)
+
+            # Ejemplo: insertar datos en la tabla HerramientasManuales del sistema
+            for fila in datos_herramientas_temporales:
+                cursor_sistema.execute("INSERT INTO HerramientasManuales VALUES (?, ?, ?, ...);", fila)
+
+            # Ejemplo: insertar datos en la tabla Consumibles del sistema
+            for fila in datos_consumibles_temporales:
+                cursor_sistema.execute("INSERT INTO Consumibles VALUES (?, ?, ?, ...);", fila)
+
+            # Confirmar los cambios y cerrar conexiones
+            conexion_sistema.commit()
+            conexion_sistema.close()
+            conexion_temporal.close()
+
+            # Eliminar el archivo temporal después de aplicar los cambios
+            os.remove("InventarioBDD_import.db")
+
+            return True
+
+        except Exception as e:
+            # Manejar errores durante la aplicación de cambios
+            print(f"Error al aplicar cambios: {str(e)}")
+            return False
+    
+    ### Eliminar toda la data de la base de datos ###
+    def LimpiarBDD(self):
+        # Mostrar el diálogo de confirmación de contraseña
+        dialogo_contraseña = DialogoContraseña(parent=self)
+        if dialogo_contraseña.exec_() == QDialog.Accepted:
+            # Contraseña correcta, proceder con la limpieza de la base de datos
+            if self.admin == "true":
+                try:
+                    conexion = sqlite3.connect("./database/db.db")
+                    cursor = conexion.cursor()
+                    # Aquí realizas las consultas para borrar la información de las tablas
+                    cursor.execute("DELETE FROM EquiposyMaquinarias;")
+                    cursor.execute("DELETE FROM HerramientasManuales;")
+                    cursor.execute("DELETE FROM consumibles;")
+                    conexion.commit()
+                    conexion.close()
+                    QMessageBox.information(self, "Limpieza Exitosa", "Base de datos limpia exitosamente.")
+                except Exception as e:
+                    QMessageBox.critical(self, "Error", f"Error al limpiar la base de datos:\n{str(e)}")
+            else:
+                QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+        else:
+            # Contraseña incorrecta o diálogo cerrado
+            QMessageBox.warning(self, "Operación Cancelada", "La limpieza de la base de datos fue cancelada.")
+
+    # cerrar sesion
+    def cerrarSesion(self):
+        ingreso_usuario.show()
+        ingreso_usuario.txt_user.clear()
+        ingreso_usuario.txt_password.clear()
+        self.hide()
+        
+    # abrir ventana de gestion de usuarios    
+    def verifyAdmin_user(self):
+        if self.admin == "true":
+            Usuario = Users(admin=self.admin, widget=widget, user_name=self.user_name)
+            widget.addWidget(Usuario)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+         
+        else:
+            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            return
+        
+    # volver al menu principal
+    def volver_menu(self):
+        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name)
+        widget.addWidget(menuprincipal)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
+
+    # abrir ventana de ajustes de inventario si es admin
+    def HistorialView(self):
+        if self.admin == "true":
+            historial_cambio_inventario = ajustesInventario(admin=self.admin, widget=widget, user_name=self.user_name)
+            widget.addWidget(historial_cambio_inventario)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+         
+        else:
+            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            return
+        
+# Implementa un diálogo para la fuuncion de limpiar tablas de la bdd en la clase de base de datos en la ventana de opciones avanzada
+class DialogoContraseña(QDialog):
+    def __init__(self, parent=None):
+        super(DialogoContraseña, self).__init__(parent)
+        self.setWindowTitle("Confirmar Contraseña")
+        layout = QVBoxLayout()
+        self.label_contraseña = QLabel("Si desea eliminar la informacion del inventario \n Ingrese su contraseña:")
+        self.txt_contraseña = QLineEdit(self)
+        self.txt_contraseña.setEchoMode(QLineEdit.Password)
+        self.btn_aceptar = QPushButton("Aceptar", self)
+        self.btn_aceptar.clicked.connect(self.accept)
+        self.btn_cancelar = QPushButton("Cancelar", self)
+        self.btn_cancelar.clicked.connect(self.reject)
+        layout.addWidget(self.label_contraseña)
+        layout.addWidget(self.txt_contraseña)
+        layout.addWidget(self.btn_aceptar)
+        layout.addWidget(self.btn_cancelar)
+        self.setLayout(layout)
+    
+class ajustesInventario(QtWidgets.QMainWindow):
+    def __init__(self, admin, widget, user_name):
+        super(ajustesInventario, self).__init__()
+        uic.loadUi("./ui/Historial_cambios.ui", self)
+        self.admin = admin
+        self.user_name = user_name
+        self.widget = widget
+        #volver al menu
+        self.btn_VolverMenu.clicked.connect(self.volvermenup)
+        self.btn_gest_usuario.clicked.connect(self.abrirMenu_gestUsuario)
+        self.btn_bddRespaldo.clicked.connect(self.abrirmenu_BDD)
+        self.btn_guardar.clicked.connect(self.guardar_config)
+        self.btn_recargardataConfig.clicked.connect(self.reloadDataConfig)
+    
+    # metodo de guardar configuración
+    #def guardar_config(self):
+        
+    # metodo de recargar los datos dde configuracion
+    #def reloadDataConfig(self):
+           
+    # metodo de volver al menu principal
+    #def volvermenup(self):
+        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name)
+        widget.addWidget(menuprincipal)
+        widget.setCurrentIndex(widget.currentIndex() + 1)
+        
+    # abrir ventana de ajustes de inventario si es admin
+    def abrirMenu_gestUsuario(self):
+        if self.admin == "true":
+            Menu_gestionUsers = Users(admin=self.admin, widget=widget, user_name=self.user_name)
+            widget.addWidget(Menu_gestionUsers)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+         
+        else:
+            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            return
+        
+    # abrir ventana de opciones avanzadas( base de datos)
+    def abrirmenu_BDD(self):
+        if self.admin == "true":
+            Menu_BDD = bddMenu(admin=self.admin, widget=widget, user_name=self.user_name)
+            widget.addWidget(Menu_BDD)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+         
+        else:
+            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            return
+        
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     widget = QtWidgets.QStackedWidget()
@@ -1301,5 +1641,3 @@ if __name__ == "__main__":
     widget.show()
 
     sys.exit(app.exec_())
-   
-      

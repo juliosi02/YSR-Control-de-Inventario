@@ -286,7 +286,8 @@ color:#ffffff;
 }</string>
              </property>
              <property name="text">
-              <string>Base de Datos</string>
+              <string>Opciones 
+ Avanzadas</string>
              </property>
             </widget>
            </item>
@@ -399,7 +400,7 @@ color:#ffffff;
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>2</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="page_consumibles">
          <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -442,8 +443,8 @@ color:#ffffff;
                  <widget class="QPushButton" name="btn_buscar_ConsAgg">
                   <property name="minimumSize">
                    <size>
-                    <width>30</width>
-                    <height>30</height>
+                    <width>40</width>
+                    <height>40</height>
                    </size>
                   </property>
                   <property name="text">
@@ -523,7 +524,7 @@ background-color: #50cbff;}
               <property name="title">
                <string/>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout">
+              <layout class="QVBoxLayout" name="verticalLayout_14">
                <item>
                 <widget class="QLabel" name="label">
                  <property name="styleSheet">
@@ -548,302 +549,236 @@ background-color: #50cbff;}
                 </widget>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_22">
+                <layout class="QVBoxLayout" name="verticalLayout">
                  <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_42">
+                  <layout class="QHBoxLayout" name="horizontalLayout_22">
                    <item>
-                    <widget class="QLabel" name="label_17">
-                     <property name="text">
-                      <string>Codigo</string>
-                     </property>
-                    </widget>
+                    <layout class="QVBoxLayout" name="verticalLayout_42">
+                     <item>
+                      <widget class="QLabel" name="label_17">
+                       <property name="text">
+                        <string>Codigo</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="txt_codigo_consAgg">
+                       <property name="minimumSize">
+                        <size>
+                         <width>200</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>250</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="txt_codigo_consAgg">
-                     <property name="minimumSize">
-                      <size>
-                       <width>200</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>250</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                    </widget>
+                    <layout class="QVBoxLayout" name="verticalLayout_25">
+                     <item>
+                      <widget class="QLabel" name="label_19">
+                       <property name="text">
+                        <string>Descripcion</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="txt_descrip_consAgg">
+                       <property name="minimumSize">
+                        <size>
+                         <width>200</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>250</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                   </layout>
                  </item>
                  <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_25">
+                  <layout class="QHBoxLayout" name="horizontalLayout_23">
                    <item>
-                    <widget class="QLabel" name="label_19">
-                     <property name="text">
-                      <string>Descripcion</string>
-                     </property>
-                    </widget>
+                    <layout class="QVBoxLayout" name="verticalLayout_43">
+                     <item>
+                      <widget class="QLabel" name="label_18">
+                       <property name="text">
+                        <string>Unidad de Medida</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="txt_uni_medConsagg">
+                       <property name="minimumSize">
+                        <size>
+                         <width>200</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>250</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="txt_descrip_consAgg">
-                     <property name="minimumSize">
-                      <size>
-                       <width>200</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>250</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_23">
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_43">
-                   <item>
-                    <widget class="QLabel" name="label_18">
-                     <property name="text">
-                      <string>Unidad de Medida</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLineEdit" name="txt_uni_medConsagg">
-                     <property name="minimumSize">
-                      <size>
-                       <width>200</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>250</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_54">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_44">
-                   <item>
-                    <widget class="QLabel" name="label_22">
-                     <property name="text">
-                      <string>Cantidad</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLineEdit" name="txt_cant_ConsAgg">
-                     <property name="minimumSize">
-                      <size>
-                       <width>200</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>250</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_55">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_48">
-                   <item>
-                    <widget class="QLabel" name="label_45">
-                     <property name="text">
-                      <string>Stock</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLineEdit" name="txt_stock_ConsAgg">
-                     <property name="minimumSize">
-                      <size>
-                       <width>200</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>250</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_21">
-                 <item>
-                  <spacer name="horizontalSpacer_56">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_46">
-                   <item>
-                    <widget class="QLabel" name="label_24">
-                     <property name="text">
-                      <string>Limite de Reorden</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLineEdit" name="txt_limite_reorden_AGgCons">
-                     <property name="minimumSize">
-                      <size>
-                       <width>200</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>250</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_57">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_95">
-                 <item>
-                  <spacer name="horizontalSpacer_58">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_22">
-                   <item>
-                    <widget class="QLabel" name="label_21">
-                     <property name="text">
-                      <string>Fecha de Entrada</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <spacer name="verticalSpacer_13">
+                    <spacer name="horizontalSpacer_54">
                      <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                      <enum>Qt::Horizontal</enum>
                      </property>
                      <property name="sizeHint" stdset="0">
                       <size>
-                       <width>20</width>
-                       <height>40</height>
+                       <width>40</width>
+                       <height>20</height>
                       </size>
                      </property>
                     </spacer>
                    </item>
                    <item>
-                    <widget class="QCalendarWidget" name="calendar_ingresodecons">
-                     <property name="minimumSize">
-                      <size>
-                       <width>350</width>
-                       <height>250</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>350</width>
-                       <height>250</height>
-                      </size>
-                     </property>
-                    </widget>
+                    <layout class="QVBoxLayout" name="verticalLayout_44">
+                     <item>
+                      <widget class="QLabel" name="label_22">
+                       <property name="text">
+                        <string>Cantidad</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="txt_cant_ConsAgg">
+                       <property name="minimumSize">
+                        <size>
+                         <width>200</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>250</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                    <item>
-                    <spacer name="verticalSpacer_14">
+                    <spacer name="horizontalSpacer_55">
                      <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                      <enum>Qt::Horizontal</enum>
                      </property>
                      <property name="sizeHint" stdset="0">
                       <size>
-                       <width>20</width>
-                       <height>40</height>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" name="verticalLayout_48">
+                     <item>
+                      <widget class="QLabel" name="label_45">
+                       <property name="text">
+                        <string>Stock</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="txt_stock_ConsAgg">
+                       <property name="minimumSize">
+                        <size>
+                         <width>200</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>250</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_21">
+                   <item>
+                    <spacer name="horizontalSpacer_56">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" name="verticalLayout_46">
+                     <item>
+                      <widget class="QLabel" name="label_24">
+                       <property name="text">
+                        <string>Limite de Reorden</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="txt_limite_reorden_AGgCons">
+                       <property name="minimumSize">
+                        <size>
+                         <width>200</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>250</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_57">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
                       </size>
                      </property>
                     </spacer>
@@ -851,77 +786,147 @@ background-color: #50cbff;}
                   </layout>
                  </item>
                  <item>
-                  <spacer name="horizontalSpacer_74">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_96">
-                 <item>
-                  <spacer name="horizontalSpacer_103">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="verticalLayout_47">
+                  <layout class="QHBoxLayout" name="horizontalLayout_95">
                    <item>
-                    <widget class="QLabel" name="label_23">
-                     <property name="text">
-                      <string>Notas</string>
+                    <spacer name="horizontalSpacer_58">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
                      </property>
-                    </widget>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="txtbox_notasAggCons">
-                     <property name="minimumSize">
+                    <layout class="QVBoxLayout" name="verticalLayout_22">
+                     <item>
+                      <widget class="QLabel" name="label_21">
+                       <property name="text">
+                        <string>Fecha de Entrada</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="verticalSpacer_13">
+                       <property name="orientation">
+                        <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>20</width>
+                         <height>40</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QCalendarWidget" name="calendar_ingresodecons">
+                       <property name="minimumSize">
+                        <size>
+                         <width>350</width>
+                         <height>250</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>350</width>
+                         <height>250</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="verticalSpacer_14">
+                       <property name="orientation">
+                        <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>20</width>
+                         <height>40</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_74">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
                       <size>
-                       <width>200</width>
-                       <height>25</height>
+                       <width>40</width>
+                       <height>20</height>
                       </size>
                      </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>250</width>
-                       <height>25</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </widget>
+                    </spacer>
                    </item>
                   </layout>
                  </item>
                  <item>
-                  <spacer name="horizontalSpacer_104">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
+                  <layout class="QHBoxLayout" name="horizontalLayout_96">
+                   <item>
+                    <spacer name="horizontalSpacer_103">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" name="verticalLayout_47">
+                     <item>
+                      <widget class="QLabel" name="label_23">
+                       <property name="text">
+                        <string>Notas</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="txtbox_notasAggCons">
+                       <property name="minimumSize">
+                        <size>
+                         <width>200</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>250</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <spacer name="horizontalSpacer_104">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
                  </item>
                 </layout>
                </item>
@@ -1051,8 +1056,18 @@ background-color: #50cbff;}
                 </item>
                 <item>
                  <widget class="QPushButton" name="btn_buscarEMagg">
+                  <property name="minimumSize">
+                   <size>
+                    <width>40</width>
+                    <height>40</height>
+                   </size>
+                  </property>
                   <property name="text">
-                   <string>Buscar</string>
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>imagenes/buscar (1).png</normaloff>imagenes/buscar (1).png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -1121,7 +1136,7 @@ background-color: #50cbff;}
               <property name="title">
                <string/>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_4">
+              <layout class="QVBoxLayout" name="verticalLayout_13">
                <item>
                 <widget class="QLabel" name="label_2">
                  <property name="styleSheet">
@@ -1146,159 +1161,203 @@ background-color: #50cbff;}
                 </widget>
                </item>
                <item>
-                <layout class="QVBoxLayout" name="verticalLayout_36">
+                <layout class="QVBoxLayout" name="verticalLayout_12">
                  <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_49">
+                  <layout class="QVBoxLayout" name="verticalLayout_4">
                    <item>
-                    <layout class="QVBoxLayout" name="verticalLayout_38">
+                    <layout class="QHBoxLayout" name="horizontalLayout_6">
                      <item>
-                      <widget class="QLabel" name="label_16">
-                       <property name="maximumSize">
-                        <size>
-                         <width>150</width>
-                         <height>16777215</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>Codigo</string>
-                       </property>
-                      </widget>
+                      <layout class="QVBoxLayout" name="verticalLayout_38">
+                       <item>
+                        <widget class="QLabel" name="label_16">
+                         <property name="maximumSize">
+                          <size>
+                           <width>150</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Codigo</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="txt_codigo_EM_2">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>25</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>150</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
                      </item>
                      <item>
-                      <widget class="QLineEdit" name="txt_codigo_EM_2">
-                       <property name="minimumSize">
+                      <spacer name="horizontalSpacer_71">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
                         <size>
-                         <width>150</width>
-                         <height>25</height>
+                         <width>40</width>
+                         <height>20</height>
                         </size>
                        </property>
-                       <property name="maximumSize">
+                      </spacer>
+                     </item>
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_57">
+                       <item>
+                        <widget class="QLabel" name="label_20">
+                         <property name="text">
+                          <string>Serial</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="txt_serial_EM_2">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>25</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_72">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
                         <size>
-                         <width>150</width>
-                         <height>16777215</height>
+                         <width>40</width>
+                         <height>20</height>
                         </size>
                        </property>
-                      </widget>
+                      </spacer>
+                     </item>
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_58">
+                       <item>
+                        <widget class="QLabel" name="label_27">
+                         <property name="text">
+                          <string>Placa</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="txt_placa_EM">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>25</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
                      </item>
                     </layout>
                    </item>
                    <item>
-                    <spacer name="horizontalSpacer_71">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <layout class="QVBoxLayout" name="verticalLayout_57">
+                    <layout class="QHBoxLayout" name="horizontalLayout_7">
                      <item>
-                      <widget class="QLabel" name="label_20">
-                       <property name="text">
-                        <string>Serial</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="txt_serial_EM_2">
-                       <property name="minimumSize">
-                        <size>
-                         <width>150</width>
-                         <height>25</height>
-                        </size>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>16777215</width>
-                         <height>16777215</height>
-                        </size>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_61">
-                   <item>
-                    <layout class="QVBoxLayout" name="verticalLayout_64">
-                     <item>
-                      <widget class="QLabel" name="label_26">
-                       <property name="text">
-                        <string>Estado</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QComboBox" name="comboBox_aggEM">
-                       <property name="minimumSize">
-                        <size>
-                         <width>150</width>
-                         <height>25</height>
-                        </size>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>120</width>
-                         <height>21</height>
-                        </size>
-                       </property>
+                      <layout class="QVBoxLayout" name="verticalLayout_64">
                        <item>
-                        <property name="text">
-                         <string>Operativo</string>
-                        </property>
+                        <widget class="QLabel" name="label_26">
+                         <property name="text">
+                          <string>Estado</string>
+                         </property>
+                        </widget>
                        </item>
                        <item>
-                        <property name="text">
-                         <string>En Reparación</string>
-                        </property>
+                        <widget class="QComboBox" name="comboBox_aggEM">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>25</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>120</width>
+                           <height>21</height>
+                          </size>
+                         </property>
+                         <item>
+                          <property name="text">
+                           <string>Operativo</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>En Reparación</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>Dañado</string>
+                          </property>
+                         </item>
+                        </widget>
                        </item>
-                       <item>
-                        <property name="text">
-                         <string>Dañado</string>
-                        </property>
-                       </item>
-                      </widget>
+                      </layout>
                      </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_73">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item>
-                    <layout class="QVBoxLayout" name="verticalLayout_59">
                      <item>
-                      <widget class="QLabel" name="label_25">
-                       <property name="text">
-                        <string>Descripcion</string>
+                      <spacer name="horizontalSpacer_73">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
                        </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="txt_descrip_EM_2">
-                       <property name="minimumSize">
+                       <property name="sizeHint" stdset="0">
                         <size>
-                         <width>150</width>
-                         <height>25</height>
+                         <width>40</width>
+                         <height>20</height>
                         </size>
                        </property>
-                      </widget>
+                      </spacer>
+                     </item>
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_59">
+                       <item>
+                        <widget class="QLabel" name="label_25">
+                         <property name="text">
+                          <string>Descripcion</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLineEdit" name="txt_descrip_EM_2">
+                         <property name="minimumSize">
+                          <size>
+                           <width>150</width>
+                           <height>25</height>
+                          </size>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
                      </item>
                     </layout>
                    </item>
@@ -1332,14 +1391,17 @@ background-color: #50cbff;}
                        <property name="minimumSize">
                         <size>
                          <width>320</width>
-                         <height>320</height>
+                         <height>300</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>320</width>
+                         <width>300</width>
                          <height>320</height>
                         </size>
+                       </property>
+                       <property name="verticalHeaderFormat">
+                        <enum>QCalendarWidget::NoVerticalHeader</enum>
                        </property>
                       </widget>
                      </item>
@@ -1383,15 +1445,18 @@ background-color: #50cbff;}
                       <widget class="QCalendarWidget" name="calendarWidget_agg_fechultMant_em">
                        <property name="minimumSize">
                         <size>
-                         <width>320</width>
+                         <width>300</width>
                          <height>320</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>320</width>
+                         <width>300</width>
                          <height>320</height>
                         </size>
+                       </property>
+                       <property name="verticalHeaderFormat">
+                        <enum>QCalendarWidget::NoVerticalHeader</enum>
                        </property>
                       </widget>
                      </item>
@@ -1399,59 +1464,59 @@ background-color: #50cbff;}
                    </item>
                   </layout>
                  </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_60">
                  <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_60">
+                  <spacer name="horizontalSpacer_69">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_75">
                    <item>
-                    <spacer name="horizontalSpacer_69">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
+                    <widget class="QLabel" name="label_35">
+                     <property name="text">
+                      <string>Notas</string>
                      </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
+                    </widget>
                    </item>
                    <item>
-                    <layout class="QVBoxLayout" name="verticalLayout_75">
-                     <item>
-                      <widget class="QLabel" name="label_35">
-                       <property name="text">
-                        <string>Notas</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLineEdit" name="txt_notas_EM_2">
-                       <property name="minimumSize">
-                        <size>
-                         <width>150</width>
-                         <height>25</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string/>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_70">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
+                    <widget class="QLineEdit" name="txt_notas_EM_2">
+                     <property name="minimumSize">
                       <size>
-                       <width>40</width>
-                       <height>20</height>
+                       <width>150</width>
+                       <height>25</height>
                       </size>
                      </property>
-                    </spacer>
+                     <property name="text">
+                      <string/>
+                     </property>
+                    </widget>
                    </item>
                   </layout>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_70">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
                  </item>
                 </layout>
                </item>
@@ -1583,12 +1648,16 @@ background-color: #50cbff;}
                  <widget class="QPushButton" name="btn_buscarHM">
                   <property name="minimumSize">
                    <size>
-                    <width>30</width>
-                    <height>30</height>
+                    <width>40</width>
+                    <height>40</height>
                    </size>
                   </property>
                   <property name="text">
-                   <string>Buscar</string>
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>imagenes/buscar (1).png</normaloff>imagenes/buscar (1).png</iconset>
                   </property>
                  </widget>
                 </item>
