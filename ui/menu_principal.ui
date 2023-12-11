@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1550</width>
-    <height>1008</height>
+    <width>1316</width>
+    <height>961</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -395,7 +395,7 @@ QTabBar::tab:selected {
 }</string>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -1821,7 +1821,7 @@ Maquinarias</string>
                        </widget>
                       </item>
                       <item>
-                       <widget class="QDateEdit" name="dateEdit">
+                       <widget class="QDateEdit" name="dateEdit_Fecha_salida">
                         <property name="minimumSize">
                          <size>
                           <width>0</width>
@@ -1943,8 +1943,8 @@ QToolBox::tab:selected {
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>1072</width>
-                   <height>386</height>
+                   <width>1055</width>
+                   <height>380</height>
                   </rect>
                  </property>
                  <attribute name="label">
@@ -2276,7 +2276,7 @@ background-color:white;}</string>
                             <item>
                              <layout class="QHBoxLayout" name="horizontalLayout_34">
                               <item>
-                               <widget class="QLineEdit" name="txt_busqueda">
+                               <widget class="QLineEdit" name="txt_busqueda_cons_salida">
                                 <property name="minimumSize">
                                  <size>
                                   <width>150</width>
@@ -2292,7 +2292,7 @@ background-color:white;}</string>
                                </widget>
                               </item>
                               <item>
-                               <widget class="QPushButton" name="btn_buscar_consumibles">
+                               <widget class="QPushButton" name="btn_buscar_consumibles_salidas">
                                 <property name="minimumSize">
                                  <size>
                                   <width>40</width>
@@ -2317,7 +2317,7 @@ background-color:white;}</string>
                              </layout>
                             </item>
                             <item>
-                             <widget class="QTableWidget" name="tableWidget"/>
+                             <widget class="QTableWidget" name="tableWidget_consumibles_salidas"/>
                             </item>
                            </layout>
                           </item>
@@ -2336,7 +2336,7 @@ background-color:white;}</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>1055</width>
+                   <width>580</width>
                    <height>370</height>
                   </rect>
                  </property>
@@ -2653,6 +2653,14 @@ background-color:white;}</string>
                  </layout>
                 </widget>
                 <widget class="QWidget" name="page_3">
+                 <property name="geometry">
+                  <rect>
+                   <x>0</x>
+                   <y>0</y>
+                   <width>582</width>
+                   <height>304</height>
+                  </rect>
+                 </property>
                  <attribute name="label">
                   <string>Equipos y Maquinarias</string>
                  </attribute>
