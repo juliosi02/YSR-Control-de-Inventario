@@ -398,7 +398,7 @@ QTabBar::tab:selected {
 }</string>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -550,7 +550,7 @@ Maquinarias</string>
         <item>
          <widget class="QStackedWidget" name="stackedWidget">
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page_herramientas_manuales">
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -666,6 +666,11 @@ Maquinarias</string>
                 <string>Notas</string>
                </property>
               </column>
+              <column>
+               <property name="text">
+                <string>Disponibilidad</string>
+               </property>
+              </column>
              </widget>
             </item>
            </layout>
@@ -766,7 +771,12 @@ Maquinarias</string>
                 </column>
                 <column>
                  <property name="text">
-                  <string>Serial</string>
+                  <string>Placa</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Mantenimiento Rutinario</string>
                  </property>
                 </column>
                 <column>
@@ -792,6 +802,16 @@ Maquinarias</string>
                 <column>
                  <property name="text">
                   <string>Notas</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Nueva columna</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Disponibilidad</string>
                  </property>
                 </column>
                </widget>
@@ -3006,7 +3026,7 @@ border-bottom:2px solid blue;</string>
                              </widget>
                             </item>
                             <item>
-                             <widget class="QPushButton" name="pushButton_14">
+                             <widget class="QPushButton" name="btn_eliminarEM_salida">
                               <property name="minimumSize">
                                <size>
                                 <width>100</width>
@@ -3153,7 +3173,48 @@ border-bottom:2px solid blue;</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QTableWidget" name="tableWidget_9"/>
+                 <widget class="QTableWidget" name="tableWidget_salidas_equipos_maq">
+                  <column>
+                   <property name="text">
+                    <string>Nueva columna</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Nueva columna</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Nueva columna</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Nueva columna</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Nueva columna</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Nueva columna</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Nueva columna</string>
+                   </property>
+                  </column>
+                  <column>
+                   <property name="text">
+                    <string>Nueva columna</string>
+                   </property>
+                  </column>
+                 </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="label_11">
@@ -3163,7 +3224,7 @@ border-bottom:2px solid blue;</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QTableWidget" name="tableWidget_7"/>
+                 <widget class="QTableWidget" name="tableWidget_herramientas_salidas"/>
                 </item>
                 <item>
                  <widget class="QLabel" name="label_12">
@@ -3173,7 +3234,7 @@ border-bottom:2px solid blue;</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QTableWidget" name="tableWidget_10"/>
+                 <widget class="QTableWidget" name="tableWidget_consumibles_salidas_2"/>
                 </item>
                </layout>
               </item>
@@ -3550,7 +3611,7 @@ border-bottom:2px solid blue;</string>
         <item>
          <widget class="QStackedWidget" name="stackedWidget_pedidos">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page_generarPedidos">
            <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -4285,7 +4346,7 @@ border-bottom:2px solid blue;</string>
                      </spacer>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_busqueda_pedido_5">
+                     <widget class="QLineEdit" name="lineEdit_busqueda_pedido_ver">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -4373,7 +4434,7 @@ border-bottom:2px solid blue;</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="txtbx_nameproyecto_7">
+                   <widget class="QLineEdit" name="txtbx_nameproyecto_ver_pedido">
                     <property name="minimumSize">
                      <size>
                       <width>0</width>
@@ -4394,7 +4455,7 @@ border-bottom:2px solid blue;</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="lineEdit_Responsable_7">
+                   <widget class="QLineEdit" name="lineEdit_Responsable_verPedido">
                     <property name="minimumSize">
                      <size>
                       <width>0</width>
@@ -4415,7 +4476,7 @@ border-bottom:2px solid blue;</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="txtbx_telefonoresponsable_7">
+                   <widget class="QLineEdit" name="txtbx_telefonoresponsable_VerPedido">
                     <property name="minimumSize">
                      <size>
                       <width>0</width>
@@ -4436,7 +4497,7 @@ border-bottom:2px solid blue;</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="lineEdit">
+                   <widget class="QLineEdit" name="lineEdit_numeroPedido_verPedido">
                     <property name="minimumSize">
                      <size>
                       <width>0</width>

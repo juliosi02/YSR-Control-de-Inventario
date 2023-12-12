@@ -93,6 +93,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_editarPedido.clicked.connect(self.editar_pedido)
         self.btn_elimiarPedido_1.clicked.connect(self.eliminarPedido)
         self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditsPDidos)
+        # ver pedidos
+        self.btn_bscrPedidos.clicked.connect(self.vertabla_pedido)
         # metodos de Salidas:
         self.btn_generarSalidas.clicked.connect( lambda:self.stackedWidget_salidas.setCurrentWidget(self.page_GenerarSalidas) )
         self.btn_visualizarSalidas.clicked.connect(lambda:self.stackedWidget_salidas.setCurrentWidget(self.page_Visualizar_salidas))
@@ -102,7 +104,11 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_editarSalida.clicked.connect(self.editar_salida)
         self.btn_buscar_consumibles_salidas.clicked.connect(self.busquedacons_salida)
         self.btn_buscar_herr_salidas.clicked.connect(self.busquedaHM_salidas)
+        #metodos de agregar y quitar salidas de equipos y maquinarias
         self.btn_buscar_equi_salidas.clicked.connect(self.busquedaEM_salidas)
+        self.btn_eliminarEM_salida.clicked.connect(self.borrarSalida_EM)
+        self.btn_guardarEMsalidas.clicked.connect(self.guardarSalida_EM)
+        self.tableWidget_EM_salidas.cellClicked.connect(self.llenar_lineeditsEM_salidas)
         
         #busqueda principal
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
@@ -472,7 +478,50 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor.execute(query, (nonmbreProd, espTecnicas, cantidad, unidadMEdida, fecha_formato_cadena, necesidadProducto, numerodepedido))
             conexion.commit()
             QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
-        
+      
+      
+    ##ver pedidos##
+    def vertabla_pedido(self):
+        NumeroPedido = self.lineEdit_busqueda_pedido_ver.text()
+        if not NumeroPedido:
+            QMessageBox.information(self, "Error", "Ingresa un número de pedido")
+            return
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+
+        # Obtener datos del pedido
+            cursor.execute("SELECT nombre_producto, especificaciones_tecnicas, cantidad, unidad_de_medida, fecha_tope, necesidadPedido FROM contenido_pedido WHERE numero_pedido=? ", (NumeroPedido,))
+            resultado_contenido = cursor.fetchall()
+
+            if resultado_contenido:
+            # Configurar la tabla con los datos obtenidos
+                self.tablapedidocrear.setRowCount(len(resultado_contenido))
+                self.tablapedidocrear.setColumnCount(len(resultado_contenido[0]))
+                headers_contenido = ["Nombre Producto", "Especificaciones Técnicas", "Cantidad", "Unidad de Medida", "Fecha Tope", "Necesidad de Pedido"]
+                self.tablapedidocrear.setHorizontalHeaderLabels(headers_contenido)
+
+                for row, row_data in enumerate(resultado_contenido):
+                    for col, value in enumerate(row_data):
+                        item = QTableWidgetItem(str(value))
+                        self.tablapedidocrear.setItem(row, col, item)
+
+            # Obtener datos del pedidp
+                cursor.execute("SELECT Nombre_Proyecto, Responsable_pedido, telefon_responsable FROM pedidos WHERE numero_pedido=?", (NumeroPedido,))
+                resultado_pedido = cursor.fetchone()
+
+                if resultado_pedido:
+                    self.txtbx_nameproyecto_ver_pedido.setText(resultado_pedido[0])
+                    self.lineEdit_Responsable_verPedido.setText(resultado_pedido[1])
+                    self.txtbx_telefonoresponsable_VerPedido.setText(str(resultado_pedido[2]))
+                    
+
+
+            else:
+                QMessageBox.information(self, "Error", "No hay contenido asociado a ese número de pedido")
+
+            conexion.close()          
+      
     ### SALIDAS ###
     
     #editar los datos del "encabezado" de las ssalidas, informacion de responsable de retiro
@@ -519,7 +568,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor = conexion.cursor()
            
             cursor.execute("INSERT INTO SalidaResponsable (Nombre_Responsable,Telefono,Cedula,Nombre_Proyecto) VALUES (?,?,?,?)",(responsableProyecto,telefonoResponsable,cedulaResponsable,nombreProyecto))
-            last_inserted_id = cursor.lastrowid
+            #last_inserted_id = cursor.lastrowid
             conexion.commit()
             QMessageBox.information(self,"Almacenado correctamente","Los datos fueron guardados correctamente")
     # metodo para realizar la busqueda de una salida de acuerdo al numero de salida insertado ### por editar ###
@@ -610,7 +659,6 @@ class MenuPrincipal(QtWidgets.QMainWindow):
 
             # Configurar la tabla con los datos obtenidos
             self.tableWidget_EM_salidas.setRowCount(len(data_total))
-            #self.tableWidget_aggEM.setColumnCount(7)
 
             for row, row_data in enumerate(data_total):
                 for col, value in enumerate(row_data):
@@ -652,12 +700,13 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         # Resto del código para insertar el nuevo registro
         placa = self.txt_placa_EM_salidas.text()
         serial = self.txt_serial_EM_salidas.text()
-        descripcion = self.txt_descrip_EM_salidas.text()
-        estado = self.comboBox_aggEM.currentText()
+        descripcion = self.txt_descrip_EM_salidas.toPlainText()
+        estado = self.comboBox_aggEM_salidas.currentText()
         motivo = self.txt_motivo_salidasEM.text()
-        nro_salida = self.label_numerodeSalida.text()
+        nro_salida = self.txt_salidanumero.text()
 
         if (not nro_salida): QMessageBox.warning(self, "Error", "Debe registrar el responsable del retiro antes de continuar")
+        
         if (not codigo
             or not placa
             or not serial
@@ -669,14 +718,54 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             return
         else:
             conexion = sqlite3.connect("./database/db.db")
+            
             cursor = conexion.cursor()
+            
             query = "INSERT INTO salidas_maq (codigo, placa, serial, descripcion, estado, Motivo_s, Nrosalida) VALUES (?, ?, ?, ?, ?, ?, ?)"
-
             cursor.execute(query, (codigo, placa, serial, descripcion, estado, motivo, nro_salida ))
-
             conexion.commit()
+            
+            query_actualizar_disponibilidad = "UPDATE HerramientasManuales SET disponibilidad = 'En uso' WHERE codigo = ?"
+            cursor.execute(query_actualizar_disponibilidad, (codigo,))
+            conexion.commit()
+
+            
             QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
-    
+            
+            try:
+                conexion = sqlite3.connect("./database/db.db")
+                cursor = conexion.cursor()
+                cursor.execute("SELECT codigo, placa, serial, descripcion, descripcion, estado, Motivo_s, Nrosalida FROM salidas_maq")
+                data = cursor.fetchall()
+
+                self.tableWidget_salidas_equipos_maq.setRowCount(len(data))  
+
+                for row, row_data in enumerate(data):
+                    for col, value in enumerate(row_data):
+                        item = QTableWidgetItem(str(value))
+                        self.tableWidget_salidas_equipos_maq.setItem(row, col, item)
+
+                conexion.close()
+            except Exception as e:
+                QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")            
+        
+        
+    def borrarSalida_EM(self):
+        # Obtener el código del producto a eliminar
+        codigo = self.txt_codigo_consAgg.text()
+        # Realizar la eliminación en la base de datos usando el código obtenido
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+
+        query = """
+            DELETE FROM consumibles
+            WHERE Codigo = ?;
+        """
+
+        cursor.execute(query, (codigo,))
+
+        conexion.commit()
+        QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
 # otros métodos de la clase MenuPrincipal
     
     #volver al inicio
@@ -1137,7 +1226,8 @@ class gestionInventario(QtWidgets.QMainWindow):
         fecha_ult_mant = self.calendarWidget_agg_fechultMant_em.selectedDate()
         fecha_formato_cadena_um = fecha_ult_mant.toString("yyyy-MM-dd")
         estado = self.comboBox_aggEM.currentText()
-
+        disponibilidad = self.comboBox_aggDisponibilidadEM.currentText()
+        frecuencia_mant = self.comboBox_aggFrecuenciadeMAntEM_2.currentText()
         if (not codigo
             or not placa
             or not serial
@@ -1146,15 +1236,17 @@ class gestionInventario(QtWidgets.QMainWindow):
             or not fecha_ult_mant
             or not fecha_ingreso
             or not estado
+            or not disponibilidad
+            or not frecuencia_mant
             ):
             QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
             return
         else:
             conexion = sqlite3.connect("./database/db.db")
             cursor = conexion.cursor()
-            query = "INSERT INTO EquiposyMaquinarias (Codigo, Placa, Serial, Descripcion, Estado, Fecha_de_ingreso, Fecha_de_UltimoMantenimiento, Notas) VALUES (?, ?, ?, ?, ?, ?, ?)"
+            query = "INSERT INTO EquiposyMaquinarias (Codigo, Placa, Serial, Descripcion, Estado, Fecha_de_ingreso, Fecha_de_UltimoMantenimiento, Notas, Lapso_entre_mantenimiento, Disponibilidad) VALUES (?, ?, ?, ?, ?, ?, ?)"
 
-            cursor.execute(query, (codigo, placa, serial, descripcion, estado, fecha_formato_cadena_ing, fecha_formato_cadena_um, notas))
+            cursor.execute(query, (codigo, placa, serial, descripcion, estado, fecha_formato_cadena_ing, fecha_formato_cadena_um, notas, frecuencia_mant, disponibilidad))
 
             conexion.commit()
             QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
@@ -1278,6 +1370,8 @@ class gestionInventario(QtWidgets.QMainWindow):
 
         conexion.commit()
         QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
+
+
 
 #### CLASE DE GESTION DE USUARIOS ####
 class Users(QtWidgets.QMainWindow):
@@ -1478,6 +1572,8 @@ class Users(QtWidgets.QMainWindow):
         self.widget.setCurrentIndex(0)
         self.hide()
 
+
+
 ### CLASE DE MENU DE BASSE DE DATOS ###
 class bddMenu(QtWidgets.QMainWindow):
     def __init__(self, admin, widget, user_name):
@@ -1491,7 +1587,7 @@ class bddMenu(QtWidgets.QMainWindow):
         self.bt_salir_2.clicked.connect(self.cerrarSesion)
         self.btn_limpiarbdd.clicked.connect(self.LimpiarBDD)
         self.btn_importar.clicked.connect(self.importbdd)
-        self.btn_respaldar.clicked.connect(self.exportarbdd)
+        self.btn_respaldar.clicked.connect(self.exportarBDD)
         self.btn_ajustesInvent.clicked.connect(self.HistorialView)
 
     ### Exportar basse de datos ###
@@ -1673,6 +1769,8 @@ class bddMenu(QtWidgets.QMainWindow):
         else:
             QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
             return
+    
+    
         
 # Implementa un diálogo para la fuuncion de limpiar tablas de la bdd en la clase de base de datos en la ventana de opciones avanzada
 class DialogoContraseña(QDialog):
@@ -1692,7 +1790,9 @@ class DialogoContraseña(QDialog):
         layout.addWidget(self.btn_aceptar)
         layout.addWidget(self.btn_cancelar)
         self.setLayout(layout)
-    
+ 
+ 
+###    CLASE DE AJUSTES DEL PROGRAMA Y HISTORIAL DE CAMBIOS
 class ajustesInventario(QtWidgets.QMainWindow):
     def __init__(self, admin, widget, user_name):
         super(ajustesInventario, self).__init__()
