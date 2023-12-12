@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1316</width>
-    <height>961</height>
+    <height>1006</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -373,6 +373,9 @@ background-color:rgb(255, 85, 0);
         <width>0</width>
         <height>0</height>
        </size>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
       </property>
       <property name="styleSheet">
        <string notr="true">QTabWidget {
@@ -1242,37 +1245,47 @@ Maquinarias</string>
                      </property>
                      <column>
                       <property name="text">
-                       <string/>
+                       <string>Codigo</string>
                       </property>
                      </column>
                      <column>
                       <property name="text">
-                       <string/>
+                       <string>Placa</string>
                       </property>
                      </column>
                      <column>
                       <property name="text">
-                       <string/>
+                       <string>Serial</string>
                       </property>
                      </column>
                      <column>
                       <property name="text">
-                       <string/>
+                       <string>Descripción</string>
                       </property>
                      </column>
                      <column>
                       <property name="text">
-                       <string/>
+                       <string>Estado</string>
                       </property>
                      </column>
                      <column>
                       <property name="text">
-                       <string/>
+                       <string>Fecha de Ingreso</string>
                       </property>
                      </column>
                      <column>
                       <property name="text">
-                       <string/>
+                       <string>Fecha de Ultimo mantenimiento</string>
+                      </property>
+                     </column>
+                     <column>
+                      <property name="text">
+                       <string>Nueva columna</string>
+                      </property>
+                     </column>
+                     <column>
+                      <property name="text">
+                       <string>Notas</string>
                       </property>
                      </column>
                     </widget>
@@ -1281,32 +1294,32 @@ Maquinarias</string>
                     <widget class="QTableWidget" name="tableWidget_Estado_HM">
                      <column>
                       <property name="text">
-                       <string>Nueva columna</string>
+                       <string>Codigo</string>
                       </property>
                      </column>
                      <column>
                       <property name="text">
-                       <string>Nueva columna</string>
+                       <string>Descripción</string>
                       </property>
                      </column>
                      <column>
                       <property name="text">
-                       <string>Nueva columna</string>
+                       <string>Cantidad</string>
                       </property>
                      </column>
                      <column>
                       <property name="text">
-                       <string>Nueva columna</string>
+                       <string>Estado</string>
                       </property>
                      </column>
                      <column>
                       <property name="text">
-                       <string>Nueva columna</string>
+                       <string>Fecha de Ingreso</string>
                       </property>
                      </column>
                      <column>
                       <property name="text">
-                       <string>Nueva columna</string>
+                       <string>Notas</string>
                       </property>
                      </column>
                     </widget>
@@ -1920,10 +1933,12 @@ Maquinarias</string>
 
 font: 75 16pt &quot;Arial&quot;;
 }
-
 QToolBox::tab {
     background-color: #00007f;
     color: white;
+    padding: 1px; 
+    font: 75 14pt &quot;Arial&quot;; 
+    height: 40px; 
 }
 
 QToolBox::tab:selected {
@@ -1936,7 +1951,10 @@ QToolBox::tab:selected {
                  <number>0</number>
                 </property>
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>2</number>
+                </property>
+                <property name="tabSpacing">
+                 <number>4</number>
                 </property>
                 <widget class="QWidget" name="page">
                  <property name="geometry">
@@ -1944,9 +1962,13 @@ QToolBox::tab:selected {
                    <x>0</x>
                    <y>0</y>
                    <width>1055</width>
-                   <height>380</height>
+                   <height>428</height>
                   </rect>
                  </property>
+                 <attribute name="icon">
+                  <iconset>
+                   <normaloff>imagenes/estar.png</normaloff>imagenes/estar.png</iconset>
+                 </attribute>
                  <attribute name="label">
                   <string>Consumibles</string>
                  </attribute>
@@ -2056,18 +2078,34 @@ background-color:white;}</string>
                                    </widget>
                                   </item>
                                   <item>
-                                   <widget class="QLineEdit" name="txt_descrip_consAgg_4">
+                                   <widget class="QTextEdit" name="txt_descrip_consAgg_5">
                                     <property name="minimumSize">
                                      <size>
                                       <width>150</width>
-                                      <height>25</height>
+                                      <height>0</height>
                                      </size>
                                     </property>
                                     <property name="maximumSize">
                                      <size>
                                       <width>150</width>
-                                      <height>25</height>
+                                      <height>16777215</height>
                                      </size>
+                                    </property>
+                                    <property name="styleSheet">
+                                     <string notr="true">
+	color: rgb(0, 0, 0);
+	border:0;
+	background-color: rgba(106, 106, 106, 0.5);
+	font: 75 12pt &quot;Arial&quot;;
+border:none;
+border-bottom:2px solid blue;</string>
+                                    </property>
+                                    <property name="html">
+                                     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:12pt; font-weight:72; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                                     </property>
                                    </widget>
                                   </item>
@@ -2317,7 +2355,43 @@ background-color:white;}</string>
                              </layout>
                             </item>
                             <item>
-                             <widget class="QTableWidget" name="tableWidget_consumibles_salidas"/>
+                             <widget class="QTableWidget" name="tableWidget_consumibles_salidas">
+                              <column>
+                               <property name="text">
+                                <string>Nueva columna</string>
+                               </property>
+                              </column>
+                              <column>
+                               <property name="text">
+                                <string>Nueva columna</string>
+                               </property>
+                              </column>
+                              <column>
+                               <property name="text">
+                                <string>Nueva columna</string>
+                               </property>
+                              </column>
+                              <column>
+                               <property name="text">
+                                <string>Nueva columna</string>
+                               </property>
+                              </column>
+                              <column>
+                               <property name="text">
+                                <string>Nueva columna</string>
+                               </property>
+                              </column>
+                              <column>
+                               <property name="text">
+                                <string>Nueva columna</string>
+                               </property>
+                              </column>
+                              <column>
+                               <property name="text">
+                                <string>Nueva columna</string>
+                               </property>
+                              </column>
+                             </widget>
                             </item>
                            </layout>
                           </item>
@@ -2336,10 +2410,14 @@ background-color:white;}</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>580</width>
-                   <height>370</height>
+                   <width>1072</width>
+                   <height>390</height>
                   </rect>
                  </property>
+                 <attribute name="icon">
+                  <iconset>
+                   <normaloff>imagenes/herramientas-para-reparar.png</normaloff>imagenes/herramientas-para-reparar.png</iconset>
+                 </attribute>
                  <attribute name="label">
                   <string>Herramientas</string>
                  </attribute>
@@ -2534,25 +2612,6 @@ background-color:white;}</string>
                           <item>
                            <layout class="QHBoxLayout" name="horizontalLayout_43">
                             <item>
-                             <widget class="QPushButton" name="pushButton_6">
-                              <property name="minimumSize">
-                               <size>
-                                <width>100</width>
-                                <height>40</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>100</width>
-                                <height>40</height>
-                               </size>
-                              </property>
-                              <property name="text">
-                               <string>Editar</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
                              <widget class="QPushButton" name="pushButton_7">
                               <property name="minimumSize">
                                <size>
@@ -2599,7 +2658,7 @@ background-color:white;}</string>
                           <item>
                            <layout class="QHBoxLayout" name="horizontalLayout_44">
                             <item>
-                             <widget class="QLineEdit" name="txt_busqueda_3">
+                             <widget class="QLineEdit" name="txt_busqueda_herr_salidas">
                               <property name="minimumSize">
                                <size>
                                 <width>150</width>
@@ -2615,7 +2674,7 @@ background-color:white;}</string>
                              </widget>
                             </item>
                             <item>
-                             <widget class="QPushButton" name="btn_buscar_consumibles_3">
+                             <widget class="QPushButton" name="btn_buscar_herr_salidas">
                               <property name="minimumSize">
                                <size>
                                 <width>40</width>
@@ -2640,7 +2699,43 @@ background-color:white;}</string>
                            </layout>
                           </item>
                           <item>
-                           <widget class="QTableWidget" name="tableWidget_3"/>
+                           <widget class="QTableWidget" name="tableWidget_herr_salidas">
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                           </widget>
                           </item>
                          </layout>
                         </item>
@@ -2657,10 +2752,14 @@ background-color:white;}</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>582</width>
-                   <height>304</height>
+                   <width>1072</width>
+                   <height>390</height>
                   </rect>
                  </property>
+                 <attribute name="icon">
+                  <iconset>
+                   <normaloff>imagenes/demoledor.png</normaloff>imagenes/demoledor.png</iconset>
+                 </attribute>
                  <attribute name="label">
                   <string>Equipos y Maquinarias</string>
                  </attribute>
@@ -2714,7 +2813,7 @@ background-color:#fff;}</string>
                                  </widget>
                                 </item>
                                 <item>
-                                 <widget class="QLineEdit" name="txt_codigo_EM_3">
+                                 <widget class="QLineEdit" name="txt_codigo_EM_salidas">
                                   <property name="minimumSize">
                                    <size>
                                     <width>150</width>
@@ -2741,7 +2840,7 @@ background-color:#fff;}</string>
                                  </widget>
                                 </item>
                                 <item>
-                                 <widget class="QLineEdit" name="txt_serial_EM_3">
+                                 <widget class="QLineEdit" name="txt_serial_EM_salidas">
                                   <property name="minimumSize">
                                    <size>
                                     <width>150</width>
@@ -2768,18 +2867,14 @@ background-color:#fff;}</string>
                                  </widget>
                                 </item>
                                 <item>
-                                 <widget class="QLineEdit" name="txt_descrip_EM_3">
-                                  <property name="minimumSize">
-                                   <size>
-                                    <width>150</width>
-                                    <height>35</height>
-                                   </size>
-                                  </property>
-                                  <property name="maximumSize">
-                                   <size>
-                                    <width>150</width>
-                                    <height>35</height>
-                                   </size>
+                                 <widget class="QTextEdit" name="txt_descrip_EM_salidas">
+                                  <property name="styleSheet">
+                                   <string notr="true">	color: rgb(0, 0, 0);
+	border:0;
+	background-color: rgba(106, 106, 106, 0.5);
+	font: 75 12pt &quot;Arial&quot;;
+border:none;
+border-bottom:2px solid blue;</string>
                                   </property>
                                  </widget>
                                 </item>
@@ -2799,7 +2894,7 @@ background-color:#fff;}</string>
                                  </widget>
                                 </item>
                                 <item>
-                                 <widget class="QLineEdit" name="txt_placa_EM_2">
+                                 <widget class="QLineEdit" name="txt_placa_EM_salidas">
                                   <property name="minimumSize">
                                    <size>
                                     <width>150</width>
@@ -2826,7 +2921,7 @@ background-color:#fff;}</string>
                                  </widget>
                                 </item>
                                 <item>
-                                 <widget class="QComboBox" name="comboBox_aggEM_2">
+                                 <widget class="QComboBox" name="comboBox_aggEM_salidas">
                                   <property name="minimumSize">
                                    <size>
                                     <width>150</width>
@@ -2868,7 +2963,7 @@ background-color:#fff;}</string>
                                  </widget>
                                 </item>
                                 <item>
-                                 <widget class="QLineEdit" name="txt_motivo_saEM_2">
+                                 <widget class="QLineEdit" name="txt_motivo_salidasEM">
                                   <property name="minimumSize">
                                    <size>
                                     <width>150</width>
@@ -2892,26 +2987,7 @@ background-color:#fff;}</string>
                           <item>
                            <layout class="QHBoxLayout" name="horizontalLayout_52">
                             <item>
-                             <widget class="QPushButton" name="pushButton_12">
-                              <property name="minimumSize">
-                               <size>
-                                <width>100</width>
-                                <height>40</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>100</width>
-                                <height>40</height>
-                               </size>
-                              </property>
-                              <property name="text">
-                               <string>Editar</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <widget class="QPushButton" name="pushButton_13">
+                             <widget class="QPushButton" name="btn_guardarEMsalidas">
                               <property name="minimumSize">
                                <size>
                                 <width>100</width>
@@ -2957,7 +3033,7 @@ background-color:#fff;}</string>
                           <item>
                            <layout class="QHBoxLayout" name="horizontalLayout_53">
                             <item>
-                             <widget class="QLineEdit" name="txt_busqueda_5">
+                             <widget class="QLineEdit" name="txt_busqueda_equiM_salidas">
                               <property name="minimumSize">
                                <size>
                                 <width>150</width>
@@ -2973,7 +3049,7 @@ background-color:#fff;}</string>
                              </widget>
                             </item>
                             <item>
-                             <widget class="QPushButton" name="btn_buscar_consumibles_5">
+                             <widget class="QPushButton" name="btn_buscar_equi_salidas">
                               <property name="minimumSize">
                                <size>
                                 <width>40</width>
@@ -2998,7 +3074,58 @@ background-color:#fff;}</string>
                            </layout>
                           </item>
                           <item>
-                           <widget class="QTableWidget" name="tableWidget_5"/>
+                           <widget class="QTableWidget" name="tableWidget_EM_salidas">
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                            <column>
+                             <property name="text">
+                              <string>Nueva columna</string>
+                             </property>
+                            </column>
+                           </widget>
                           </item>
                          </layout>
                         </item>

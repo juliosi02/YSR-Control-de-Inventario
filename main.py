@@ -101,6 +101,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_limpiarsalida.clicked.connect(self.limpiar_salida)
         self.btn_editarSalida.clicked.connect(self.editar_salida)
         self.btn_buscar_consumibles_salidas.clicked.connect(self.busquedacons_salida)
+        self.btn_buscar_herr_salidas.clicked.connect(self.busquedaHM_salidas)
+        self.btn_buscar_equi_salidas.clicked.connect(self.busquedaEM_salidas)
         
         #busqueda principal
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
@@ -362,7 +364,6 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                 
             conexion.commit()
             conexion.close()
-            
     def limpiar_pedido(self):
         self.txtbx_nameproyectoPed.clear()
         self.lineEdit_ResponsablePed.clear()
@@ -518,6 +519,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             cursor = conexion.cursor()
            
             cursor.execute("INSERT INTO SalidaResponsable (Nombre_Responsable,Telefono,Cedula,Nombre_Proyecto) VALUES (?,?,?,?)",(responsableProyecto,telefonoResponsable,cedulaResponsable,nombreProyecto))
+            last_inserted_id = cursor.lastrowid
             conexion.commit()
             QMessageBox.information(self,"Almacenado correctamente","Los datos fueron guardados correctamente")
     # metodo para realizar la busqueda de una salida de acuerdo al numero de salida insertado ### por editar ###
@@ -541,6 +543,31 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             if not resultado:
                 QMessageBox.information(self,"Error","No hay salida actual con ese numero ")
     # metodo para mostrar los datos en la tabla de herramientas en la seccion de salidas o retiros
+    def busquedaHM_salidas(self):
+        busqueda = self.txt_busqueda_herr_salidas.text()
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            # Consultas a la base de datos
+            
+            cursor.execute("SELECT * FROM HerramientasManuales WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
+            data_herramientass = cursor.fetchall()
+
+            # Combinar los resultados en una lista
+            data_total = data_herramientass
+
+            # Configurar la tabla con los datos obtenidos
+            self.tableWidget_herr_salidas.setRowCount(len(data_total))
+            
+            for row, row_data in enumerate(data_total):
+                for col, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    self.tableWidget_herr_salidas.setItem(row, col, item)
+
+            conexion.close()
+        except Exception as e:
+            # Mostrar un mensaje de error en caso de excepción
+            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}") 
     #metodo para mostrar los datos en la tabla de consumibles en la seccion de salidas o retiros
     def busquedacons_salida(self):
         busqueda = self.txt_busqueda_cons_salida.text()
@@ -567,6 +594,88 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         except Exception as e:
             # Mostrar un mensaje de error en caso de excepción
             QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
+    # metodo para mostraar los datos en la tabla de equipos y maquinarias en la seccion de salidas
+    def busquedaEM_salidas(self):
+        busqueda = self.txt_busqueda_equiM_salidas.text()
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            # Consultas a la base de datos
+            
+            cursor.execute("SELECT * FROM EquiposyMaquinarias WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
+            data_equipos = cursor.fetchall()
+
+            # Combinar los resultados en una lista
+            data_total = data_equipos
+
+            # Configurar la tabla con los datos obtenidos
+            self.tableWidget_EM_salidas.setRowCount(len(data_total))
+            #self.tableWidget_aggEM.setColumnCount(7)
+
+            for row, row_data in enumerate(data_total):
+                for col, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    self.tableWidget_EM_salidas.setItem(row, col, item)
+
+            conexion.close()
+        except Exception as e:
+            # Mostrar un mensaje de error en caso de excepción
+            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}"
+                                )
+    # metodo de llenar los lineedits con los datos de la celda de la tabla clickeada
+    def llenar_lineeditsEM_salidas(self, row, col):
+        # Obtener datos de la fila seleccionada
+        codigo = self.tableWidget_EM_salidas.item(row, 0).text()
+        placa = self.tableWidget_EM_salidas.item(row, 1).text()
+        serial = self.tableWidget_EM_salidas.item(row, 2).text()
+        descripcion = self.tableWidget_EM_salidas.item(row, 3).text()
+        estado = self.tableWidget_EM_salidas.item(row, 4).text()
+        # Llenar LineEdits con los datos
+        self.txt_codigo_EM_salidas.setText(codigo)
+        self.txt_placa_EM_salidas.setText(placa)
+        self.txt_descrip_EM_salidas.setText(descripcion)
+        self.txt_serial_EM_salidas.setText(serial)
+        # Configurar el estado
+        index = self.comboBox_aggEM_salidas.findText(estado)
+        if index >= 0:
+            self.comboBox_aggEM_salidas.setCurrentIndex(index)
+            
+        #self.btn_guardarEMsalidas.setEnabled(False)
+        self.txt_codigo_EM_salidas.setReadOnly(True)
+        self.txt_placa_EM_salidas.setReadOnly(True)
+        self.txt_serial_EM_salidas.setReadOnly(True)
+        self.txt_descrip_EM_salidas.setReadOnly(True)
+    
+    def guardarSalida_EM(self):
+        codigo = self.txt_codigo_EM_salidas.text()
+
+        # Resto del código para insertar el nuevo registro
+        placa = self.txt_placa_EM_salidas.text()
+        serial = self.txt_serial_EM_salidas.text()
+        descripcion = self.txt_descrip_EM_salidas.text()
+        estado = self.comboBox_aggEM.currentText()
+        motivo = self.txt_motivo_salidasEM.text()
+        nro_salida = self.label_numerodeSalida.text()
+
+        if (not nro_salida): QMessageBox.warning(self, "Error", "Debe registrar el responsable del retiro antes de continuar")
+        if (not codigo
+            or not placa
+            or not serial
+            or not descripcion
+            or not estado 
+            or not motivo
+            ):
+            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+            return
+        else:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            query = "INSERT INTO salidas_maq (codigo, placa, serial, descripcion, estado, Motivo_s, Nrosalida) VALUES (?, ?, ?, ?, ?, ?, ?)"
+
+            cursor.execute(query, (codigo, placa, serial, descripcion, estado, motivo, nro_salida ))
+
+            conexion.commit()
+            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
     
 # otros métodos de la clase MenuPrincipal
     
@@ -1605,7 +1714,7 @@ class ajustesInventario(QtWidgets.QMainWindow):
     #def reloadDataConfig(self):
            
     # metodo de volver al menu principal
-    #def volvermenup(self):
+    def volvermenup(self):
         menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name)
         widget.addWidget(menuprincipal)
         widget.setCurrentIndex(widget.currentIndex() + 1)
