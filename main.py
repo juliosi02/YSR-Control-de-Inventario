@@ -77,6 +77,10 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.bt_reload.clicked.connect(self.reloaddataEM)
         self.reloaddataEM()
         
+        
+        #cargar nombre proyecot
+        
+        self.cargarnombreProyecto()
         # metodos relacionados a herramientas manuales
         self.reloaddataHM()
         self.bt_reload_2.clicked.connect(self.reloaddataHM)
@@ -117,7 +121,12 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         #self.filtrarporestado()
         #filtrar por cantidad baja cantidad en inventario
         self.btn_actualizarTablabajaExist.clicked.connect(self.filtrar_bajaCantidad)
-        
+    def cargarnombreProyecto(self):
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        cursor.execute("SELECT nombre_proyecto FROM configuracion_global")
+        resultado = cursor.fetchone()
+        self.label_nombreProyecto.setText(resultado[0])
     def verifyAdmin(self):
         if self.admin == "true":
             self.userView()
@@ -1685,15 +1694,15 @@ class bddMenu(QtWidgets.QMainWindow):
 
             # Ejemplo: insertar datos en la tabla EquiposyMaquinarias del sistema
             for fila in datos_equipos_temporales:
-                cursor_sistema.execute("INSERT INTO EquiposyMaquinarias VALUES (?, ?, ?, ...);", fila)
+                cursor_sistema.execute("INSERT INTO EquiposyMaquinarias VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", fila,)
 
             # Ejemplo: insertar datos en la tabla HerramientasManuales del sistema
             for fila in datos_herramientas_temporales:
-                cursor_sistema.execute("INSERT INTO HerramientasManuales VALUES (?, ?, ?, ...);", fila)
+                cursor_sistema.execute("INSERT INTO HerramientasManuales VALUES (?, ?, ?, ?, ?, ?, ?);", fila,)
 
             # Ejemplo: insertar datos en la tabla Consumibles del sistema
             for fila in datos_consumibles_temporales:
-                cursor_sistema.execute("INSERT INTO Consumibles VALUES (?, ?, ?, ...);", fila)
+                cursor_sistema.execute("INSERT INTO consumibles VALUES (?, ?, ?, ?, ?, ?, ?, ?);", fila,)
 
             # Confirmar los cambios y cerrar conexiones
             conexion_sistema.commit()
@@ -1804,8 +1813,9 @@ class ajustesInventario(QtWidgets.QMainWindow):
         self.btn_VolverMenu.clicked.connect(self.volvermenup)
         self.btn_gest_usuario.clicked.connect(self.abrirMenu_gestUsuario)
         self.btn_bddRespaldo.clicked.connect(self.abrirmenu_BDD)
-        self.btn_guardar.clicked.connect(self.guardar_config)
-        self.btn_recargardataConfig.clicked.connect(self.reloadDataConfig)
+        self.btn_guardar.clicked.connect(self.guardarProyecto)
+        #self.btn_guardar.clicked.connect(self.guardar_config)
+        # self.btn_recargardataConfig.clicked.connect(self.reloadDataConfig)
     
     # metodo de guardar configuración
     #def guardar_config(self):
@@ -1814,6 +1824,27 @@ class ajustesInventario(QtWidgets.QMainWindow):
     #def reloadDataConfig(self):
            
     # metodo de volver al menu principal
+    
+    def guardarProyecto(self):
+        nombre =self.lineEdit_nameproyecto.text()
+        gerente = self.lineEdit_nameGerente.text()
+        ingenieroREsidente = self.lineEdit_IngenieroResidente.text()
+        if not (nombre or gerente or ingenieroREsidente):
+            QMessageBox.information(self,"Error","Los datos son obligatorios")
+            return
+        
+        conexion = sqlite3.connect("./database/db.db")
+        cursor = conexion.cursor()
+        cursor.execute("INSERT INTO configuracion_global (nombre_proyecto,Encargado_proyecto,Ingeniero_Residente) VALUES (?,?,?)",(nombre,gerente, ingenieroREsidente))
+        conexion.commit()
+        QMessageBox.information(self,"Guardado","El proyecto fue almacenado correctamente")
+        if cursor.execute:
+            cursor.execute("SELECT nombre_proyecto,Encargado_proyecto,Ingeniero_Residente FROM configuracion_global WHERE nombre_proyecto=?",(nombre,))
+            resultado = cursor.fetchone()
+            self.label_Name_proyecto.setText(resultado[0])
+            self.label_Gerente.setText(resultado[1])
+            self.label_IngenieroResidente.setText(resultado[2])
+        
     def volvermenup(self):
         menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name)
         widget.addWidget(menuprincipal)
