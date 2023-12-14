@@ -107,7 +107,7 @@ QTableWidget{
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>imagenes/logo pendon ysr.jpg</pixmap>
+            <pixmap>C:/Users/Asus Vivoook/.designer/backup/imagenes/logo pendon ysr.jpg</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -400,7 +400,7 @@ color:#ffffff;
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="page_consumibles">
          <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -452,7 +452,7 @@ color:#ffffff;
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>imagenes/buscar (1).png</normaloff>imagenes/buscar (1).png</iconset>
+                    <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                   </property>
                   <property name="checkable">
                    <bool>false</bool>
@@ -496,6 +496,11 @@ color:#ffffff;
                 <column>
                  <property name="text">
                   <string>Notas</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Disponibilidad</string>
                  </property>
                 </column>
                </widget>
@@ -575,6 +580,12 @@ background-color: #50cbff;}
                          <height>25</height>
                         </size>
                        </property>
+                       <property name="maxLength">
+                        <number>20</number>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
+                       </property>
                       </widget>
                      </item>
                     </layout>
@@ -601,6 +612,9 @@ background-color: #50cbff;}
                          <width>250</width>
                          <height>25</height>
                         </size>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -632,6 +646,9 @@ background-color: #50cbff;}
                          <width>250</width>
                          <height>25</height>
                         </size>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -676,6 +693,9 @@ background-color: #50cbff;}
                        <property name="text">
                         <string/>
                        </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
+                       </property>
                       </widget>
                      </item>
                     </layout>
@@ -718,6 +738,9 @@ background-color: #50cbff;}
                        </property>
                        <property name="text">
                         <string/>
+                       </property>
+                       <property name="readOnly">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -765,6 +788,9 @@ background-color: #50cbff;}
                        </property>
                        <property name="text">
                         <string/>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -835,6 +861,9 @@ background-color: #50cbff;}
                          <width>350</width>
                          <height>250</height>
                         </size>
+                       </property>
+                       <property name="verticalHeaderFormat">
+                        <enum>QCalendarWidget::NoVerticalHeader</enum>
                        </property>
                       </widget>
                      </item>
@@ -908,6 +937,9 @@ background-color: #50cbff;}
                        </property>
                        <property name="text">
                         <string/>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -1067,7 +1099,7 @@ background-color: #50cbff;}
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>imagenes/buscar (1).png</normaloff>imagenes/buscar (1).png</iconset>
+                    <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -1768,7 +1800,7 @@ background-color: #50cbff;}
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>imagenes/buscar (1).png</normaloff>imagenes/buscar (1).png</iconset>
+                    <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -2114,6 +2146,33 @@ background-color: #50cbff;}
                      </item>
                      <item>
                       <widget class="QLineEdit" name="txt_Notas_aggHM"/>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="label_30">
+                       <property name="text">
+                        <string>Disponibilidad</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QComboBox" name="comboBox_aggdisponibilidadHerr">
+                       <property name="minimumSize">
+                        <size>
+                         <width>0</width>
+                         <height>25</height>
+                        </size>
+                       </property>
+                       <item>
+                        <property name="text">
+                         <string>En almacen</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>En uso</string>
+                        </property>
+                       </item>
+                      </widget>
                      </item>
                     </layout>
                    </item>

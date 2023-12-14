@@ -72,7 +72,7 @@ color:#ffffff;
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>imagenes/logo pendon ysr.jpg</pixmap>
+            <pixmap>C:/Users/Asus Vivoook/.designer/backup/imagenes/logo pendon ysr.jpg</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -245,8 +245,7 @@ color:#ffffff;
        <string notr="true">QToolBox {
     background-color: lightgray;
     border: 1px solid darkgray;
-
-font: 75 20pt &quot;Arial&quot;;
+    font: 75 12pt &quot;Arial&quot;;
 }
 
 QToolBox::tab {
@@ -258,18 +257,19 @@ QToolBox::tab:selected {
     background-color: #55aaff;
 	background-color: rgb(85, 170, 255);
     color: black;
-}</string>
+}
+</string>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>853</width>
-         <height>431</height>
+         <width>870</width>
+         <height>466</height>
         </rect>
        </property>
        <attribute name="label">
@@ -700,6 +700,14 @@ font: 87 italic 24pt &quot;Segoe UI Black&quot;;
        </layout>
       </widget>
       <widget class="QWidget" name="page_3">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>870</width>
+         <height>466</height>
+        </rect>
+       </property>
        <attribute name="label">
         <string>Historial de Cambios en el inventario</string>
        </attribute>
@@ -785,13 +793,13 @@ color:#ffffff;
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="widget">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
          <width>870</width>
-         <height>424</height>
+         <height>466</height>
         </rect>
        </property>
        <attribute name="label">
@@ -808,6 +816,32 @@ color:#ffffff;
         </property>
         <property name="text">
          <string>Manuel de Usuario</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_3">
+        <property name="geometry">
+         <rect>
+          <x>280</x>
+          <y>20</y>
+          <width>231</width>
+          <height>71</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Reportes </string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_4">
+        <property name="geometry">
+         <rect>
+          <x>580</x>
+          <y>10</y>
+          <width>231</width>
+          <height>71</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Comentarios</string>
         </property>
        </widget>
       </widget>

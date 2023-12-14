@@ -398,7 +398,7 @@ QTabBar::tab:selected {
 }</string>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -941,7 +941,7 @@ Maquinarias</string>
                        </property>
                        <property name="icon">
                         <iconset>
-                         <normaloff>imagenes/buscar (1).png</normaloff>imagenes/buscar (1).png</iconset>
+                         <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                        </property>
                       </widget>
                      </item>
@@ -1252,7 +1252,7 @@ Maquinarias</string>
                        </property>
                        <property name="icon">
                         <iconset>
-                         <normaloff>imagenes/buscar (1).png</normaloff>imagenes/buscar (1).png</iconset>
+                         <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                        </property>
                       </widget>
                      </item>
@@ -1624,7 +1624,7 @@ Maquinarias</string>
                         </property>
                         <property name="icon">
                          <iconset>
-                          <normaloff>imagenes/buscar (1).png</normaloff>imagenes/buscar (1).png</iconset>
+                          <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                         </property>
                        </widget>
                       </item>
@@ -1981,13 +1981,13 @@ QToolBox::tab:selected {
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>1055</width>
+                   <width>582</width>
                    <height>428</height>
                   </rect>
                  </property>
                  <attribute name="icon">
                   <iconset>
-                   <normaloff>imagenes/estar.png</normaloff>imagenes/estar.png</iconset>
+                   <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/estar.png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/estar.png</iconset>
                  </attribute>
                  <attribute name="label">
                   <string>Consumibles</string>
@@ -2368,7 +2368,7 @@ p, li { white-space: pre-wrap; }
                                 </property>
                                 <property name="icon">
                                  <iconset>
-                                  <normaloff>imagenes/buscar (1).png</normaloff>imagenes/buscar (1).png</iconset>
+                                  <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                                 </property>
                                </widget>
                               </item>
@@ -2430,13 +2430,13 @@ p, li { white-space: pre-wrap; }
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>1072</width>
-                   <height>390</height>
+                   <width>474</width>
+                   <height>370</height>
                   </rect>
                  </property>
                  <attribute name="icon">
                   <iconset>
-                   <normaloff>imagenes/herramientas-para-reparar.png</normaloff>imagenes/herramientas-para-reparar.png</iconset>
+                   <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/herramientas-para-reparar.png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/herramientas-para-reparar.png</iconset>
                  </attribute>
                  <attribute name="label">
                   <string>Herramientas</string>
@@ -2712,7 +2712,7 @@ p, li { white-space: pre-wrap; }
                               </property>
                               <property name="icon">
                                <iconset>
-                                <normaloff>imagenes/buscar (1).png</normaloff>imagenes/buscar (1).png</iconset>
+                                <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                               </property>
                              </widget>
                             </item>
@@ -2778,7 +2778,7 @@ p, li { white-space: pre-wrap; }
                  </property>
                  <attribute name="icon">
                   <iconset>
-                   <normaloff>imagenes/demoledor.png</normaloff>imagenes/demoledor.png</iconset>
+                   <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/demoledor.png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/demoledor.png</iconset>
                  </attribute>
                  <attribute name="label">
                   <string>Equipos y Maquinarias</string>
@@ -3669,7 +3669,7 @@ border-bottom:2px solid blue;</string>
                       </property>
                       <property name="icon">
                        <iconset>
-                        <normaloff>imagenes/buscar (1).png</normaloff>imagenes/buscar (1).png</iconset>
+                        <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                       </property>
                      </widget>
                     </item>
@@ -4380,7 +4380,7 @@ border-bottom:2px solid blue;</string>
                       </property>
                       <property name="icon">
                        <iconset>
-                        <normaloff>imagenes/buscar (1).png</normaloff>imagenes/buscar (1).png</iconset>
+                        <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                       </property>
                      </widget>
                     </item>

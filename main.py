@@ -1,11 +1,18 @@
 import sys
-import shutil
+import shutil 
+import time
+from os import remove
+from shutil import copyfile
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QDate
 from PyQt5.QtGui import QBrush, QColor
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QLabel, QDialog,QVBoxLayout, QLineEdit, QPushButton, QFileDialog, QProgressDialog
 import sqlite3
+import pandas as pd
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib import colors
 
 import os
 os.environ["QT_LOGGING_RULES"] = "qt.gui.icc=false"
@@ -79,8 +86,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         
         
         #cargar nombre proyecot
-        
         self.cargarnombreProyecto()
+        
         # metodos relacionados a herramientas manuales
         self.reloaddataHM()
         self.bt_reload_2.clicked.connect(self.reloaddataHM)
@@ -118,38 +125,52 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
         #filtrar Contenido Segun el estado
         self.btn_filtrarEstado.clicked.connect(self.filtrarporestado)
-        #self.filtrarporestado()
         #filtrar por cantidad baja cantidad en inventario
         self.btn_actualizarTablabajaExist.clicked.connect(self.filtrar_bajaCantidad)
+    
+    # Cargar configuracion global
     def cargarnombreProyecto(self):
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
-        cursor.execute("SELECT nombre_proyecto FROM configuracion_global")
-        resultado = cursor.fetchone()
-        self.label_nombreProyecto.setText(resultado[0])
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            cursor.execute("SELECT nombre_proyecto FROM configuracion_global")
+            resultado = cursor.fetchone()
+
+            if resultado is not None and resultado[0]:
+                self.label_nombreProyecto.setText(resultado[0])
+            else:
+                self.label_nombreProyecto.setText("Registre el nombre del proyecto en los ajustes del programa")
+
+        except sqlite3.Error as e:
+            self.mostrar_error(f"Error en la conexión a la base de datos: {str(e)}")
+        except Exception as e:
+            self.mostrar_error(f"Error inesperado: {str(e)}")
+        finally:
+            if 'conexion' in locals() and conexion:
+                conexion.close()
+
+    def mostrar_error(self, mensaje):
+        QMessageBox.critical(self, "Error", mensaje)
+
+    # abrir menu de gestion de usuarios 
     def verifyAdmin(self):
         if self.admin == "true":
             self.userView()
         else:
             QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
             return
-
     def userView(self):
         Usuario = Users(admin=self.admin, widget=widget, user_name=self.user_name)
         widget.addWidget(Usuario)
         widget.setCurrentIndex(widget.currentIndex() + 1)
-        
+    
+    # abrir ventana de agregar al inventario    
     def geestInventView(self):
         GestionarInvent = gestionInventario(admin=self.admin, widget=widget, user_name=self.user_name)
         widget.addWidget(GestionarInvent)
         widget.setCurrentIndex(widget.currentIndex() + 1)
-
-    #def verifyAdminbdd(self):
-        #if self.admin == "true":
-            #self.userView()
-        #else:
-            #QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
-            #return
+        
+    # abrir ventana de respaldar base de datos 
     def bddView(self):
         if self.admin == "true":
             bddVentana = bddMenu(admin=self.admin, widget=widget, user_name=self.user_name)
@@ -159,6 +180,16 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
             return
         
+    #abrir ventana de ajustes de inventario
+    def ajustesView(self):
+        if self.admin == "true":
+            historial_cambio_inventario = ajustesInventario(admin=self.admin, widget=widget, user_name=self.user_name)
+            widget.addWidget(historial_cambio_inventario)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+        else:
+            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            return
+              
         
     ### BUSQUEDA PRINCIPAL EN LA PAGINa GENERAL ###
     
@@ -756,8 +787,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
 
                 conexion.close()
             except Exception as e:
-                QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")            
-        
+                QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")                 
         
     def borrarSalida_EM(self):
         # Obtener el código del producto a eliminar
@@ -1073,6 +1103,7 @@ class gestionInventario(QtWidgets.QMainWindow):
             # Resto del código para insertar el nuevo registro
             descripcion = self.txt_descrip_HM.text()
             estado = self.comboBox_agg_HM.currentText()
+            disponibilidad = self.comboBox_aggdisponibilidadHerr.currentText()
             notas = self.txt_Notas_aggHM.text()
             fecha_ingreso = self.calendar_ingresoHM_fechaIngreso.selectedDate()
             fecha_formato_cadena = fecha_ingreso.toString("yyyy-MM-dd")
@@ -1083,9 +1114,9 @@ class gestionInventario(QtWidgets.QMainWindow):
 
             conexion = sqlite3.connect("./database/db.db")
             cursor = conexion.cursor()
-            query = "INSERT INTO HerramientasManuales (Codigo, Descripcion, Cantidad, Estado, FechaIngreso, Notas) VALUES (?, ?, 1, ?, ?, ?)"
+            query = "INSERT INTO HerramientasManuales (Codigo, Descripcion, Cantidad, Estado, FechaIngreso, Notas, Disponibilidad) VALUES (?, ?, 1, ?, ?, ?, ?)"
 
-            cursor.execute(query, (codigo, descripcion, estado, fecha_formato_cadena, notas))
+            cursor.execute(query, (codigo, descripcion, estado, fecha_formato_cadena, notas, disponibilidad))
 
             conexion.commit()
 
@@ -1137,6 +1168,7 @@ class gestionInventario(QtWidgets.QMainWindow):
         descripcion = self.txt_descrip_HM.text()
         cantidad = self.txt_cant_HM.text()
         estado = self.comboBox_agg_HM.currentText()
+        disponibilidad = self.comboBox_aggdisponibilidadHerr.currentText()
         notas = self.txt_Notas_aggHM.text()
         fechaingreso = self.calendar_ingresoHM_fechaIngreso.selectedDate()
         fecha_formato_cadena = fechaingreso.toString("yyyy-MM-dd")
@@ -1152,11 +1184,12 @@ class gestionInventario(QtWidgets.QMainWindow):
             Cantidad = ?,
             Estado = ?,
             FechaIngreso = ?,
-            Notas = ?
+            Notas = ?,
+            Disponibilidad = ?
         WHERE Codigo = ?;
         """
 
-        cursor.execute(query, (codigo, descripcion, cantidad, estado, fecha_formato_cadena, notas, codigo))
+        cursor.execute(query, (codigo, descripcion, cantidad, estado, fecha_formato_cadena, notas, disponibilidad, codigo))
 
         conexion.commit()
         QMessageBox.information(self, "Exito", "Los datos se actualizaron correctamente")        
@@ -1381,7 +1414,6 @@ class gestionInventario(QtWidgets.QMainWindow):
         QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
 
 
-
 #### CLASE DE GESTION DE USUARIOS ####
 class Users(QtWidgets.QMainWindow):
     def __init__(self, admin, widget ,user_name):
@@ -1582,7 +1614,6 @@ class Users(QtWidgets.QMainWindow):
         self.hide()
 
 
-
 ### CLASE DE MENU DE BASSE DE DATOS ###
 class bddMenu(QtWidgets.QMainWindow):
     def __init__(self, admin, widget, user_name):
@@ -1595,131 +1626,123 @@ class bddMenu(QtWidgets.QMainWindow):
         self.btn_gest_usuario.clicked.connect(self.verifyAdmin_user)
         self.bt_salir_2.clicked.connect(self.cerrarSesion)
         self.btn_limpiarbdd.clicked.connect(self.LimpiarBDD)
-        self.btn_importar.clicked.connect(self.importbdd)
+        self.btn_importar.clicked.connect(self.importar_base_datos)
         self.btn_respaldar.clicked.connect(self.exportarBDD)
         self.btn_ajustesInvent.clicked.connect(self.HistorialView)
 
     ### Exportar basse de datos ###
     def exportarBDD(self):
-        # El usuario selecciona la carpeta de destino
-        carpeta_destino = QFileDialog.getExistingDirectory(self, "Seleccionar Carpeta de Destino")
-
-        if not carpeta_destino:
-            return
-
-        # El usuario selecciona el nombre del archivo de destino
-        nombre_archivo_destino, _ = QFileDialog.getSaveFileName(self, "Guardar como", carpeta_destino, "SQLite Database Files (*.db *.sqlite *.sqlite3)")
-
-        if not nombre_archivo_destino:
-            return
-
-        # Configurar la barra de progreso
-        progress_dialog = QProgressDialog("Exportando base de datos...", "Cancelar", 0, 0, self)
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.show()
-
         try:
-            # Copiar el archivo de origen a la carpeta y nombre de destino seleccionados por el usuario
-            shutil.copy("./database/db.db", nombre_archivo_destino)
+            # El usuario selecciona la carpeta de destino
+            carpeta_destino = QFileDialog.getExistingDirectory(self, "Seleccionar Carpeta de Destino")
 
-            # Cerrar la barra de progreso
-            progress_dialog.close()
+            if not carpeta_destino:
+                return
 
-            # Mostrar mensaje de éxito
-            QMessageBox.information(self, "Exportación Exitosa", f"Base de datos exportada a:\n{nombre_archivo_destino}")
-        except FileNotFoundError:
-            # Cerrar la barra de progreso y mostrar mensaje de error
-            progress_dialog.close()
-            QMessageBox.critical(self, "Error", f"Error: El archivo de origen no se encuentra.")
-        except PermissionError:
-            # Cerrar la barra de progreso y mostrar mensaje de error
-            progress_dialog.close()
-            QMessageBox.critical(self, "Error", f"Error: Permiso denegado para copiar el archivo.")
+            db_backup_path = f"{carpeta_destino}/db.db"
+
+            conexion = sqlite3.connect("./database/db.db")
+
+            # Cambiar la sección de copia de la base de datos
+            shutil.copy2("./database/db.db", db_backup_path)
+
+            consulta_tablas_sql = "SELECT name FROM sqlite_master WHERE type='table';"
+            tablas = pd.read_sql_query(consulta_tablas_sql, conexion)["name"].tolist()
+
+            estilo_pdf = TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                    ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+                    ("GRID", (0, 0), (0, 0), 1, colors.black),
+                ]
+            )
+
+            # Cambiar la orientación de las páginas a horizontal
+            pdf_filename = f"{carpeta_destino}/exportacion_inventario.pdf"
+            pdf = SimpleDocTemplate(pdf_filename, pagesize=(letter[1], letter[0]))
+
+            story = []
+
+            for tabla in tablas:
+                consulta_sql = f"SELECT * FROM {tabla}"
+                df = pd.read_sql_query(consulta_sql, conexion)
+
+                # Convertir todos los datos a Unicode antes de pasarlos a la tabla PDF
+                data = [
+                    [str(cell) for cell in row]
+                    for row in [df.columns.tolist()] + df.values.tolist()
+                ]
+
+                tabla_pdf = Table(data)
+                tabla_pdf.setStyle(estilo_pdf)
+                story.append(tabla_pdf)
+
+            pdf.build(story)
+
+            self.mostrar_mensaje(
+                f"Base de datos y tablas exportadas a:\n{db_backup_path} y {pdf_filename}"
+            )
+
+        except sqlite3.Error as e:
+            self.mostrar_error(f"Error en la conexión a la base de datos: {str(e)}")
+        except pd.errors.EmptyDataError:
+            self.mostrar_error("Error: La base de datos está vacía.")
         except Exception as e:
-            # Cerrar la barra de progreso y mostrar mensaje de error
-            progress_dialog.close()
-            QMessageBox.critical(self, "Error", f"Error al exportar la base de datos:\n{str(e)}")
-    
+            self.mostrar_error(f"Error inesperado: {str(e)}")
+        finally:
+            if 'conexion' in locals() and conexion:
+                conexion.close()
+    def mostrar_mensaje(self, mensaje):
+        QMessageBox.information(self, "Éxito", mensaje)
+    def mostrar_error(self, mensaje):
+        QMessageBox.critical(self, "Error", mensaje)
+        
     ### Importar datos de la base de datos copia (respaldo) ###
-    def importbdd(self):
-        # Solicitar al usuario que seleccione un archivo de base de datos SQLite
-        archivo_a_importar, _ = QFileDialog.getOpenFileName(self, "Seleccionar Archivo de Base de Datos", "", "SQLite Database Files (*.db *.sqlite *.sqlite3)")
+    def importar_base_datos(self):
+        # Abrir el cuadro de diálogo para seleccionar la base de datos a importar
+        ruta_importar, _ = QFileDialog.getOpenFileName(
+            self,
+            "Seleccionar Base de Datos",
+            "",
+            "SQLite Database Files (*.db *.sqlite *.db3)",
+        )
 
-        # Verificar si el usuario canceló la selección del archivo
-        if not archivo_a_importar:
+        if not ruta_importar:
+            # Si el usuario cierra el cuadro de diálogo, salir de la función
             return
 
+        # Ruta de destino de la base de datos
+        ruta_destino = "db.db"
+
         try:
-            # Copiar el archivo seleccionado al destino (nombre temporal)
-            shutil.copy(archivo_a_importar, "InventarioBDD_import.db")
+            # Cerrar conexiones a la base de datos si es necesario
+            # (Asegúrate de adaptar esto según cómo manejes las conexiones en tu código)
 
-            # Mostrar un mensaje informativo sobre la importación exitosa
-            QMessageBox.information(self, "Importación Exitosa", f"Base de datos importada desde:\n{archivo_a_importar}")
+            # Esperar un breve período antes de intentar eliminar o reemplazar
+            time.sleep(2)  # Ajusta el tiempo según sea necesario
 
-            # Realizar consultas en el archivo temporal y aplicar cambios
-            if self.aplicarCambiosDesdeTemporal():
-                QMessageBox.information(self, "Cambios Aplicados", "Cambios aplicados correctamente en la base de datos del sistema.")
-            else:
-                QMessageBox.warning(self, "Advertencia", "No se pudieron aplicar los cambios en la base de datos del sistema.")
+            # Crear una copia temporal de la base de datos
+            ruta_temporal = "db_temp.db"
+            copyfile(ruta_importar, ruta_temporal)
 
+            # Reemplazar la base de datos existente con la copia temporal
+            os.replace(ruta_temporal, ruta_destino)
+
+            # Mostrar un mensaje de éxito
+            self.mostrar_mensaje(f"Base de datos importada desde:\n{ruta_importar}")
         except Exception as e:
-            # Mostrar un mensaje de error si ocurre algún problema durante la importación
-            QMessageBox.critical(self, "Error", f"Error al importar la base de datos:\n{str(e)}")
-    def aplicarCambiosDesdeTemporal(self):
-        try:
-            # Conectar a la base de datos temporal
-            conexion_temporal = sqlite3.connect("InventarioBDD_import.db")
-            cursor_temporal = conexion_temporal.cursor()
+            # Mostrar un mensaje de error si ocurre un problema
+            self.mostrar_mensaje(f"Error al importar la base de datos:\n{str(e)}")
 
-            # Consultar datos de la tabla EquiposyMaquinarias en la base de datos temporal
-            cursor_temporal.execute("SELECT * FROM EquiposyMaquinarias;")
-            datos_equipos_temporales = cursor_temporal.fetchall()
-
-            # Consultar datos de la tabla HerramientasManuales en la base de datos temporal
-            cursor_temporal.execute("SELECT * FROM HerramientasManuales;")
-            datos_herramientas_temporales = cursor_temporal.fetchall()
-
-            # Consultar datos de la tabla Consumibles en la base de datos temporal
-            cursor_temporal.execute("SELECT * FROM Consumibles;")
-            datos_consumibles_temporales = cursor_temporal.fetchall()
-
-            # Aplicar cambios en la base de datos del sistema
-            conexion_sistema = sqlite3.connect("InventarioBDD.db")
-            cursor_sistema = conexion_sistema.cursor()
-
-            # Truncar (borrar completamente) las tablas del sistema
-            cursor_sistema.execute("DELETE FROM EquiposyMaquinarias;")
-            cursor_sistema.execute("DELETE FROM HerramientasManuales;")
-            cursor_sistema.execute("DELETE FROM Consumibles;")
-
-            # Ejemplo: insertar datos en la tabla EquiposyMaquinarias del sistema
-            for fila in datos_equipos_temporales:
-                cursor_sistema.execute("INSERT INTO EquiposyMaquinarias VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", fila,)
-
-            # Ejemplo: insertar datos en la tabla HerramientasManuales del sistema
-            for fila in datos_herramientas_temporales:
-                cursor_sistema.execute("INSERT INTO HerramientasManuales VALUES (?, ?, ?, ?, ?, ?, ?);", fila,)
-
-            # Ejemplo: insertar datos en la tabla Consumibles del sistema
-            for fila in datos_consumibles_temporales:
-                cursor_sistema.execute("INSERT INTO consumibles VALUES (?, ?, ?, ?, ?, ?, ?, ?);", fila,)
-
-            # Confirmar los cambios y cerrar conexiones
-            conexion_sistema.commit()
-            conexion_sistema.close()
-            conexion_temporal.close()
-
-            # Eliminar el archivo temporal después de aplicar los cambios
-            os.remove("InventarioBDD_import.db")
-
-            return True
-
-        except Exception as e:
-            # Manejar errores durante la aplicación de cambios
-            print(f"Error al aplicar cambios: {str(e)}")
-            return False
-    
-    ### Eliminar toda la data de la base de datos ###
+    def mostrar_mensaje(self, mensaje):
+        # Mostrar un cuadro de mensaje con la información proporcionada
+        QMessageBox.information(self, "Éxito", mensaje)
+        
+    # limpiar las tablas en la base de datos.
     def LimpiarBDD(self):
         # Mostrar el diálogo de confirmación de contraseña
         dialogo_contraseña = DialogoContraseña(parent=self)
@@ -1733,6 +1756,9 @@ class bddMenu(QtWidgets.QMainWindow):
                     cursor.execute("DELETE FROM EquiposyMaquinarias;")
                     cursor.execute("DELETE FROM HerramientasManuales;")
                     cursor.execute("DELETE FROM consumibles;")
+                    cursor.execute("DELETE FROM configuracion_global;")
+                    cursor.execute("DELETE FROM pedidos;")
+                    cursor.execute("DELETE FROM contenido_pedido;")
                     conexion.commit()
                     conexion.close()
                     QMessageBox.information(self, "Limpieza Exitosa", "Base de datos limpia exitosamente.")
@@ -1824,7 +1850,6 @@ class ajustesInventario(QtWidgets.QMainWindow):
     #def reloadDataConfig(self):
            
     # metodo de volver al menu principal
-    
     def guardarProyecto(self):
         nombre =self.lineEdit_nameproyecto.text()
         gerente = self.lineEdit_nameGerente.text()
@@ -1844,7 +1869,8 @@ class ajustesInventario(QtWidgets.QMainWindow):
             self.label_Name_proyecto.setText(resultado[0])
             self.label_Gerente.setText(resultado[1])
             self.label_IngenieroResidente.setText(resultado[2])
-        
+    
+    # volver al menu principal    
     def volvermenup(self):
         menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name)
         widget.addWidget(menuprincipal)
