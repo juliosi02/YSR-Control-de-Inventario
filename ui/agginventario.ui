@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1472</width>
-    <height>950</height>
+    <height>846</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -107,7 +107,7 @@ QTableWidget{
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>C:/Users/Asus Vivoook/.designer/backup/imagenes/logo pendon ysr.jpg</pixmap>
+            <pixmap>../../../../.designer/backup/imagenes/logo pendon ysr.jpg</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -400,7 +400,7 @@ color:#ffffff;
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>2</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="page_consumibles">
          <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -452,7 +452,7 @@ color:#ffffff;
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
+                    <normaloff>../../../../.designer/backup/imagenes/buscar (1).png</normaloff>../../../../.designer/backup/imagenes/buscar (1).png</iconset>
                   </property>
                   <property name="checkable">
                    <bool>false</bool>
@@ -496,11 +496,6 @@ color:#ffffff;
                 <column>
                  <property name="text">
                   <string>Notas</string>
-                 </property>
-                </column>
-                <column>
-                 <property name="text">
-                  <string>Disponibilidad</string>
                  </property>
                 </column>
                </widget>
@@ -1099,7 +1094,7 @@ background-color: #50cbff;}
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
+                    <normaloff>../../../../.designer/backup/imagenes/buscar (1).png</normaloff>../../../../.designer/backup/imagenes/buscar (1).png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -1145,6 +1140,16 @@ background-color: #50cbff;}
                 <column>
                  <property name="text">
                   <string>Notas</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Frecuenacia de Mantenimientos</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Disponibilidad</string>
                  </property>
                 </column>
                </widget>
@@ -1800,7 +1805,7 @@ background-color: #50cbff;}
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
+                    <normaloff>../../../../.designer/backup/imagenes/buscar (1).png</normaloff>../../../../.designer/backup/imagenes/buscar (1).png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -2087,6 +2092,9 @@ background-color: #50cbff;}
                          <width>320</width>
                          <height>320</height>
                         </size>
+                       </property>
+                       <property name="verticalHeaderFormat">
+                        <enum>QCalendarWidget::NoVerticalHeader</enum>
                        </property>
                       </widget>
                      </item>

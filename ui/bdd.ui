@@ -26,7 +26,7 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(255, 255, 255);</string>
+   <string notr="true"/>
   </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonIconOnly</enum>
@@ -92,7 +92,7 @@
               <string notr="true">font: 48pt &quot;Playbill&quot;;</string>
              </property>
              <property name="text">
-              <string>Opciones de la base de datos</string>
+              <string>Opciones Avanzadas</string>
              </property>
             </widget>
            </item>
@@ -234,6 +234,19 @@ color:#ffffff;
      </widget>
     </item>
     <item>
+     <widget class="Line" name="line_4">
+      <property name="styleSheet">
+       <string notr="true">QLine{
+	background-color: #00007f;
+border: 5px solid blue;
+}</string>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
      <spacer name="verticalSpacer_2">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -254,7 +267,7 @@ color:#ffffff;
          <string notr="true">font: 48pt &quot;Playbill&quot;;</string>
         </property>
         <property name="text">
-         <string>Base de datos</string>
+         <string>Opciones de Respaldo y recuperación de datos</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -321,6 +334,12 @@ color:#ffffff;
     </item>
     <item>
      <widget class="Line" name="line_2">
+      <property name="styleSheet">
+       <string notr="true">QLine{
+	background-color: #00007f;
+border: 5px solid blue;
+}</string>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -426,16 +445,26 @@ color:#ffffff;
       </item>
      </layout>
     </item>
+    <item>
+     <widget class="Line" name="line_3">
+      <property name="styleSheet">
+       <string notr="true">QLine{
+	background-color: #00007f;
+border: 5px solid blue;
+}</string>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
    </layout>
-   <zorder>label_2</zorder>
-   <zorder>layoutWidget</zorder>
    <zorder>frame</zorder>
-   <zorder>label_11</zorder>
    <zorder>line_2</zorder>
-   <zorder>horizontalSpacer</zorder>
-   <zorder>horizontalSpacer_2</zorder>
    <zorder>verticalSpacer</zorder>
    <zorder>verticalSpacer_2</zorder>
+   <zorder>line_3</zorder>
+   <zorder>line_4</zorder>
   </widget>
  </widget>
  <resources/>

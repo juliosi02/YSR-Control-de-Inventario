@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton
-from plyer import notification
+from pyler import notification
 
 class MainWindow(QMainWindow):
     def __init__(self):

@@ -1,6 +1,17 @@
 import sys
+from PyQt5.QtCore import pyqtSignal
 import shutil 
 import time
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer,  Image
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+import sqlite3
+import pandas as pd
+from reportlab.pdfgen import canvas
+import shutil
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
+import datetime
 from os import remove
 from shutil import copyfile
 from PyQt5.QtCore import Qt
@@ -27,8 +38,8 @@ class IngresoUsuario(QtWidgets.QMainWindow):
         self.showMaximized()
         self.setWindowTitle("Manejo de inventario YSR Soluciones, C.A")
 
-    def menuPrincipal_access(self, admin, user_name):
-        menuview = MenuPrincipal(admin, user_name )
+    def menuPrincipal_access(self, admin, user_name, usser, passwordDb):
+        menuview = MenuPrincipal(admin=admin, user_name=user_name, usser=usser, passwordDb=passwordDb)
         widget.addWidget(menuview)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
@@ -39,19 +50,20 @@ class IngresoUsuario(QtWidgets.QMainWindow):
             QMessageBox.warning(self, "Error", "Por favor ingrese usuario y contraseña.")
             return
 
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
+        with sqlite3.connect("./database/db.db") as conexion:
+            cursor = conexion.cursor()
         cursor.execute("SELECT * FROM usuarios WHERE User = ?", (usuario,))
         user = cursor.fetchone()
 
         if user:
+            usser = user[0]
             passwordDb = user[1]
             user_name = user[4]
 
             if password == passwordDb:
                 print("contraseña correcta")
                 admin = user[3]
-                self.menuPrincipal_access(admin, user_name)
+                self.menuPrincipal_access(admin, user_name, usser, passwordDb)
             else:
                 QMessageBox.warning(self, "Error", "Contraseña incorrecta")
         else:
@@ -60,15 +72,20 @@ class IngresoUsuario(QtWidgets.QMainWindow):
 
 #clase menu principal
 class MenuPrincipal(QtWidgets.QMainWindow):
-    def __init__(self, admin, user_name ):
+    def __init__(self, admin, user_name, usser, passwordDb ):
         super(MenuPrincipal, self).__init__()
         uic.loadUi("./ui/menu_principal.ui", self)
         self.admin = admin
+        self.usser = usser
+        self.passwordDb = passwordDb
         self.user_name = user_name
         if self.admin == "true":
            self.Label_nameUser.setText(f"Bienvenido Administrador, {user_name}")
         else : 
             self.Label_nameUser.setText(f"Bievenido, {user_name} ")
+        #caragar estilos de la libreria paara haccer las paginas del pdf
+        self.styles = getSampleStyleSheet()
+        self.estilo_normal = self.styles['Normal']
         self.setWindowTitle("Manejo de Inventario")
         self.bt_salir.clicked.connect(self.backLogin)
         # dirigir a la pagina de  gestion de usuarios
@@ -120,13 +137,22 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.btn_eliminarEM_salida.clicked.connect(self.borrarSalida_EM)
         self.btn_guardarEMsalidas.clicked.connect(self.guardarSalida_EM)
         self.tableWidget_EM_salidas.cellClicked.connect(self.llenar_lineeditsEM_salidas)
-        
+        #imprimir
+        self.btn_print_equip.clicked.connect(self.imprimirtablas)
+        self.btn_printCons.clicked.connect(self.imprimirtablas)
+        self.btn_printHerrM.clicked.connect(self.imprimirtablas)
         #busqueda principal
         self.btn_buscar.clicked.connect(self.busquedaprincipal)
         #filtrar Contenido Segun el estado
         self.btn_filtrarEstado.clicked.connect(self.filtrarporestado)
         #filtrar por cantidad baja cantidad en inventario
         self.btn_actualizarTablabajaExist.clicked.connect(self.filtrar_bajaCantidad)
+        self.estilo_normal = ParagraphStyle(
+        'Normal',
+        fontName='Helvetica',
+        fontSize=12,
+        textColor=colors.black,
+        )
     
     # Cargar configuracion global
     def cargarnombreProyecto(self):
@@ -160,7 +186,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
             return
     def userView(self):
-        Usuario = Users(admin=self.admin, widget=widget, user_name=self.user_name)
+        Usuario = Users(admin=self.admin, widget=widget, user_name=self.user_name, passwordDb= self.passwordDb,usser=self.usser)
         widget.addWidget(Usuario)
         widget.setCurrentIndex(widget.currentIndex() + 1)
     
@@ -173,7 +199,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
     # abrir ventana de respaldar base de datos 
     def bddView(self):
         if self.admin == "true":
-            bddVentana = bddMenu(admin=self.admin, widget=widget, user_name=self.user_name)
+            bddVentana = bddMenu(admin=self.admin, widget=widget, user_name=self.user_name, usser = self.usser, passwordDb= self.passwordDb)
             widget.addWidget(bddVentana)
             widget.setCurrentIndex(widget.currentIndex() + 1)
         else:
@@ -293,7 +319,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                         item.setBackground(QBrush(QColor(255, 0, 0)))  # Fondo rojo
 
   
-    ### EQUIPOS Y MAQUINARIAS ###  
+    ### EQUIPOS Y MAQUINARIAS ###
+      
     #mostrar datos en la tabla de reportes de Equipos y maquinarias
     def reloaddataEM(self):
             try:
@@ -313,6 +340,150 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             except Exception as e:
                 QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
     
+    #  imprimir tablas
+    def imprimirtablas(self):
+        try:
+            # El usuario selecciona la carpeta de destino
+            carpeta_destino = QFileDialog.getExistingDirectory(self, "Seleccionar Carpeta de Destino")
+
+            if not carpeta_destino:
+                return
+
+            db_backup_path = f"{carpeta_destino}/db.db"
+
+            conexion = sqlite3.connect("./database/db.db")
+
+            # Cambiar la sección de copia de la base de datos
+            shutil.copy2("./database/db.db", db_backup_path)
+
+            # Lista de tablas deseadas
+            tablas_deseadas = ["consumibles", "HerramientasManuales", "EquiposyMaquinarias"]
+
+            # Cambiar la orientación de las páginas a horizontal
+            pdf_filename = f"{carpeta_destino}/exportacion_inventario.pdf"
+            pdf = SimpleDocTemplate(pdf_filename, pagesize=(letter[1], letter[0]))
+
+            estilo_titulo = ParagraphStyle(
+                'Title',
+                parent=self.estilo_normal,
+                fontName='Helvetica-Bold',
+                fontSize=16,
+                spaceAfter=12,
+                textColor=colors.black
+            )
+
+            estilo_pdf_header = TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor('#001F3F')),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                ]
+            )
+
+            estilo_pdf_body = TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                    ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+                    ("GRID", (0, 0), (0, 0), 1, colors.black),
+                ]
+            )
+
+            # Agregar título
+            titulo = Paragraph("Tablas de la Base de Datos del Sistema de Control de Inventario", estilo_titulo)
+
+            # Agregar espacio entre título y imagen
+            espacio_titulo = Spacer(1, 20)
+            
+            # Agregar mensaje de impresión y usuario en la esquina superior derecha
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            printed_message = f"Impreso: {current_time} | Por: {self.user_name}"
+            mensaje_impresion = Paragraph(printed_message, self.estilo_normal)
+            
+            # Agregar imagen en la esquina superior izquierda
+            imagen_path = "./ui/imagenes/ysr_logo-transformed.jpeg"
+            imagen = Image(imagen_path, width=100, height=100)
+
+            # Agregar espacio entre imagen y mensajes
+            espacio_imagen = Spacer(20, 1)
+
+            # Crear la lista de elementos a agregar al PDF
+            story = [titulo, espacio_titulo, mensaje_impresion, imagen, espacio_imagen]
+
+            for tabla in tablas_deseadas:
+                consulta_sql = f"SELECT * FROM {tabla}"
+                df = pd.read_sql_query(consulta_sql, conexion)
+
+                # Convertir todos los datos a Unicode antes de pasarlos a la tabla PDF
+                data = [
+                    [str(cell) for cell in row]
+                    for row in [df.columns.tolist()] + df.values.tolist()
+                ]
+
+                # Agregar el nombre de la tabla como título
+                story.append(Paragraph(f"<u>{tabla}</u>", self.estilo_normal))
+
+                # Agregar la tabla con estilos personalizados
+                tabla_pdf = Table(data)
+
+                # Aplicar estilos al encabezado (primera fila)
+                for col_idx in range(len(data[0])):
+                    tabla_pdf.setStyle(
+                        TableStyle([
+                            ("BACKGROUND", (col_idx, 0), (col_idx, 0), colors.HexColor('#001F3F')),
+                            ("TEXTCOLOR", (col_idx, 0), (col_idx, 0), colors.white),
+                            ("ALIGN", (col_idx, 0), (col_idx, 0), "CENTER"),
+                            ("FONTNAME", (col_idx, 0), (col_idx, 0), "Helvetica-Bold"),
+                            ("BOTTOMPADDING", (col_idx, 0), (col_idx, 0), 12),
+                            ("GRID", (col_idx, 0), (col_idx, 0), 1, colors.black),
+                        ])
+                    )
+
+                # Aplicar estilos al cuerpo de la tabla (resto de las filas)
+                for row_idx in range(1, len(data)):
+                    for col_idx in range(len(data[row_idx])):
+                        tabla_pdf.setStyle(
+                            TableStyle([
+                                ("BACKGROUND", (col_idx, row_idx), (col_idx, row_idx), colors.white),
+                                ("TEXTCOLOR", (col_idx, row_idx), (col_idx, row_idx), colors.black),
+                                ("ALIGN", (col_idx, row_idx), (col_idx, row_idx), "CENTER"),
+                                ("GRID", (col_idx, row_idx), (col_idx, row_idx), 1, colors.black),
+                            ])
+                        )
+
+                story.append(tabla_pdf)
+
+                # Agregar espacio entre tablas
+                story.append(Spacer(0, 20))
+
+            pdf.build(story)
+
+            self.mostrar_mensaje(
+                f"Base de datos y tablas exportadas a:\n{db_backup_path} y {pdf_filename}"
+            )
+
+        except sqlite3.Error as e:
+            self.mostrar_error(f"Error en la conexión a la base de datos: {str(e)}")
+        except pd.errors.EmptyDataError:
+            self.mostrar_error("Error: La base de datos está vacía.")
+        except Exception as e:
+            self.mostrar_error(f"Error inesperado: {str(e)}")
+        finally:
+            if 'conexion' in locals() and conexion:
+                conexion.close()
+
+    def mostrar_mensaje(self, mensaje):
+        QMessageBox.information(self, "Éxito", mensaje)
+
+    def mostrar_error(self, mensaje):
+        QMessageBox.critical(self, "Error", mensaje)
+        
     ### HERRAMIENTAS MANUALES ###   
     #mostrar datos en la tabla de herramientass manuales    
     def reloaddataHM(self):
@@ -355,6 +526,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
     
     ### PEDIDOS ###
    
+   # eliminar producto del pedido
     def eliminarPedido(self):
         nombrePedido = self.lineEdit_nombreP.text()
         try:
@@ -373,6 +545,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             
         except:
             print ("Error al conectarse a SQLite")
+    
+    # llenar campos con la inforamcion de la tabla para eliminar loss pedidos
     def llenar_lineeditsPDidos(self, row, col):
         # Obtener datos de la fila seleccionada
         Nombre = self.tablapedidocrear.item(row, 0).text()
@@ -390,6 +564,8 @@ class MenuPrincipal(QtWidgets.QMainWindow):
         self.lineEdit_undmedP.setText(UMedida)
         self.lineEdit_cantP.setText(cantidad)
         self.lineEdit_necesP.setText(Necesidad)
+    
+    #  editar la informacion del pedido ( responsable, nombre proyecto, etc)
     def editar_pedido(self):
         numeroPedido = self.lineEdit_numeroPedido.text()
         if not numeroPedido:
@@ -410,13 +586,22 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                 
             conexion.commit()
             conexion.close()
+    
+    #Limpiar formulario y tablas
     def limpiar_pedido(self):
         self.txtbx_nameproyectoPed.clear()
         self.lineEdit_ResponsablePed.clear()
         self.txtbx_telefonoresponsablePed.clear()
         self.lineEdit_numeroPedido.clear()
+        self.lineEdit_nombreP.clear()
+        self.lineEdit_espsTecP.clear()
+        self.lineEdit_undmedP.clear()
+        self.lineEdit_cantP.clear()
+        self.lineEdit_necesP.clear()
         self.btn_guardar_pedid.setEnabled(True)
         self.lineEdit_numeroPedido.setReadOnly(False)
+        self.tablapedidocrear.clear()
+    # buscar pedido (informacion y tambien contenido del pedido(tabla) )
     def buscar_pedido(self):
         NumeroPedido = self.lineEdit_busqueda_pedido.text()
         if not NumeroPedido:
@@ -459,6 +644,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                     for col, value in enumerate(row_data):
                         item = QTableWidgetItem(str(value))
                         self.tablapedidocrear.setItem(row, col, item)             
+    # agregar informacion de retiro(responsaable, telefono, numero pedido)
     def agregar_pedido(self):
         
         numerodepedido = self.lineEdit_numeroPedido.text()
@@ -496,6 +682,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             count = cursor.fetchone()[0]
             conexion.close()
             return count > 0    
+    # agregar contenido del pedido
     def agregarprod_pedido(self):
         
         numerodepedido = self.lineEdit_numeroPedido.text()
@@ -519,8 +706,7 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             conexion.commit()
             QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
       
-      
-    ##ver pedidos##
+    ## ver pedidos en la pagina dde visualizar ##
     def vertabla_pedido(self):
         NumeroPedido = self.lineEdit_busqueda_pedido_ver.text()
         if not NumeroPedido:
@@ -554,8 +740,6 @@ class MenuPrincipal(QtWidgets.QMainWindow):
                     self.txtbx_nameproyecto_ver_pedido.setText(resultado_pedido[0])
                     self.lineEdit_Responsable_verPedido.setText(resultado_pedido[1])
                     self.txtbx_telefonoresponsable_VerPedido.setText(str(resultado_pedido[2]))
-                    
-
 
             else:
                 QMessageBox.information(self, "Error", "No hay contenido asociado a ese número de pedido")
@@ -853,7 +1037,7 @@ class gestionInventario(QtWidgets.QMainWindow):
     
     # volver al menu principal
     def backMenu(self):
-        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name)
+        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name, usser=self.usser, passwordDb=self.passwordDb)
         widget.addWidget(menuprincipal)
         widget.setCurrentIndex(widget.currentIndex() + 1)
     
@@ -1286,12 +1470,13 @@ class gestionInventario(QtWidgets.QMainWindow):
         else:
             conexion = sqlite3.connect("./database/db.db")
             cursor = conexion.cursor()
-            query = "INSERT INTO EquiposyMaquinarias (Codigo, Placa, Serial, Descripcion, Estado, Fecha_de_ingreso, Fecha_de_UltimoMantenimiento, Notas, Lapso_entre_mantenimiento, Disponibilidad) VALUES (?, ?, ?, ?, ?, ?, ?)"
+            query = "INSERT INTO EquiposyMaquinarias (Codigo, Placa, Serial, Descripcion, Estado, Fecha_de_ingreso, Fecha_de_UltimoMantenimiento, Notas, Lapso_entre_mantenimiento, Disponibilidad) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
             cursor.execute(query, (codigo, placa, serial, descripcion, estado, fecha_formato_cadena_ing, fecha_formato_cadena_um, notas, frecuencia_mant, disponibilidad))
 
             conexion.commit()
             QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
+            
     def verificar_existencia_codigo(self, codigo):
         conexion = sqlite3.connect("./database/db.db")
         cursor = conexion.cursor()
@@ -1416,12 +1601,14 @@ class gestionInventario(QtWidgets.QMainWindow):
 
 #### CLASE DE GESTION DE USUARIOS ####
 class Users(QtWidgets.QMainWindow):
-    def __init__(self, admin, widget ,user_name):
+    def __init__(self, admin, widget ,user_name, usser, passwordDb):
         super(Users, self).__init__()
         uic.loadUi("./ui/usuarios.ui", self)
         self.admin = admin
         self.user_name = user_name
         self.widget = widget
+        self.usser = usser
+        self.passwordDb = passwordDb
         self.setWindowTitle("Gestion de Usuarios")
         self.btn_backmenu.clicked.connect(self.backMenu)
         self.btn_cerrarSesion_1.clicked.connect(self.backLogin)
@@ -1601,7 +1788,7 @@ class Users(QtWidgets.QMainWindow):
             QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
     # metodo de volver al menu principal    
     def backMenu(self):
-        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name)
+        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name, usser= self.usser, passwordDb= self.passwordDb)
         widget.addWidget(menuprincipal)
         widget.setCurrentIndex(widget.currentIndex() + 1)
     # metodo de volver al login
@@ -1616,18 +1803,20 @@ class Users(QtWidgets.QMainWindow):
 
 ### CLASE DE MENU DE BASSE DE DATOS ###
 class bddMenu(QtWidgets.QMainWindow):
-    def __init__(self, admin, widget, user_name):
+    def __init__(self, admin, widget, user_name, usser, passwordDb):
         super(bddMenu, self).__init__()
         uic.loadUi("./ui/bdd.ui", self)
         self.admin = admin
+        self.usser = usser
         self.user_name = user_name
         self.widget = widget
+        self.styles = getSampleStyleSheet()
+        self.estilo_normal = self.styles['Normal']
         self.btn_VolverMenu.clicked.connect(self.volver_menu)
         self.btn_gest_usuario.clicked.connect(self.verifyAdmin_user)
         self.bt_salir_2.clicked.connect(self.cerrarSesion)
-        self.btn_limpiarbdd.clicked.connect(self.LimpiarBDD)
-        self.btn_importar.clicked.connect(self.importar_base_datos)
-        self.btn_respaldar.clicked.connect(self.exportarBDD)
+        #self.btn_limpiarbdd.clicked.connect(self.LimpiarBDD)
+        
         self.btn_ajustesInvent.clicked.connect(self.HistorialView)
 
     ### Exportar basse de datos ###
@@ -1649,7 +1838,32 @@ class bddMenu(QtWidgets.QMainWindow):
             consulta_tablas_sql = "SELECT name FROM sqlite_master WHERE type='table';"
             tablas = pd.read_sql_query(consulta_tablas_sql, conexion)["name"].tolist()
 
-            estilo_pdf = TableStyle(
+            
+            # Cambiar la orientación de las páginas a horizontal
+            pdf_filename = f"{carpeta_destino}/exportacion_inventario.pdf"
+            pdf = SimpleDocTemplate(pdf_filename, pagesize=(letter[1], letter[0]))
+
+            estilo_titulo = ParagraphStyle(
+                'Title',
+                parent=self.estilo_normal,
+                fontName='Helvetica-Bold',
+                fontSize=16,
+                spaceAfter=12,
+                textColor=colors.black
+            )
+
+            estilo_pdf_header = TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor('#001F3F')),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                ]
+            )
+
+            estilo_pdf_body = TableStyle(
                 [
                     ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
                     ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
@@ -1661,11 +1875,28 @@ class bddMenu(QtWidgets.QMainWindow):
                 ]
             )
 
-            # Cambiar la orientación de las páginas a horizontal
-            pdf_filename = f"{carpeta_destino}/exportacion_inventario.pdf"
-            pdf = SimpleDocTemplate(pdf_filename, pagesize=(letter[1], letter[0]))
+            # Agregar título
+            titulo = Paragraph("Tablas de la Base de Datos del Sistema de Control de Inventario", estilo_titulo)
 
-            story = []
+            # Agregar espacio entre título y imagen
+            espacio_titulo = Spacer(1, 20)
+            
+            # Agregar mensaje de impresión y usuario en la esquina superior derecha
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            printed_message = f"Impreso: {current_time} | Por: {self.user_name}"
+            mensaje_impresion = Paragraph(printed_message, self.estilo_normal)
+            
+            # Agregar imagen en la esquina superior izquierda
+            imagen_path = "./ui/imagenes/ysr_logo-transformed.jpeg"  # Reemplaza con la ruta de tu imagen
+            imagen = Image(imagen_path, width=100, height=100)
+
+            # Agregar espacio entre imagen y mensajes
+            espacio_imagen = Spacer(20, 1)
+
+
+            # Crear la lista de elementos a agregar al PDF
+            story = [titulo, espacio_titulo, mensaje_impresion, imagen, espacio_imagen ]
+
 
             for tabla in tablas:
                 consulta_sql = f"SELECT * FROM {tabla}"
@@ -1677,9 +1908,41 @@ class bddMenu(QtWidgets.QMainWindow):
                     for row in [df.columns.tolist()] + df.values.tolist()
                 ]
 
+                # Agregar el nombre de la tabla como título
+                story.append(Paragraph(f"<u>{tabla}</u>", self.estilo_normal))
+
+                # Agregar la tabla con estilos personalizados
                 tabla_pdf = Table(data)
-                tabla_pdf.setStyle(estilo_pdf)
+
+                # Aplicar estilos al encabezado (primera fila)
+                for col_idx in range(len(data[0])):
+                    tabla_pdf.setStyle(
+                        TableStyle([
+                            ("BACKGROUND", (col_idx, 0), (col_idx, 0), colors.HexColor('#001F3F')),
+                            ("TEXTCOLOR", (col_idx, 0), (col_idx, 0), colors.white),
+                            ("ALIGN", (col_idx, 0), (col_idx, 0), "CENTER"),
+                            ("FONTNAME", (col_idx, 0), (col_idx, 0), "Helvetica-Bold"),
+                            ("BOTTOMPADDING", (col_idx, 0), (col_idx, 0), 12),
+                            ("GRID", (col_idx, 0), (col_idx, 0), 1, colors.black),
+                        ])
+                    )
+
+                # Aplicar estilos al cuerpo de la tabla (resto de las filas)
+                for row_idx in range(1, len(data)):
+                    for col_idx in range(len(data[row_idx])):
+                        tabla_pdf.setStyle(
+                            TableStyle([
+                                ("BACKGROUND", (col_idx, row_idx), (col_idx, row_idx), colors.white),
+                                ("TEXTCOLOR", (col_idx, row_idx), (col_idx, row_idx), colors.black),
+                                ("ALIGN", (col_idx, row_idx), (col_idx, row_idx), "CENTER"),
+                                ("GRID", (col_idx, row_idx), (col_idx, row_idx), 1, colors.black),
+                            ])
+                        )
+
                 story.append(tabla_pdf)
+
+                # Agregar espacio entre tablas
+                story.append(Spacer(0, 20))
 
             pdf.build(story)
 
@@ -1696,8 +1959,10 @@ class bddMenu(QtWidgets.QMainWindow):
         finally:
             if 'conexion' in locals() and conexion:
                 conexion.close()
+
     def mostrar_mensaje(self, mensaje):
         QMessageBox.information(self, "Éxito", mensaje)
+
     def mostrar_error(self, mensaje):
         QMessageBox.critical(self, "Error", mensaje)
         
@@ -1741,35 +2006,8 @@ class bddMenu(QtWidgets.QMainWindow):
     def mostrar_mensaje(self, mensaje):
         # Mostrar un cuadro de mensaje con la información proporcionada
         QMessageBox.information(self, "Éxito", mensaje)
-        
-    # limpiar las tablas en la base de datos.
-    def LimpiarBDD(self):
-        # Mostrar el diálogo de confirmación de contraseña
-        dialogo_contraseña = DialogoContraseña(parent=self)
-        if dialogo_contraseña.exec_() == QDialog.Accepted:
-            # Contraseña correcta, proceder con la limpieza de la base de datos
-            if self.admin == "true":
-                try:
-                    conexion = sqlite3.connect("./database/db.db")
-                    cursor = conexion.cursor()
-                    # Aquí realizas las consultas para borrar la información de las tablas
-                    cursor.execute("DELETE FROM EquiposyMaquinarias;")
-                    cursor.execute("DELETE FROM HerramientasManuales;")
-                    cursor.execute("DELETE FROM consumibles;")
-                    cursor.execute("DELETE FROM configuracion_global;")
-                    cursor.execute("DELETE FROM pedidos;")
-                    cursor.execute("DELETE FROM contenido_pedido;")
-                    conexion.commit()
-                    conexion.close()
-                    QMessageBox.information(self, "Limpieza Exitosa", "Base de datos limpia exitosamente.")
-                except Exception as e:
-                    QMessageBox.critical(self, "Error", f"Error al limpiar la base de datos:\n{str(e)}")
-            else:
-                QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
-        else:
-            # Contraseña incorrecta o diálogo cerrado
-            QMessageBox.warning(self, "Operación Cancelada", "La limpieza de la base de datos fue cancelada.")
 
+    
     # cerrar sesion
     def cerrarSesion(self):
         ingreso_usuario.show()
@@ -1780,7 +2018,7 @@ class bddMenu(QtWidgets.QMainWindow):
     # abrir ventana de gestion de usuarios    
     def verifyAdmin_user(self):
         if self.admin == "true":
-            Usuario = Users(admin=self.admin, widget=widget, user_name=self.user_name)
+            Usuario = Users(admin=self.admin, usser=self.usser, widget=self.widget, user_name=self.user_name, passwordDb=self.passwordDb)
             widget.addWidget(Usuario)
             widget.setCurrentIndex(widget.currentIndex() + 1)
          
@@ -1790,51 +2028,31 @@ class bddMenu(QtWidgets.QMainWindow):
         
     # volver al menu principal
     def volver_menu(self):
-        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name)
+        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name, usser=self.usser, passwordDb=self.passwordDb)
         widget.addWidget(menuprincipal)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
     # abrir ventana de ajustes de inventario si es admin
     def HistorialView(self):
         if self.admin == "true":
-            historial_cambio_inventario = ajustesInventario(admin=self.admin, widget=widget, user_name=self.user_name)
+            historial_cambio_inventario = ajustesInventario(admin=self.admin, widget=widget, user_name=self.user_name,usser=self.usser, passwordDb=self.passwordDb)
             widget.addWidget(historial_cambio_inventario)
             widget.setCurrentIndex(widget.currentIndex() + 1)
          
         else:
             QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
             return
-    
-    
-        
-# Implementa un diálogo para la fuuncion de limpiar tablas de la bdd en la clase de base de datos en la ventana de opciones avanzada
-class DialogoContraseña(QDialog):
-    def __init__(self, parent=None):
-        super(DialogoContraseña, self).__init__(parent)
-        self.setWindowTitle("Confirmar Contraseña")
-        layout = QVBoxLayout()
-        self.label_contraseña = QLabel("Si desea eliminar la informacion del inventario \n Ingrese su contraseña:")
-        self.txt_contraseña = QLineEdit(self)
-        self.txt_contraseña.setEchoMode(QLineEdit.Password)
-        self.btn_aceptar = QPushButton("Aceptar", self)
-        self.btn_aceptar.clicked.connect(self.accept)
-        self.btn_cancelar = QPushButton("Cancelar", self)
-        self.btn_cancelar.clicked.connect(self.reject)
-        layout.addWidget(self.label_contraseña)
-        layout.addWidget(self.txt_contraseña)
-        layout.addWidget(self.btn_aceptar)
-        layout.addWidget(self.btn_cancelar)
-        self.setLayout(layout)
- 
- 
+
+
 ###    CLASE DE AJUSTES DEL PROGRAMA Y HISTORIAL DE CAMBIOS
 class ajustesInventario(QtWidgets.QMainWindow):
-    def __init__(self, admin, widget, user_name):
+    def __init__(self, admin, widget, user_name, usser):
         super(ajustesInventario, self).__init__()
         uic.loadUi("./ui/Historial_cambios.ui", self)
         self.admin = admin
         self.user_name = user_name
         self.widget = widget
+        self.usser = usser
         #volver al menu
         self.btn_VolverMenu.clicked.connect(self.volvermenup)
         self.btn_gest_usuario.clicked.connect(self.abrirMenu_gestUsuario)
@@ -1872,14 +2090,14 @@ class ajustesInventario(QtWidgets.QMainWindow):
     
     # volver al menu principal    
     def volvermenup(self):
-        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name)
+        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name, usser=self.usser, passwordDb=self.passwordDb)
         widget.addWidget(menuprincipal)
         widget.setCurrentIndex(widget.currentIndex() + 1)
         
     # abrir ventana de ajustes de inventario si es admin
     def abrirMenu_gestUsuario(self):
         if self.admin == "true":
-            Menu_gestionUsers = Users(admin=self.admin, widget=widget, user_name=self.user_name)
+            Menu_gestionUsers = Users(admin=self.admin, usser=self.usser, passwordDb=self.passwordDb, widget=self.widget, user_name=self.user_name)
             widget.addWidget(Menu_gestionUsers)
             widget.setCurrentIndex(widget.currentIndex() + 1)
          
