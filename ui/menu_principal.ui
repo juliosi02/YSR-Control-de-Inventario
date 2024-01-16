@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1316</width>
-    <height>0</height>
+    <width>1324</width>
+    <height>978</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -398,7 +398,7 @@ QTabBar::tab:selected {
 }</string>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -550,7 +550,7 @@ Maquinarias</string>
         <item>
          <widget class="QStackedWidget" name="stackedWidget">
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page_herramientas_manuales">
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -3606,7 +3606,7 @@ border-bottom:2px solid blue;</string>
         <item>
          <widget class="QStackedWidget" name="stackedWidget_pedidos">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="page_generarPedidos">
            <layout class="QVBoxLayout" name="verticalLayout_30">
@@ -4193,22 +4193,6 @@ border-bottom:2px solid blue;</string>
                 <item>
                  <layout class="QVBoxLayout" name="verticalLayout_63">
                   <item>
-                   <widget class="QPushButton" name="btn_editartblPedido_1">
-                    <property name="minimumSize">
-                     <size>
-                      <width>100</width>
-                      <height>35</height>
-                     </size>
-                    </property>
-                    <property name="styleSheet">
-                     <string notr="true">border-radius:12px;</string>
-                    </property>
-                    <property name="text">
-                     <string>Editar</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
                    <widget class="QPushButton" name="btn_aggtblPedidos">
                     <property name="minimumSize">
                      <size>
@@ -4241,7 +4225,7 @@ border-bottom:2px solid blue;</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="btn_editartblPedido_">
+                   <widget class="QPushButton" name="btn_limpiarProdPedido">
                     <property name="minimumSize">
                      <size>
                       <width>100</width>
@@ -4347,6 +4331,9 @@ border-bottom:2px solid blue;</string>
                         <width>0</width>
                         <height>25</height>
                        </size>
+                      </property>
+                      <property name="text">
+                       <string/>
                       </property>
                      </widget>
                     </item>
@@ -4506,7 +4493,7 @@ border-bottom:2px solid blue;</string>
                </layout>
               </item>
               <item>
-               <widget class="QTableWidget" name="tableWidget_11"/>
+               <widget class="QTableWidget" name="tablapedido_ver"/>
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_87">

@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /4dm1nist4dor/
+Disallow: /index.php
+Disallow: /panel.php
+
+User-agent: *
+Disallow:

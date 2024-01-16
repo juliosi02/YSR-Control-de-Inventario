@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>788</width>
-    <height>623</height>
+    <width>890</width>
+    <height>757</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -72,7 +72,7 @@ color:#ffffff;
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>../../../../.designer/backup/imagenes/logo pendon ysr.jpg</pixmap>
+            <pixmap>C:/Users/Asus Vivoook/.designer/backup/imagenes/logo pendon ysr.jpg</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -268,8 +268,8 @@ QToolBox::tab:selected {
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>751</width>
-         <height>431</height>
+         <width>870</width>
+         <height>466</height>
         </rect>
        </property>
        <attribute name="label">
@@ -704,8 +704,8 @@ font: 87 italic 24pt &quot;Segoe UI Black&quot;;
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>768</width>
-         <height>347</height>
+         <width>870</width>
+         <height>466</height>
         </rect>
        </property>
        <attribute name="label">
@@ -798,8 +798,8 @@ color:#ffffff;
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>768</width>
-         <height>347</height>
+         <width>870</width>
+         <height>466</height>
         </rect>
        </property>
        <attribute name="label">

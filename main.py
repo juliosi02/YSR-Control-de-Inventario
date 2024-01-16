@@ -1,738 +1,249 @@
+# APLICACION PARA MANEJO DE INVENTARIO #
+
+# importaciones
+
+#importaciones del sistema
+import os
+from os import remove
 import sys
-from PyQt5.QtCore import pyqtSignal
-import shutil 
 import time
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer,  Image
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+import datetime
+import shutil
+import csv
+from shutil import copyfile
+os.environ["QT_LOGGING_RULES"]= "qt.gui.icc= false"
+#importar sqlite para manejjo de la bdd
 import sqlite3
+#importaciones de pyqt5
+from PyQt5 import QtWidgets, uic, QtCore
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox,QTableWidgetItem, QLabel, QDialog, QVBoxLayout, QLineEdit, QPushButton, QProgressDialog, QWidget
+from PyQt5.QtCore import Qt, QDate, pyqtSignal
+from PyQt5.QtGui import QBrush, QColor
+#importaciones de reportlab y panda para los reportes impresos
 import pandas as pd
 from reportlab.pdfgen import canvas
-import shutil
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
-import datetime
-from os import remove
-from shutil import copyfile
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QDate
-from PyQt5.QtGui import QBrush, QColor
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QLabel, QDialog,QVBoxLayout, QLineEdit, QPushButton, QFileDialog, QProgressDialog
-import sqlite3
-import pandas as pd
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, paragraph, Spacer, Image
+#importar clases 
 
-import os
-os.environ["QT_LOGGING_RULES"] = "qt.gui.icc=false"
+#####################################################################################################################################################
 
-
-# Clase Login 
-class IngresoUsuario(QtWidgets.QMainWindow):
+# clase de la ventana de inicio de sesion para acceder al sistema
+class login(QtWidgets.QMainWindow):
     def __init__(self):
-        super(IngresoUsuario, self).__init__()
+        super(login, self).__init__()
         uic.loadUi("./ui/login.ui", self)
-        self.btn_acceder.clicked.connect(self.ingreso)
-        self.showMaximized()
-        self.setWindowTitle("Manejo de inventario YSR Soluciones, C.A")
-
-    def menuPrincipal_access(self, admin, user_name, usser, passwordDb):
-        menuview = MenuPrincipal(admin=admin, user_name=user_name, usser=usser, passwordDb=passwordDb)
-        widget.addWidget(menuview)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
-
-    def ingreso(self):
+        self.btn_acceder.clicked.connect(self.validacion)
+        self.setWindowTitle("|Manejo de Inventario|")
+    
+    def validacion(self):
         usuario = self.txt_user.text()
-        password = self.txt_password.text()
-        if not usuario or not password:
-            QMessageBox.warning(self, "Error", "Por favor ingrese usuario y contraseña.")
+        contras = self.txt_password.text()
+        
+        if not usuario or not contras:
+            QMessageBox.warning(self, "Error de autenticación", "Por favor ingrese su usuario y contraseña ")         
             return
 
         with sqlite3.connect("./database/db.db") as conexion:
             cursor = conexion.cursor()
-        cursor.execute("SELECT * FROM usuarios WHERE User = ?", (usuario,))
-        user = cursor.fetchone()
+            cursor.execute("SELECT * FROM usuarios WHERE User = ?", (usuario,))
+            user = cursor.fetchone()
 
-        if user:
-            usser = user[0]
-            passwordDb = user[1]
-            user_name = user[4]
-
-            if password == passwordDb:
-                print("contraseña correcta")
+            if user: 
+                usuarioDB = user[0]
+                passwordDB = user[1]
+                nameUsDB = user[4]
                 admin = user[3]
-                self.menuPrincipal_access(admin, user_name, usser, passwordDb)
-            else:
-                QMessageBox.warning(self, "Error", "Contraseña incorrecta")
-        else:
-            QMessageBox.information(self, "Error", "Usuario no encontrado en la base de datos")
-        conexion.close()
 
-#clase menu principal
-class MenuPrincipal(QtWidgets.QMainWindow):
-    def __init__(self, admin, user_name, usser, passwordDb ):
-        super(MenuPrincipal, self).__init__()
+                if contras == passwordDB:
+                    self.registrarOperacion(usuarioDB, "Inicio de Sesión", datetime.datetime.now())
+                    self.menu_principal = MenuPrincipalc(admin, nameUsDB, usuarioDB, passwordDB)
+                    self.menu_principal.show()
+                    self.hide()  # Oculta la ventana actual
+                else:
+                    QMessageBox.warning(self, "Error al autenticar", "Contraseña incorrecta")
+            else:
+                QMessageBox.warning(self, "Error al autenticar", "Usuario no encontrado en la base de datos")
+
+    def registrarOperacion(self, responsable, operacion, fecha_operacion):
+        try:
+            with sqlite3.connect("./database/db.db") as conexion:
+            # Convertir la fecha a un formato compatible con SQLite
+                fecha_sqlite = fecha_operacion.strftime('%Y-%m-%d %H:%M:%S')
+
+            # Insertar la operación en la tabla de operaciones
+                cursor = conexion.cursor()
+                cursor.execute("""
+                    INSERT INTO operaciones (responsable, operacion, fecha_operacion)
+                    VALUES (?, ?, ?)
+                """, (responsable, operacion, fecha_sqlite))
+
+                conexion.commit()
+
+        except sqlite3.Error as e:
+            print(f"Error al registrar operación: {str(e)}")
+            raise  
+# clase de login lista y completamente funcional sin errores :) (###LISTO###)   
+    
+#####################################################################################################################################################
+    
+# clase de la ventana de menu principal
+class MenuPrincipalc(QtWidgets.QMainWindow):
+    def __init__(self, admin, nameUsDB, usuarioDB, passwordDB):
+        super(MenuPrincipalc, self).__init__()
         uic.loadUi("./ui/menu_principal.ui", self)
+        # cargar datos del usuario(nombre, contraseña, usuario) para uso posterior
         self.admin = admin
-        self.usser = usser
-        self.passwordDb = passwordDb
-        self.user_name = user_name
+        self.usuarioDB = usuarioDB
+        self.passwordDB = passwordDB
+        self.nameUsDB = nameUsDB
+        # mostrar los datos del usuario en un label en la ventana.
         if self.admin == "true":
-           self.Label_nameUser.setText(f"Bienvenido Administrador, {user_name}")
-        else : 
-            self.Label_nameUser.setText(f"Bievenido, {user_name} ")
-        #caragar estilos de la libreria paara haccer las paginas del pdf
-        self.styles = getSampleStyleSheet()
-        self.estilo_normal = self.styles['Normal']
-        self.setWindowTitle("Manejo de Inventario")
-        self.bt_salir.clicked.connect(self.backLogin)
-        # dirigir a la pagina de  gestion de usuarios
-        self.bt_config_usser.clicked.connect(self.verifyAdmin)
-        self.bt_BDD.clicked.connect(self.bddView)
-        # pagina de gestion de ver inventario en el menu principal
-        self.pushButton_aggalInventario.clicked.connect(self.geestInventView)
-        self.btn_pagePrincipal.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_principal) )
-        self.btn_page_em.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_EquiposMaquinarias) )
-        self.bt_page_hm.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_herramientas_manuales) )
-        self.btn_pageC.clicked.connect( lambda:self.stackedWidget.setCurrentWidget(self.page_Consumibles) )
-        # metodos relacionados a equipos y maquinarias
-        self.bt_reload.clicked.connect(self.reloaddataEM)
-        self.reloaddataEM()
+            self.Label_nameUser.setText(f"Bienvenido Administrador, {nameUsDB}, su usuario es: {usuarioDB}, su contraseña:{passwordDB}")
+        else:
+            self.Label_nameUser.setText(f"Bienvenido, {nameUsDB}, su usuario es: {usuarioDB}, su contraseña:{passwordDB}")
         
+        ### abrir otras ventanas desde la ventana de menu principal
+        # abrir ventana de ajustes del sistema
+        self.bt_ajustes.clicked.connect(self.abrirAjustes)
+        # abrir ventana de menu de la base de datos (opciones avanzadas)
+        self.bt_BDD.clicked.connect(self.abrirBddMenu)
+        # abrir ventana de gestion de usuarios
+        self.bt_config_usser.clicked.connect(self.abrirUsuarios)
+        # abrir ventana de agregar al inventario
+        self.pushButton_aggalInventario.clicked.connect(self.abrirInventario)
+        # cerrar sesion
+        self.bt_salir.clicked.connect(self.cerrarSesion)
         
-        #cargar nombre proyecot
-        self.cargarnombreProyecto()
-        
-        # metodos relacionados a herramientas manuales
-        self.reloaddataHM()
-        self.bt_reload_2.clicked.connect(self.reloaddataHM)
-        # metodos relacionados a consumibles
-        self.bt_reload_3.clicked.connect(self.reloaddataC)
-        self.reloaddataC()
-        # metodos de Pedidos:
-        self.btn_generarPedidos.clicked.connect( lambda:self.stackedWidget_pedidos.setCurrentWidget(self.page_generarPedidos) )
-        self.btn_visualizarPedidos.clicked.connect(lambda:self.stackedWidget_pedidos.setCurrentWidget(self.page_VisualizaPedidos))
+        ## Metodos de pedidos (ver, crear, editar, eliminar) ##
+        # cambio de paginas en la seccion de pedidos 
+        self.btn_generarPedidos.clicked.connect( lambda:self.stackedWidget_pedidos.setCurrentWidget(self.page_generarPedidos) ) #pagina de generar pedidos
+        self.btn_visualizarPedidos.clicked.connect(lambda:self.stackedWidget_pedidos.setCurrentWidget(self.page_VisualizaPedidos)) # pagina de visualizar pedidos
+        # conexion al metodo para guardar los pedidos
         self.btn_guardar_pedid.clicked.connect(self.agregar_pedido)
+        # conexion al metodo para agregar el contenido los pedidos
         self.btn_aggtblPedidos.clicked.connect(self.agregarprod_pedido)
+        # conexion al metodo para buscar  los pedidos
         self.btn_buscarPedido.clicked.connect(self.buscar_pedido)
+        # conexion al metodo para limpiar los campos en el area de generar los pedidos
         self.btn_limpiarCampos_pedid.clicked.connect(self.limpiar_pedido)
+        # conexion al metodo para editar los pedidos
         self.btn_editarPedido.clicked.connect(self.editar_pedido)
+        # conexion al metodo para eliminar los pedidos
         self.btn_elimiarPedido_1.clicked.connect(self.eliminarPedido)
-        self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditsPDidos)
-        # ver pedidos
+        # conexion al metodo para llenar los campos 
+        # con la informacion de la tabla con el contenido de los pedidos
+        self.tablapedidocrear.cellClicked.connect(self.llenar_lineeditsPedidos)
+        # conexion al metodo para buscar y ver pedidos en la pagina de visualizar los pedidos
         self.btn_bscrPedidos.clicked.connect(self.vertabla_pedido)
-        # metodos de Salidas:
-        self.btn_generarSalidas.clicked.connect( lambda:self.stackedWidget_salidas.setCurrentWidget(self.page_GenerarSalidas) )
-        self.btn_visualizarSalidas.clicked.connect(lambda:self.stackedWidget_salidas.setCurrentWidget(self.page_Visualizar_salidas))
-        self.bt_buscarsalida.clicked.connect(self.buscar_salida)
-        self.btn_guardar_salida.clicked.connect(self.guardarResponsable_salida)
-        self.btn_limpiarsalida.clicked.connect(self.limpiar_salida)
-        self.btn_editarSalida.clicked.connect(self.editar_salida)
-        self.btn_buscar_consumibles_salidas.clicked.connect(self.busquedacons_salida)
-        self.btn_buscar_herr_salidas.clicked.connect(self.busquedaHM_salidas)
-        #metodos de agregar y quitar salidas de equipos y maquinarias
-        self.btn_buscar_equi_salidas.clicked.connect(self.busquedaEM_salidas)
-        self.btn_eliminarEM_salida.clicked.connect(self.borrarSalida_EM)
-        self.btn_guardarEMsalidas.clicked.connect(self.guardarSalida_EM)
-        self.tableWidget_EM_salidas.cellClicked.connect(self.llenar_lineeditsEM_salidas)
-        #imprimir
-        self.btn_print_equip.clicked.connect(self.imprimirtablas)
-        self.btn_printCons.clicked.connect(self.imprimirtablas)
-        self.btn_printHerrM.clicked.connect(self.imprimirtablas)
-        #busqueda principal
-        self.btn_buscar.clicked.connect(self.busquedaprincipal)
-        #filtrar Contenido Segun el estado
-        self.btn_filtrarEstado.clicked.connect(self.filtrarporestado)
-        #filtrar por cantidad baja cantidad en inventario
-        self.btn_actualizarTablabajaExist.clicked.connect(self.filtrar_bajaCantidad)
-        self.estilo_normal = ParagraphStyle(
-        'Normal',
-        fontName='Helvetica',
-        fontSize=12,
-        textColor=colors.black,
-        )
-    
-    # Cargar configuracion global
-    def cargarnombreProyecto(self):
-        try:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            cursor.execute("SELECT nombre_proyecto FROM configuracion_global")
-            resultado = cursor.fetchone()
+        # conexion al metodo para limpiar los campos de productos  del pedido
+        self.btn_limpiarProdPedido.clicked.connect(self.limpiarCamposPedido)
 
-            if resultado is not None and resultado[0]:
-                self.label_nombreProyecto.setText(resultado[0])
-            else:
-                self.label_nombreProyecto.setText("Registre el nombre del proyecto en los ajustes del programa")
+    # metodo para el registro de operaciones
+    def registrarOperacion(self, operacion):
+        try:
+            with sqlite3.connect("./database/db.db") as conexion:
+                fecha_operacion = datetime.datetime.now()
+                fecha_sqlite = fecha_operacion.strftime('%Y-%m-%d %H:%M:%S')
+
+                cursor = conexion.cursor()
+                cursor.execute("""
+                    INSERT INTO operaciones (responsable, operacion, fecha_operacion)
+                    VALUES (?, ?, ?)
+                """, (self.usuarioDB, operacion, fecha_sqlite))
+
+                conexion.commit()
 
         except sqlite3.Error as e:
-            self.mostrar_error(f"Error en la conexión a la base de datos: {str(e)}")
-        except Exception as e:
-            self.mostrar_error(f"Error inesperado: {str(e)}")
-        finally:
-            if 'conexion' in locals() and conexion:
-                conexion.close()
-
-    def mostrar_error(self, mensaje):
-        QMessageBox.critical(self, "Error", mensaje)
-
-    # abrir menu de gestion de usuarios 
-    def verifyAdmin(self):
+            print(f"Error al registrar operación: {str(e)}")
+            raise
+    
+    # abrir ventana de menu de la base de datos
+    def abrirBddMenu(self):
         if self.admin == "true":
-            self.userView()
+            self.registrarOperacion("Abrir Ventana de Menu de Base de Datos")
+            self.bddmenu = baseDeDatos(admin=self.admin, nameUsDB=self.nameUsDB, usuarioDB=self.usuarioDB, passwordDB=self.passwordDB)
+            self.bddmenu.show()
+            self.hide()  # Oculta la ventana actual
         else:
             QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
             return
-    def userView(self):
-        Usuario = Users(admin=self.admin, widget=widget, user_name=self.user_name, passwordDb= self.passwordDb,usser=self.usser)
-        widget.addWidget(Usuario)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
-    
-    # abrir ventana de agregar al inventario    
-    def geestInventView(self):
-        GestionarInvent = gestionInventario(admin=self.admin, widget=widget, user_name=self.user_name)
-        widget.addWidget(GestionarInvent)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
-        
-    # abrir ventana de respaldar base de datos 
-    def bddView(self):
+
+    # abrir ventana de ajustes del sistema
+    def abrirAjustes(self):
         if self.admin == "true":
-            bddVentana = bddMenu(admin=self.admin, widget=widget, user_name=self.user_name, usser = self.usser, passwordDb= self.passwordDb)
-            widget.addWidget(bddVentana)
-            widget.setCurrentIndex(widget.currentIndex() + 1)
+            self.registrarOperacion("Abrir Ventana de Ajustes")
+            self.ajustes = Ajustes(admin=self.admin, nameUsDB=self.nameUsDB, usuarioDB=self.usuarioDB, passwordDB=self.passwordDB)
+            self.ajustes.show()
+            self.hide()  # Oculta la ventana actual
         else:
             QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
             return
-        
-    #abrir ventana de ajustes de inventario
-    def ajustesView(self):
+
+    # abrir ventana de gestion de usuarios
+    def abrirUsuarios(self):
         if self.admin == "true":
-            historial_cambio_inventario = ajustesInventario(admin=self.admin, widget=widget, user_name=self.user_name)
-            widget.addWidget(historial_cambio_inventario)
-            widget.setCurrentIndex(widget.currentIndex() + 1)
+            self.registrarOperacion("Abrir Ventana de Gestión de Usuarios")
+            self.usuarios = Usuarios(admin=self.admin, nameUsDB=self.nameUsDB, usuarioDB=self.usuarioDB, passwordDB=self.passwordDB)
+            self.usuarios.show()
+            self.hide()  # Oculta la ventana actual
         else:
             QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
             return
-              
-        
-    ### BUSQUEDA PRINCIPAL EN LA PAGINa GENERAL ###
-    
-    #buscar y mostrar resultados de la busqueda en una tabla en la seccion "General"
-    def busquedaprincipal(self):
-        busqueda = self.lineEdit_busqueda.text()
-        try:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            # Consultas a la base de datos
-            cursor.execute("SELECT Codigo, Descripcion, Unidad_de_medida, Cantidad, Fecha_de_entrada, Llimite_de_reorden, Notas FROM consumibles WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
-            data_consumibles = cursor.fetchall()
 
-            cursor.execute("SELECT * FROM HerramientasManuales WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
-            data_herramientas = cursor.fetchall()
-
-            cursor.execute("SELECT * FROM EquiposyMaquinarias WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
-            data_equipos = cursor.fetchall()
-
-            # Combinar los resultados en una lista
-            data_total = data_consumibles + data_herramientas + data_equipos
-
-            # Configurar la tabla con los datos obtenidos
-            self.tabla_resultados.setRowCount(len(data_total))
-
-            for row, row_data in enumerate(data_total):
-                for col, value in enumerate(row_data):
-                    item = QTableWidgetItem(str(value))
-                    self.tabla_resultados.setItem(row, col, item)
-
-            conexion.close()
-        except Exception as e:
-            # Mostrar un mensaje de error en caso de excepción
-            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
-            
-    #filtrar equipos y maquinarias & herramientas manuales en la tabla de la vista general
-    def filtrarporestado(self):
-        
-        filtro = self.comboBox_filtroEstado.currentText()
-        
-        try:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            
-            # Consultas SQL parametrizadas para evitar inyección de SQL
-            #print("Query Equipos:", query_equipos)
-            query_equipos = "SELECT * FROM EquiposyMaquinarias WHERE Estado LIKE ? || '%'"
-            cursor.execute(query_equipos, (filtro,))
-            data_equipos = cursor.fetchall()
-
-            query_herramientas = "SELECT * FROM HerramientasManuales WHERE Estado LIKE ? || '%'"
-            cursor.execute(query_herramientas, (filtro,))
-            data_herramientas = cursor.fetchall()
-            
-            # Establecer el número de filas y columnas en la tabla
-            self.tableWidget_Estado_HM.setRowCount(len(data_herramientas))
-            self.tableWidget_Estado_EM.setRowCount(len(data_equipos))
-            
-            # Llenar las tablas con los datos recuperados
-            for row, row_data in enumerate(data_equipos):
-                for col, value in enumerate(row_data):
-                    item = QTableWidgetItem(str(value))
-                    self.tableWidget_Estado_EM.setItem(row, col, item)
-            for row, row_data in enumerate(data_herramientas):
-                for col, value in enumerate(row_data):
-                    item = QTableWidgetItem(str(value))
-                    self.tableWidget_Estado_HM.setItem(row, col, item)
-            conexion.close()
-        except Exception as e:
-            # Mostrar un mensaje de error en caso de excepción
-            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
-    
-    # filtrar consumibles con baja cantidad en almacen
-    def filtrar_bajaCantidad(self):
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
-
-        query = """
-        SELECT Codigo, Descripcion, Cantidad, Llimite_de_reorden, Fecha_de_entrada, Notas
-        FROM consumibles
-        WHERE Cantidad <= Llimite_de_reorden OR (Cantidad > Llimite_de_reorden - 5 AND Cantidad <= Llimite_de_reorden + 5);
-        """
-
-        cursor.execute(query)
-        data_resultado = cursor.fetchall()
-        conexion.close()
-
-        # Actualizar la tabla con los resultados de la consulta
-        self.tableWidget_bajacantidadStock.setRowCount(len(data_resultado))
-        self.tableWidget_bajacantidadStock.setColumnCount(len(data_resultado[0]) if data_resultado else 0)
-
-        for row, row_data in enumerate(data_resultado):
-            for col, value in enumerate(row_data):
-                item = QTableWidgetItem(str(value))
-                self.tableWidget_bajacantidadStock.setItem(row, col, item)
-
-                # Resaltar las celdas cuando la cantidad sea igual o menor al límite de reorden
-                if col == 2:  # Columna de "Cantidad"
-                    limite_reorden = row_data[3]  # Índice 3 es la columna de "Limite_de_reorden"
-                    if value <= limite_reorden:
-                        item.setBackground(QBrush(QColor(255, 0, 0)))  # Fondo rojo
-
-  
-    ### EQUIPOS Y MAQUINARIAS ###
-      
-    #mostrar datos en la tabla de reportes de Equipos y maquinarias
-    def reloaddataEM(self):
-            try:
-                conexion = sqlite3.connect("./database/db.db")
-                cursor = conexion.cursor()
-                cursor.execute("SELECT Codigo,Serial,Descripcion,Estado,Fecha_de_ingreso,Fecha_de_UltimoMantenimiento,Notas FROM EquiposyMaquinarias")
-                data = cursor.fetchall()
-
-                self.tablaEquiposyMaquinarias.setRowCount(len(data))  
-
-                for row, row_data in enumerate(data):
-                    for col, value in enumerate(row_data):
-                        item = QTableWidgetItem(str(value))
-                        self.tablaEquiposyMaquinarias.setItem(row, col, item)
-
-                conexion.close()
-            except Exception as e:
-                QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
-    
-    #  imprimir tablas
-    def imprimirtablas(self):
-        try:
-            # El usuario selecciona la carpeta de destino
-            carpeta_destino = QFileDialog.getExistingDirectory(self, "Seleccionar Carpeta de Destino")
-
-            if not carpeta_destino:
-                return
-
-            db_backup_path = f"{carpeta_destino}/db.db"
-
-            conexion = sqlite3.connect("./database/db.db")
-
-            # Cambiar la sección de copia de la base de datos
-            shutil.copy2("./database/db.db", db_backup_path)
-
-            # Lista de tablas deseadas
-            tablas_deseadas = ["consumibles", "HerramientasManuales", "EquiposyMaquinarias"]
-
-            # Cambiar la orientación de las páginas a horizontal
-            pdf_filename = f"{carpeta_destino}/exportacion_inventario.pdf"
-            pdf = SimpleDocTemplate(pdf_filename, pagesize=(letter[1], letter[0]))
-
-            estilo_titulo = ParagraphStyle(
-                'Title',
-                parent=self.estilo_normal,
-                fontName='Helvetica-Bold',
-                fontSize=16,
-                spaceAfter=12,
-                textColor=colors.black
-            )
-
-            estilo_pdf_header = TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor('#001F3F')),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
-                ]
-            )
-
-            estilo_pdf_body = TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                    ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
-                    ("GRID", (0, 0), (0, 0), 1, colors.black),
-                ]
-            )
-
-            # Agregar título
-            titulo = Paragraph("Tablas de la Base de Datos del Sistema de Control de Inventario", estilo_titulo)
-
-            # Agregar espacio entre título y imagen
-            espacio_titulo = Spacer(1, 20)
-            
-            # Agregar mensaje de impresión y usuario en la esquina superior derecha
-            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            printed_message = f"Impreso: {current_time} | Por: {self.user_name}"
-            mensaje_impresion = Paragraph(printed_message, self.estilo_normal)
-            
-            # Agregar imagen en la esquina superior izquierda
-            imagen_path = "./ui/imagenes/ysr_logo-transformed.jpeg"
-            imagen = Image(imagen_path, width=100, height=100)
-
-            # Agregar espacio entre imagen y mensajes
-            espacio_imagen = Spacer(20, 1)
-
-            # Crear la lista de elementos a agregar al PDF
-            story = [titulo, espacio_titulo, mensaje_impresion, imagen, espacio_imagen]
-
-            for tabla in tablas_deseadas:
-                consulta_sql = f"SELECT * FROM {tabla}"
-                df = pd.read_sql_query(consulta_sql, conexion)
-
-                # Convertir todos los datos a Unicode antes de pasarlos a la tabla PDF
-                data = [
-                    [str(cell) for cell in row]
-                    for row in [df.columns.tolist()] + df.values.tolist()
-                ]
-
-                # Agregar el nombre de la tabla como título
-                story.append(Paragraph(f"<u>{tabla}</u>", self.estilo_normal))
-
-                # Agregar la tabla con estilos personalizados
-                tabla_pdf = Table(data)
-
-                # Aplicar estilos al encabezado (primera fila)
-                for col_idx in range(len(data[0])):
-                    tabla_pdf.setStyle(
-                        TableStyle([
-                            ("BACKGROUND", (col_idx, 0), (col_idx, 0), colors.HexColor('#001F3F')),
-                            ("TEXTCOLOR", (col_idx, 0), (col_idx, 0), colors.white),
-                            ("ALIGN", (col_idx, 0), (col_idx, 0), "CENTER"),
-                            ("FONTNAME", (col_idx, 0), (col_idx, 0), "Helvetica-Bold"),
-                            ("BOTTOMPADDING", (col_idx, 0), (col_idx, 0), 12),
-                            ("GRID", (col_idx, 0), (col_idx, 0), 1, colors.black),
-                        ])
-                    )
-
-                # Aplicar estilos al cuerpo de la tabla (resto de las filas)
-                for row_idx in range(1, len(data)):
-                    for col_idx in range(len(data[row_idx])):
-                        tabla_pdf.setStyle(
-                            TableStyle([
-                                ("BACKGROUND", (col_idx, row_idx), (col_idx, row_idx), colors.white),
-                                ("TEXTCOLOR", (col_idx, row_idx), (col_idx, row_idx), colors.black),
-                                ("ALIGN", (col_idx, row_idx), (col_idx, row_idx), "CENTER"),
-                                ("GRID", (col_idx, row_idx), (col_idx, row_idx), 1, colors.black),
-                            ])
-                        )
-
-                story.append(tabla_pdf)
-
-                # Agregar espacio entre tablas
-                story.append(Spacer(0, 20))
-
-            pdf.build(story)
-
-            self.mostrar_mensaje(
-                f"Base de datos y tablas exportadas a:\n{db_backup_path} y {pdf_filename}"
-            )
-
-        except sqlite3.Error as e:
-            self.mostrar_error(f"Error en la conexión a la base de datos: {str(e)}")
-        except pd.errors.EmptyDataError:
-            self.mostrar_error("Error: La base de datos está vacía.")
-        except Exception as e:
-            self.mostrar_error(f"Error inesperado: {str(e)}")
-        finally:
-            if 'conexion' in locals() and conexion:
-                conexion.close()
-
-    def mostrar_mensaje(self, mensaje):
-        QMessageBox.information(self, "Éxito", mensaje)
-
-    def mostrar_error(self, mensaje):
-        QMessageBox.critical(self, "Error", mensaje)
-        
-    ### HERRAMIENTAS MANUALES ###   
-    #mostrar datos en la tabla de herramientass manuales    
-    def reloaddataHM(self):
-            try:
-                conexion = sqlite3.connect("./database/db.db")
-                cursor = conexion.cursor()
-                cursor.execute("SELECT * FROM HerramientasManuales")
-                data = cursor.fetchall()
-
-                self.tablaHerramientas.setRowCount(len(data))  
-
-                for row, row_data in enumerate(data):
-                    for col, value in enumerate(row_data):
-                        item = QTableWidgetItem(str(value))
-                        self.tablaHerramientas.setItem(row, col, item)
-
-                conexion.close()
-            except Exception as e:
-                QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
-                
-    ### CONSUMIBLES ###   
-    # mostrar datos en la tabla de reportes de consumibles
-    def reloaddataC(self):
-            try:
-                conexion = sqlite3.connect("./database/db.db")
-                cursor = conexion.cursor()
-                cursor.execute("SELECT Codigo,Descripcion,Unidad_de_medida,Cantidad,Fecha_de_entrada,Llimite_de_reorden,Notas FROM consumibles")
-                data = cursor.fetchall()
-
-                self.tablaConsumibles.setRowCount(len(data))  
-
-                for row, row_data in enumerate(data):
-                    for col, value in enumerate(row_data):
-                        item = QTableWidgetItem(str(value))
-                        self.tablaConsumibles.setItem(row, col, item)
-                        
-                conexion.close()
-            except Exception as e:
-                QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
-    
-    ### PEDIDOS ###
-   
-   # eliminar producto del pedido
-    def eliminarPedido(self):
-        nombrePedido = self.lineEdit_nombreP.text()
-        try:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            cursor.execute("DELETE FROM contenido_pedido WHERE nombre_producto=?",(nombrePedido,))
-            conexion.commit()
-            conexion.close()
-            QMessageBox.information(self,"Eliminado","Ha sido elimindo correctamente")
-            self.lineEdit_nombreP.clear()
-            self.lineEdit_espsTecP.clear()
-            self.lineEdit_espsTecP.clear()
-            self.lineEdit_undmedP.clear()
-            self.lineEdit_cantP.clear()
-            self.lineEdit_necesP.clear()
-            
-        except:
-            print ("Error al conectarse a SQLite")
-    
-    # llenar campos con la inforamcion de la tabla para eliminar loss pedidos
-    def llenar_lineeditsPDidos(self, row, col):
-        # Obtener datos de la fila seleccionada
-        Nombre = self.tablapedidocrear.item(row, 0).text()
-        especificaciones = self.tablapedidocrear.item(row, 1).text()
-        cantidad = self.tablapedidocrear.item(row, 2).text()
-        UMedida = self.tablapedidocrear.item(row, 3).text()
-      
-        Necesidad= self.tablapedidocrear.item(row, 5).text()
-        
-        fech_entrada = self.tablapedidocrear.item(row, 4).text()
-        fecha = QDate.fromString(fech_entrada, 'yyyy-MM-dd')
-        self.calendarWidget.setSelectedDate(fecha)
-        self.lineEdit_nombreP.setText(Nombre)
-        self.lineEdit_espsTecP.setText(especificaciones)
-        self.lineEdit_undmedP.setText(UMedida)
-        self.lineEdit_cantP.setText(cantidad)
-        self.lineEdit_necesP.setText(Necesidad)
-    
-    #  editar la informacion del pedido ( responsable, nombre proyecto, etc)
-    def editar_pedido(self):
-        numeroPedido = self.lineEdit_numeroPedido.text()
-        if not numeroPedido:
-            QMessageBox.warning(self,'Error','No ha ingresado un número de pedido')
-            return
+    # abrir ventana de agg/editar equipos herramientas o prod del inventario
+    def abrirInventario(self):
+        if self.admin == "true":
+            self.registrarOperacion("Abrir Ventana de Inventario")
+            self.inventario = Inventario(admin=self.admin, nameUsDB=self.nameUsDB, usuarioDB=self.usuarioDB, passwordDB=self.passwordDB)
+            self.inventario.show()
+            self.hide()  # Oculta la ventana actual
         else:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            nombreProyecto = self.txtbx_nameproyectoPed.text()
-            responsableProyecto = self.lineEdit_ResponsablePed.text()
-          
-          
-          
-            telefono = self.txtbx_telefonoresponsablePed.text()
-            cursor.execute("UPDATE pedidos SET Nombre_Proyecto=?,Responsable_pedido=?,telefon_responsable=? WHERE numero_pedido=?",(nombreProyecto,responsableProyecto,telefono,numeroPedido))
-            if cursor.execute:
-                QMessageBox.information(self,"Datos actualizados","Los datos se actualizaron correctamente")
-                
-            conexion.commit()
-            conexion.close()
+            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            return
+
+    # metodo de Cerrar sesion
+    def cerrarSesion(self):
+        self.registrarOperacion("Cerrar Sesión")
+        ingreso_usuario.show()
+        ingreso_usuario.txt_user.clear()
+        ingreso_usuario.txt_password.clear()
+        self.hide()
+
+    ### Metodos para realizar editar eliminar y visualizar pedidos ###
     
-    #Limpiar formulario y tablas
-    def limpiar_pedido(self):
-        self.txtbx_nameproyectoPed.clear()
-        self.lineEdit_ResponsablePed.clear()
-        self.txtbx_telefonoresponsablePed.clear()
-        self.lineEdit_numeroPedido.clear()
-        self.lineEdit_nombreP.clear()
-        self.lineEdit_espsTecP.clear()
-        self.lineEdit_undmedP.clear()
-        self.lineEdit_cantP.clear()
-        self.lineEdit_necesP.clear()
-        self.btn_guardar_pedid.setEnabled(True)
-        self.lineEdit_numeroPedido.setReadOnly(False)
-        self.tablapedidocrear.clear()
-    # buscar pedido (informacion y tambien contenido del pedido(tabla) )
-    def buscar_pedido(self):
-        NumeroPedido = self.lineEdit_busqueda_pedido.text()
-        if not NumeroPedido:
-            QMessageBox.information(self,"Error","Ingresa un numero de pedido")
-            return
-        else:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            cursor.execute("SELECT numero_pedido,Nombre_Proyecto,Responsable_pedido,telefon_responsable FROM pedidos WHERE numero_pedido=?",(NumeroPedido,))
-            resultado = cursor.fetchone()
-            if resultado:
-                self.txtbx_nameproyectoPed.setText(resultado[1])
-                self.lineEdit_ResponsablePed.setText(resultado[2])
-                self.txtbx_telefonoresponsablePed.setText(str(resultado[3]))
-                self.lineEdit_numeroPedido.setText(str(resultado[0]))
-                self.lineEdit_numeroPedido.setReadOnly(True)
-                self.btn_guardar_pedid.setEnabled(False)
-                self.cargar_pedido()
-            if not resultado:
-                QMessageBox.information(self,"Error","No hay pedido actual con ese numero ")
-    def cargar_pedido(self):
-        NumeroPedido = self.lineEdit_busqueda_pedido.text()
-        if not NumeroPedido:
-            QMessageBox.information(self,"Error","Ingresa un numero de pedido")
-            return
-        else:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            cursor.execute("SELECT nombre_producto,especificaciones_tecnicas,cantidad,unidad_de_medida,fecha_tope,necesidadPedido FROM contenido_pedido WHERE numero_pedido=? ",(NumeroPedido,))
-            resultado = cursor.fetchall()
-            print (resultado)
-            if resultado:
-                  # Configurar la tabla con los datos obtenidos
-                self.tablapedidocrear.setRowCount(len(resultado))
-                self.tablapedidocrear.setColumnCount(len(resultado[0]))
-                headers = ["Nombre Producto", "Especificaciones Técnicas", "Cantidad", "Unidad de Medida", "Fecha Tope", "Necesidad de Pedido"]
-                self.tablapedidocrear.setHorizontalHeaderLabels(headers)
-                
-                for row, row_data in enumerate(resultado):
-                    for col, value in enumerate(row_data):
-                        item = QTableWidgetItem(str(value))
-                        self.tablapedidocrear.setItem(row, col, item)             
-    # agregar informacion de retiro(responsaable, telefono, numero pedido)
-    def agregar_pedido(self):
-        
-        numerodepedido = self.lineEdit_numeroPedido.text()
-        # Realizar una verificación para evitar registros duplicados
-        if self.verificar_existencia_numeroPedido(numerodepedido):
-            QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
-            return
-
-        # Resto del código para insertar el nuevo registro
-        nombreproyecto = self.txt_descrip_HM.text()
-        responsableretiro = self.txtbx_telefonoresponsablePed.text()
-        telefonresponsable = self.comboBox_agg_HM.currentText()
-
-        if (not numerodepedido
-            or not nombreproyecto
-            or not responsableretiro
-            or not telefonresponsable
-            ):
-            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
-            return
-        else:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            query = "INSERT INTO pedidos (numero_pedido, Nombre_Proyecto, Responsable_pedido, telefon_responsable) VALUES (?, ?, ?, ?)"
-
-            cursor.execute(query, (numerodepedido, nombreproyecto, responsableretiro, telefonresponsable))
-
-            conexion.commit()
-            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")           
-    def verificar_existencia_numeroPedido(self, numerodepedido):
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            query = "SELECT COUNT(*) FROM pedidos WHERE numero_pedido = ?"
-            cursor.execute(query, (numerodepedido,))
-            count = cursor.fetchone()[0]
-            conexion.close()
-            return count > 0    
-    # agregar contenido del pedido
-    def agregarprod_pedido(self):
-        
-        numerodepedido = self.lineEdit_numeroPedido.text()
-        nonmbreProd = self.lineEdit_nombreP.text()
-        espTecnicas= self.lineEdit_espsTecP.text()
-        cantidad = self.lineEdit_cantP.text()
-        unidadMEdida = self.lineEdit_undmedP.text()
-        
-        fecha_ingreso = self.calendarWidget.selectedDate()
-        fecha_formato_cadena = fecha_ingreso.toString("yyyy-MM-dd")
-        necesidadProducto = self.lineEdit_necesP.text()
-        if (not numerodepedido or not nonmbreProd or not espTecnicas or not cantidad or not unidadMEdida or not fecha_formato_cadena or not necesidadProducto):
-            QMessageBox .warning(self, "Error", "Todos los campos osn obligatorios")
-            return
-        else: 
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            query = "INSERT INTO contenido_pedido ( nombre_producto, especificaciones_tecnicas, cantidad, unidad_de_medida, fecha_tope, necesidadPedido,numero_pedido) VALUES (?,?,?,?,?,?,?)"
-            
-            cursor.execute(query, (nonmbreProd, espTecnicas, cantidad, unidadMEdida, fecha_formato_cadena, necesidadProducto, numerodepedido))
-            conexion.commit()
-            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
-      
-    ## ver pedidos en la pagina dde visualizar ##
+    ## Ver pedidos en la página de visualizar ##
+    # visualizar los pedidos que ya han sido generados
     def vertabla_pedido(self):
         NumeroPedido = self.lineEdit_busqueda_pedido_ver.text()
+
         if not NumeroPedido:
             QMessageBox.information(self, "Error", "Ingresa un número de pedido")
             return
-        else:
+
+        try:
             conexion = sqlite3.connect("./database/db.db")
             cursor = conexion.cursor()
 
-        # Obtener datos del pedido
+            # Obtener datos del pedido
             cursor.execute("SELECT nombre_producto, especificaciones_tecnicas, cantidad, unidad_de_medida, fecha_tope, necesidadPedido FROM contenido_pedido WHERE numero_pedido=? ", (NumeroPedido,))
             resultado_contenido = cursor.fetchall()
 
             if resultado_contenido:
-            # Configurar la tabla con los datos obtenidos
-                self.tablapedidocrear.setRowCount(len(resultado_contenido))
-                self.tablapedidocrear.setColumnCount(len(resultado_contenido[0]))
+                # Configurar la tabla con los datos obtenidos
+                self.tablapedido_ver.setRowCount(len(resultado_contenido))
+                self.tablapedido_ver.setColumnCount(len(resultado_contenido[0]))
                 headers_contenido = ["Nombre Producto", "Especificaciones Técnicas", "Cantidad", "Unidad de Medida", "Fecha Tope", "Necesidad de Pedido"]
-                self.tablapedidocrear.setHorizontalHeaderLabels(headers_contenido)
+                self.tablapedido_ver.setHorizontalHeaderLabels(headers_contenido)
 
                 for row, row_data in enumerate(resultado_contenido):
                     for col, value in enumerate(row_data):
                         item = QTableWidgetItem(str(value))
                         self.tablapedidocrear.setItem(row, col, item)
 
-            # Obtener datos del pedidp
+                # Obtener datos del pedido
                 cursor.execute("SELECT Nombre_Proyecto, Responsable_pedido, telefon_responsable FROM pedidos WHERE numero_pedido=?", (NumeroPedido,))
                 resultado_pedido = cursor.fetchone()
 
@@ -744,275 +255,515 @@ class MenuPrincipal(QtWidgets.QMainWindow):
             else:
                 QMessageBox.information(self, "Error", "No hay contenido asociado a ese número de pedido")
 
-            conexion.close()          
-      
-    ### SALIDAS ###
-    
-    #editar los datos del "encabezado" de las ssalidas, informacion de responsable de retiro
-    def editar_salida(self):
-        numeroSalida = self.txt_salidanumero.text()
-        if not numeroSalida:
-            QMessageBox.warning(self, "Error", "Ingrese el número de la salida")
-            return
-        else:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            nombreProyecto = self.txtbx_nameproyecto_3.text()
-            responsableRetiro = self.lineEdit_Responsable_3.text()
-            cedula = self.txtbx_cedula_Responsable.text()
-            
-            telefono = self.txtbx_telefonoresponsable_3.text()
-            numeroRetiro = self.txt_salidanumero.text()
-            cursor.execute("UPDATE SalidaResponsable SET Nombre_Responsable=?,Nombre_Proyecto=?,Telefono=?, Cedula=? WHERE Nro_retiro=?",(responsableRetiro,nombreProyecto,telefono,cedula,numeroRetiro))
-            if cursor.execute:
-                QMessageBox.information(self,"Datos actualizados","Los datos se actualizaron correctamente")
-                
-            conexion.commit()
             conexion.close()
-    # metodo para limpiar los campos y tablas una vez terminados los registros
-    def limpiar_salida(self):
-        self.txtbx_nameproyecto_3.clear()
-        self.lineEdit_Responsable_3.clear()
-        self.txtbx_cedula_Responsable.clear()
-        self.txt_salidanumero.clear()
-        self.txtbx_telefonoresponsable_3.clear()
-        self.btn_guardar_salida.setEnabled(True)
-    # metodo para guardar informacion de los responsables del retiro de la salida y numero de salida
-    def guardarResponsable_salida(self):
-        nombreProyecto = self.txtbx_nameproyecto_3.text()
-        responsableProyecto= self.lineEdit_Responsable_3.text()
-        cedulaResponsable = self.txtbx_cedula_Responsable.text()
-        telefonoResponsable = self.txtbx_telefonoresponsable_3.text()
-        if not (nombreProyecto or 
-                responsableProyecto or 
-                cedulaResponsable or telefonoResponsable):
-            QMessageBox.information(self, "Error", "Es necesario ingresar los datos")
-        else:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-           
-            cursor.execute("INSERT INTO SalidaResponsable (Nombre_Responsable,Telefono,Cedula,Nombre_Proyecto) VALUES (?,?,?,?)",(responsableProyecto,telefonoResponsable,cedulaResponsable,nombreProyecto))
-            #last_inserted_id = cursor.lastrowid
-            conexion.commit()
-            QMessageBox.information(self,"Almacenado correctamente","Los datos fueron guardados correctamente")
-    # metodo para realizar la busqueda de una salida de acuerdo al numero de salida insertado ### por editar ###
-    def buscar_salida(self):
-        numeroSalida = self.lineEdit_busqueda_salida.text()
-        if not numeroSalida:
-            QMessageBox.information(self,"Error","Ingresa un numero de salida")
-        else:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            cursor.execute("SELECT Nombre_Responsable,Telefono,Cedula,Nro_retiro,Nombre_Proyecto FROM SalidaResponsable WHERE Nro_retiro=?",(numeroSalida,))
-            resultado = cursor.fetchone()
-            if resultado:
-                self.txtbx_nameproyecto_3.setText(resultado[4])
-                self.lineEdit_Responsable_3.setText(resultado[0])
-                self.txtbx_cedula_Responsable.setText(str(resultado[2]))
-                self.txtbx_telefonoresponsable_3.setText(str(resultado[1]))
-                self.txt_salidanumero.setText(str(resultado[3]))
-               
-                self.btn_guardar_salida.setEnabled(False)
-            if not resultado:
-                QMessageBox.information(self,"Error","No hay salida actual con ese numero ")
-    # metodo para mostrar los datos en la tabla de herramientas en la seccion de salidas o retiros
-    def busquedaHM_salidas(self):
-        busqueda = self.txt_busqueda_herr_salidas.text()
-        try:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            # Consultas a la base de datos
+
+        except sqlite3.Error as e:
+            print("Error al conectarse a SQLite:", e)
             
-            cursor.execute("SELECT * FROM HerramientasManuales WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
-            data_herramientass = cursor.fetchall()
-
-            # Combinar los resultados en una lista
-            data_total = data_herramientass
-
-            # Configurar la tabla con los datos obtenidos
-            self.tableWidget_herr_salidas.setRowCount(len(data_total))
-            
-            for row, row_data in enumerate(data_total):
-                for col, value in enumerate(row_data):
-                    item = QTableWidgetItem(str(value))
-                    self.tableWidget_herr_salidas.setItem(row, col, item)
-
-            conexion.close()
-        except Exception as e:
-            # Mostrar un mensaje de error en caso de excepción
-            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}") 
-    #metodo para mostrar los datos en la tabla de consumibles en la seccion de salidas o retiros
-    def busquedacons_salida(self):
-        busqueda = self.txt_busqueda_cons_salida.text()
-        try:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            # Consultas a la base de datos
-            
-            cursor.execute("SELECT * FROM consumibles WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
-            data_consumibless = cursor.fetchall()
-
-            # Combinar los resultados en una lista
-            data_total = data_consumibless
-
-            # Configurar la tabla con los datos obtenidos
-            self.tableWidget_consumibles_salidas.setRowCount(len(data_total))
-
-            for row, row_data in enumerate(data_total):
-                for col, value in enumerate(row_data):
-                    item = QTableWidgetItem(str(value))
-                    self.tableWidget_consumibles_salidas.setItem(row, col, item)
-
-            conexion.close()
-        except Exception as e:
-            # Mostrar un mensaje de error en caso de excepción
-            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
-    # metodo para mostraar los datos en la tabla de equipos y maquinarias en la seccion de salidas
-    def busquedaEM_salidas(self):
-        busqueda = self.txt_busqueda_equiM_salidas.text()
-        try:
-            conexion = sqlite3.connect("./database/db.db")
-            cursor = conexion.cursor()
-            # Consultas a la base de datos
-            
-            cursor.execute("SELECT * FROM EquiposyMaquinarias WHERE Descripcion LIKE ?", ('%' + busqueda + '%',))
-            data_equipos = cursor.fetchall()
-
-            # Combinar los resultados en una lista
-            data_total = data_equipos
-
-            # Configurar la tabla con los datos obtenidos
-            self.tableWidget_EM_salidas.setRowCount(len(data_total))
-
-            for row, row_data in enumerate(data_total):
-                for col, value in enumerate(row_data):
-                    item = QTableWidgetItem(str(value))
-                    self.tableWidget_EM_salidas.setItem(row, col, item)
-
-            conexion.close()
-        except Exception as e:
-            # Mostrar un mensaje de error en caso de excepción
-            QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}"
-                                )
-    # metodo de llenar los lineedits con los datos de la celda de la tabla clickeada
-    def llenar_lineeditsEM_salidas(self, row, col):
-        # Obtener datos de la fila seleccionada
-        codigo = self.tableWidget_EM_salidas.item(row, 0).text()
-        placa = self.tableWidget_EM_salidas.item(row, 1).text()
-        serial = self.tableWidget_EM_salidas.item(row, 2).text()
-        descripcion = self.tableWidget_EM_salidas.item(row, 3).text()
-        estado = self.tableWidget_EM_salidas.item(row, 4).text()
-        # Llenar LineEdits con los datos
-        self.txt_codigo_EM_salidas.setText(codigo)
-        self.txt_placa_EM_salidas.setText(placa)
-        self.txt_descrip_EM_salidas.setText(descripcion)
-        self.txt_serial_EM_salidas.setText(serial)
-        # Configurar el estado
-        index = self.comboBox_aggEM_salidas.findText(estado)
-        if index >= 0:
-            self.comboBox_aggEM_salidas.setCurrentIndex(index)
-            
-        #self.btn_guardarEMsalidas.setEnabled(False)
-        self.txt_codigo_EM_salidas.setReadOnly(True)
-        self.txt_placa_EM_salidas.setReadOnly(True)
-        self.txt_serial_EM_salidas.setReadOnly(True)
-        self.txt_descrip_EM_salidas.setReadOnly(True)
-    
-    def guardarSalida_EM(self):
-        codigo = self.txt_codigo_EM_salidas.text()
-
-        # Resto del código para insertar el nuevo registro
-        placa = self.txt_placa_EM_salidas.text()
-        serial = self.txt_serial_EM_salidas.text()
-        descripcion = self.txt_descrip_EM_salidas.toPlainText()
-        estado = self.comboBox_aggEM_salidas.currentText()
-        motivo = self.txt_motivo_salidasEM.text()
-        nro_salida = self.txt_salidanumero.text()
-
-        if (not nro_salida): QMessageBox.warning(self, "Error", "Debe registrar el responsable del retiro antes de continuar")
+    # Función auxiliar para limpiar campos de pedido
+    def limpiarCamposPedido(self):
+        self.lineEdit_nombreP.clear()
+        self.lineEdit_espsTecP.clear()
+        self.lineEdit_undmedP.clear()
+        self.lineEdit_cantP.clear()
+        self.lineEdit_necesP.clear()
         
-        if (not codigo
-            or not placa
-            or not serial
-            or not descripcion
-            or not estado 
-            or not motivo
-            ):
-            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+    ##  pedidos en la página de generar ##
+    # Buscar pedido (información y también contenido del pedido(tabla))
+    def buscar_pedido(self):
+        NumeroPedido = self.lineEdit_busqueda_pedido.text()
+        # Registrar operación
+        self.registrarOperacion(f"Busqueda del pedido: {NumeroPedido}")
+
+        if not NumeroPedido:
+            QMessageBox.information(self, "Error", "Ingresa un numero de pedido")
             return
-        else:
+
+        try:
             conexion = sqlite3.connect("./database/db.db")
-            
             cursor = conexion.cursor()
-            
-            query = "INSERT INTO salidas_maq (codigo, placa, serial, descripcion, estado, Motivo_s, Nrosalida) VALUES (?, ?, ?, ?, ?, ?, ?)"
-            cursor.execute(query, (codigo, placa, serial, descripcion, estado, motivo, nro_salida ))
-            conexion.commit()
-            
-            query_actualizar_disponibilidad = "UPDATE HerramientasManuales SET disponibilidad = 'En uso' WHERE codigo = ?"
-            cursor.execute(query_actualizar_disponibilidad, (codigo,))
-            conexion.commit()
+            cursor.execute("SELECT numero_pedido,Nombre_Proyecto,Responsable_pedido,telefon_responsable FROM pedidos WHERE numero_pedido=?", (NumeroPedido,))
+            resultado = cursor.fetchone()
 
-            
-            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
-            
-            try:
-                conexion = sqlite3.connect("./database/db.db")
-                cursor = conexion.cursor()
-                cursor.execute("SELECT codigo, placa, serial, descripcion, descripcion, estado, Motivo_s, Nrosalida FROM salidas_maq")
-                data = cursor.fetchall()
+            if resultado:
+                self.txtbx_nameproyectoPed.setText(resultado[1])
+                self.lineEdit_ResponsablePed.setText(resultado[2])
+                self.txtbx_telefonoresponsablePed.setText(str(resultado[3]))
+                self.lineEdit_numeroPedido.setText(str(resultado[0]))
+                self.lineEdit_numeroPedido.setReadOnly(True)
+                self.btn_guardar_pedid.setEnabled(False)
+                self.cargar_pedido()
 
-                self.tableWidget_salidas_equipos_maq.setRowCount(len(data))  
+            else:
+                QMessageBox.information(self, "Error", "No hay pedido actual con ese numero ")
 
-                for row, row_data in enumerate(data):
+        except sqlite3.Error as e:
+            print("Error al conectarse a SQLite:", e)
+
+    def cargar_pedido(self):
+        NumeroPedido = self.lineEdit_busqueda_pedido.text()
+
+        if not NumeroPedido:
+            QMessageBox.information(self, "Error", "Ingresa un numero de pedido")
+            return
+
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            cursor.execute("SELECT nombre_producto,especificaciones_tecnicas,cantidad,unidad_de_medida,fecha_tope,necesidadPedido FROM contenido_pedido WHERE numero_pedido=? ", (NumeroPedido,))
+            resultado = cursor.fetchall()
+
+            if resultado:
+                # Configurar la tabla con los datos obtenidos
+                self.tablapedidocrear.setRowCount(len(resultado))
+                self.tablapedidocrear.setColumnCount(len(resultado[0]))
+                headers = ["Nombre Producto", "Especificaciones Técnicas", "Cantidad", "Unidad de Medida", "Fecha Tope", "Necesidad de Pedido"]
+                self.tablapedidocrear.setHorizontalHeaderLabels(headers)
+
+                for row, row_data in enumerate(resultado):
                     for col, value in enumerate(row_data):
                         item = QTableWidgetItem(str(value))
-                        self.tableWidget_salidas_equipos_maq.setItem(row, col, item)
+                        self.tablapedidocrear.setItem(row, col, item)
 
-                conexion.close()
-            except Exception as e:
-                QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")                 
+        except sqlite3.Error as e:
+            print("Error al conectarse a SQLite:", e)
+
+    # Agregar información de pedido de mercancia(responsable, telefono, numero pedido)
+    def agregar_pedido(self):
+        numerodepedido = self.lineEdit_numeroPedido.text()
+        # Registrar operación
+        self.registrarOperacion(f"Agregar PEDIDO: {numerodepedido}")
+
+        # Realizar una verificación para evitar registros duplicados
+        if self.verificar_existencia_numeroPedido(numerodepedido):
+            QMessageBox.warning(self, "Error", "Ya existe un registro con este código.")
+            return
+
+        # Resto del código para insertar el nuevo registro
+        nombreproyecto = self.txt_descrip_HM.text()
+        responsableretiro = self.txtbx_telefonoresponsablePed.text()
+        telefonresponsable = self.comboBox_agg_HM.currentText()
+
+        if not (numerodepedido and nombreproyecto and responsableretiro and telefonresponsable):
+            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+            return
+
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            query = "INSERT INTO pedidos (numero_pedido, Nombre_Proyecto, Responsable_pedido, telefon_responsable) VALUES (?, ?, ?, ?)"
+            cursor.execute(query, (numerodepedido, nombreproyecto, responsableretiro, telefonresponsable))
+            conexion.commit()
+            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
+
+        except sqlite3.Error as e:
+            print("Error al conectarse a SQLite:", e)
+
+    def verificar_existencia_numeroPedido(self, numerodepedido):
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            query = "SELECT COUNT(*) FROM pedidos WHERE numero_pedido = ?"
+            cursor.execute(query, (numerodepedido,))
+            count = cursor.fetchone()[0]
+            conexion.close()
+            return count > 0
+
+        except sqlite3.Error as e:
+            print("Error al conectarse a SQLite:", e)
+
+    # Llenar campos con la información de la tabla para editar o eliminar los pedidos
+    def llenar_lineeditsPedidos(self, row, col):
+        # Obtener datos de la fila seleccionada
+        Nombre = self.tablapedidocrear.item(row, 0).text()
+        especificaciones = self.tablapedidocrear.item(row, 1).text()
+        cantidad = self.tablapedidocrear.item(row, 2).text()
+        UMedida = self.tablapedidocrear.item(row, 3).text()
+        Necesidad = self.tablapedidocrear.item(row, 5).text()
+        fech_entrada = self.tablapedidocrear.item(row, 4).text()
+        fecha = QDate.fromString(fech_entrada, 'yyyy-MM-dd')
         
-    def borrarSalida_EM(self):
-        # Obtener el código del producto a eliminar
-        codigo = self.txt_codigo_consAgg.text()
-        # Realizar la eliminación en la base de datos usando el código obtenido
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
+        self.calendarWidget.setSelectedDate(fecha)
+        self.lineEdit_nombreP.setText(Nombre)
+        self.lineEdit_espsTecP.setText(especificaciones)
+        self.lineEdit_undmedP.setText(UMedida)
+        self.lineEdit_cantP.setText(cantidad)
+        self.lineEdit_necesP.setText(Necesidad)
 
-        query = """
-            DELETE FROM consumibles
-            WHERE Codigo = ?;
-        """
+    # Editar la información del pedido (responsable, nombre proyecto, etc)
+    def editar_pedido(self):
+        numeroPedido = self.lineEdit_numeroPedido.text()
+        # Registrar operación
+        self.registrarOperacion(f"Editar informacion del pedido: {numeroPedido}")
 
-        cursor.execute(query, (codigo,))
+        if not numeroPedido:
+            QMessageBox.warning(self, 'Error', 'No ha ingresado un número de pedido')
+            return
 
-        conexion.commit()
-        QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
-# otros métodos de la clase MenuPrincipal
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            nombreProyecto = self.txtbx_nameproyectoPed.text()
+            responsableProyecto = self.lineEdit_ResponsablePed.text()
+            telefono = self.txtbx_telefonoresponsablePed.text()
+            
+            cursor.execute("UPDATE pedidos SET Nombre_Proyecto=?,Responsable_pedido=?,telefon_responsable=? WHERE numero_pedido=?",
+                           (nombreProyecto, responsableProyecto, telefono, numeroPedido))
+            
+            if cursor.rowcount > 0:
+                QMessageBox.information(self, "Datos actualizados", "Los datos se actualizaron correctamente")
+            
+            conexion.commit()
+            conexion.close()
+
+        except sqlite3.Error as e:
+            print("Error al conectarse a SQLite:", e)
+
+    # Limpiar formulario y tablas
+    def limpiar_pedido(self):
+        self.txtbx_nameproyectoPed.clear()
+        self.lineEdit_ResponsablePed.clear()
+        self.txtbx_telefonoresponsablePed.clear()
+        self.lineEdit_numeroPedido.clear()
+        self.limpiarCamposPedido()
+        self.btn_guardar_pedid.setEnabled(True)
+        self.lineEdit_numeroPedido.setReadOnly(False)
+        self.tablapedidocrear.clear()
     
-    #volver al inicio
-    def backLogin(self):
+    # Agregar contenido del pedido
+    def agregarprod_pedido(self):
+        numerodepedido = self.lineEdit_numeroPedido.text()
+        nonmbreProd = self.lineEdit_nombreP.text()
+        espTecnicas = self.lineEdit_espsTecP.text()
+        cantidad = self.lineEdit_cantP.text()
+        unidadMEdida = self.lineEdit_undmedP.text()
+        fecha_ingreso = self.calendarWidget.selectedDate()
+        fecha_formato_cadena = fecha_ingreso.toString("yyyy-MM-dd")
+        necesidadProducto = self.lineEdit_necesP.text()
+
+        if not (numerodepedido and nonmbreProd and espTecnicas and cantidad and unidadMEdida and fecha_formato_cadena and necesidadProducto):
+            QMessageBox.warning(self, "Error", "Todos los campos son obligatorios")
+            return
+
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            query = "INSERT INTO contenido_pedido ( nombre_producto, especificaciones_tecnicas, cantidad, unidad_de_medida, fecha_tope, necesidadPedido,numero_pedido) VALUES (?,?,?,?,?,?,?)"
+            cursor.execute(query, (nonmbreProd, espTecnicas, cantidad, unidadMEdida, fecha_formato_cadena, necesidadProducto, numerodepedido))
+            conexion.commit()
+            QMessageBox.information(self, "Exito", "Los datos se almacenaron correctamente")
+            # Registrar operación
+            self.registrarOperacion(f"Agregar producto: {nonmbreProd} en el contenido del pedido: {numerodepedido}")
+
+        except sqlite3.Error as e:
+            print("Error al conectarse a SQLite:", e)
+    
+    # Eliminar producto del pedido
+    def eliminarPedido(self):
+        nombrePedido = self.lineEdit_nombreP.text()
+        numerodepedido = self.lineEdit_numeroPedido.text()
+        # Registrar operación
+        self.registrarOperacion(f"Eliminar producto :  {nombrePedido} del contenido del pedido: {numerodepedido}")
+
+        try:
+            conexion = sqlite3.connect("./database/db.db")
+            cursor = conexion.cursor()
+            cursor.execute("DELETE FROM contenido_pedido WHERE nombre_producto=?", (nombrePedido,))
+            conexion.commit()
+            conexion.close()
+            QMessageBox.information(self, "Eliminado", "Ha sido eliminado correctamente")
+            self.limpiarCamposPedido()
+            
+        except sqlite3.Error as e:
+            print("Error al conectarse a SQLite:", e)
+####################################################################################################################################################
+       
+# clase de la ventana de ajustes del inventario
+class Ajustes(QtWidgets.QMainWindow):
+    def __init__(self, admin, nameUsDB, usuarioDB, passwordDB ):
+        super(Ajustes, self).__init__()
+        uic.loadUi("./ui/Historial_cambios.ui", self)
+        # cargar datos del usuario(nombre, contraseña, usuario) para uso posterior
+        self.admin = admin
+        self.usuarioDB = usuarioDB
+        self.passwordDB = passwordDB
+        self.nameUsDB = nameUsDB
+        
+###################################################################################################################################################    
+
+# clase de la ventana de menu de opciones aavanzadas (opciones de la base de datos) 
+class baseDeDatos(QtWidgets.QMainWindow):
+    def __init__(self, admin, nameUsDB, usuarioDB, passwordDB ):
+        super(baseDeDatos, self).__init__()
+        uic.loadUi("./ui/bdd.ui", self)
+        # cargar datos del usuario(nombre, contraseña, usuario) para uso posterior
+        self.admin = admin
+        self.usuarioDB = usuarioDB
+        self.passwordDB = passwordDB
+        self.nameUsDB = nameUsDB
+        # inicializacion de variables.
+        self.conexion = None
+        self.tablas = None
+        
+        # metodos de exportacion e importacion de base de datos en un archivo csv
+        self.btn_importar.clicked.connect(self.importarCSV)
+        self.btn_respaldar.clicked.connect(self.exportarBDD_CSV)
+        # metodo para limpiar la base de datos
+        self.btn_limpiarbdd.clicked.connect(self.limpiarBaseDeDatos)
+        # abrir otras ventanas desde esta ventana
+        self.btn_VolverMenu.clicked.connect(self.volverMenu)# volver al menu principal
+        self.bt_salir_2.clicked.connect(self.cerrarSesion)# cerrar sesion
+        self.btn_gest_usuario.clicked.connect(self.abrirUsuarios)# abrir ventana de gestion de usuarios
+        self.btn_ajustesInvent.clicked.connect(self.abrirAjustes)
+    
+    # metodo para el registro de operaciones    
+    def registrar_operacion(self, descripcion):
+        try:
+            # Establecer conexión a la base de datos de operaciones
+            conn = sqlite3.connect("./database/db.db")
+            cursor = conn.cursor()
+
+            # Obtener la fecha y hora actual
+            fecha_hora_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            # Insertar datos de la operación en la tabla operaciones
+            cursor.execute("INSERT INTO operaciones (usuario, fecha, descripcion) VALUES (?, ?, ?)",
+                           (self.nameUsDB, fecha_hora_actual, descripcion))
+
+            # Confirmar la transacción y cerrar la conexión
+            conn.commit()
+            conn.close()
+
+            # Mostrar mensaje de éxito
+            QMessageBox.information(self, "Operación Registrada", "La operación se ha registrado correctamente.")
+
+        except Exception as e:
+            # En caso de error, mostrar mensaje de error
+            QMessageBox.critical(self, "Error", f"Error al registrar la operación: {str(e)}")
+
+    def cerrarSesion(self):
         ingreso_usuario.show()
         ingreso_usuario.txt_user.clear()
         ingreso_usuario.txt_password.clear()
+        # Luego de realizar la operación, registrarla
+        self.registrar_operacion("Cierre de Sesión")
         self.hide()
 
-#### CLASE DE GESTION DE INVENTARIO ###
-class gestionInventario(QtWidgets.QMainWindow):
-    def __init__(self, admin, widget, user_name):
-        super(gestionInventario, self).__init__()
+    def volverMenu(self):
+        self.menuprinc = MenuPrincipalc(admin=self.admin, nameUsDB=self.nameUsDB, usuarioDB=self.usuarioDB, passwordDB=self.passwordDB)
+        self.menuprinc.show()
+        # Luego de realizar la operación, registrarla
+        self.registrar_operacion("Volver al Menú Principal")
+        self.hide()
+
+    def abrirUsuarios(self):
+        if self.admin == "true":
+            self.usuarios = Usuarios(admin=self.admin, nameUsDB=self.nameUsDB, usuarioDB=self.usuarioDB, passwordDB=self.passwordDB)
+            self.usuarios.show()
+            # Luego de realizar la operación, registrarla
+            self.registrar_operacion("Apertura de Gestión de Usuarios")
+            self.hide()  # Oculta la ventana actual
+
+        else:
+            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            return
+
+    def abrirAjustes(self):
+        if self.admin == "true":
+            self.ajustes = Ajustes(admin=self.admin, nameUsDB=self.nameUsDB, usuarioDB=self.usuarioDB, passwordDB=self.passwordDB)
+            self.ajustes.show()
+            # Luego de realizar la operación, registrarla
+            self.registrar_operacion("Apertura de Ajustes del Sistema")
+            self.hide()  # Oculta la ventana actual
+
+        else:
+            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            return
+
+    def exportarBDD_CSV(self):
+        try:
+            # El usuario selecciona la carpeta de destino
+            carpeta_destino = QFileDialog.getExistingDirectory(self, "Seleccionar Carpeta de Destino")
+
+            if not carpeta_destino:
+                return
+
+            # Conectar a la base de datos
+            self.conexion = sqlite3.connect("./database/db.db")
+
+            # Obtener la lista de tablas
+            consulta_tablas_sql = "SELECT name FROM sqlite_master WHERE type='table';"
+            self.tablas = pd.read_sql_query(consulta_tablas_sql, self.conexion)["name"].tolist()
+
+            # Iterar sobre las tablas y exportar a CSV
+            for tabla in self.tablas:
+                consulta_sql = f"SELECT * FROM {tabla}"
+                df = pd.read_sql_query(consulta_sql, self.conexion)
+
+                # Crear el nombre del archivo CSV
+                csv_filename = f"{carpeta_destino}/{tabla}.csv"
+
+                # Exportar la tabla a CSV
+                df.to_csv(csv_filename, index=False)
+
+            # Luego de realizar la operación, registrarla
+            self.registrar_operacion("Exportación de Base de Datos a CSV")
+            self.mostrar_mensaje(f"Datos exportados a archivos CSV en: {carpeta_destino}")
+
+        except sqlite3.Error as e:
+            self.mostrar_error(f"Error en la conexión a la base de datos: {str(e)}")
+        except pd.errors.EmptyDataError:
+            self.mostrar_error("Error: La base de datos está vacía.")
+        except Exception as e:
+            self.mostrar_error(f"Error inesperado: {str(e)}")
+        finally:
+            if self.conexion:
+                self.conexion.close()
+
+    def importarCSV(self):
+        try:
+            # El usuario selecciona el archivo CSV
+            csv_filename, _ = QFileDialog.getOpenFileName(self, "Seleccionar Archivo CSV", "", "Archivos CSV (*.csv)")
+
+            if not csv_filename:
+                return
+
+            if not self.conexion or not self.tablas:
+                # Mostrar un error si la conexión o las tablas no están definidas
+                self.mostrar_error("Error: La conexión o las tablas no están definidas.")
+                return
+
+            # Luego de realizar la operación, registrarla
+            self.registrar_operacion(f"Importación de Datos desde CSV: {csv_filename}")
+
+            # Leer el archivo CSV
+            with open(csv_filename, 'r', encoding='utf-8') as file:
+                reader = csv.reader(file)
+                # Obtener el nombre de la tabla desde el nombre del archivo CSV
+                tabla = os.path.splitext(os.path.basename(csv_filename))[0]
+
+                # Eliminar datos existentes en la tabla antes de la importación
+                cursor = self.conexion.cursor()
+                cursor.execute(f"DELETE FROM {tabla}")
+                self.conexion.commit()
+
+                # Insertar los datos en la tabla
+                for row in reader:
+                    cursor.execute(f"INSERT INTO {tabla} VALUES ({','.join(['?']*len(row))})", row)
+                self.conexion.commit()
+
+                self.mostrar_mensaje(f"Datos importados desde: {csv_filename} a la tabla {tabla}")
+
+        except sqlite3.Error as e:
+            self.mostrar_error(f"Error en la conexión a la base de datos: {str(e)}")
+        except pd.errors.EmptyDataError:
+            self.mostrar_error("Error: El archivo CSV está vacío.")
+        except Exception as e:
+            self.mostrar_error(f"Error inesperado: {str(e)}")
+    
+    # metodo de limpiar la base de datos (eliminar datos de las tablas excepto "usuarios" y "operaciones")        
+    def limpiarBaseDeDatos(self):
+        # Mostrar un cuadro de diálogo para ingresar la contraseña
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Confirmar Contraseña")
+        layout = QVBoxLayout()
+        label = QLabel("Introduce la contraseña del administrador:")
+        password_input = QLineEdit()
+        password_input.setEchoMode(QLineEdit.Password)
+        layout.addWidget(label)
+        layout.addWidget(password_input)
+        dialog.setStyleSheet("QPushButton{\n"
+"    color: rgb(255, 255, 255);\n"
+"    background-color: rgb(0, 0, 127);\n"
+"    font: 75 11pt \"Arial\";\n"
+"}\n"
+"QLineEdit{\n"
+"    color: rgb(0, 0, 0);\n"
+"    border:0;\n"
+"    background-color: rgba(106, 106, 106, 0.5);\n"
+"    font: 75 11pt \"Arial\";\n"
+"}\n"
+"QMainWindow{\n"
+"    background-color: rgb(255, 255, 255);\n"
+"}\n"
+"QMainWindow::item:selected {\n"
+"    background-color: #555;\n"
+"\n"
+"}\n"
+"\n"
+"QTabWidget{\n"
+"    border:0; \n"
+"\n"
+"}\n"
+"QLabel{\n"
+"    \n"
+"    font: 75 14pt \"Arial\";\n"
+"}\n"
+"QGroupBox{\n"
+"    \n"
+"    font: italic 11pt \"Arial\";\n"
+"}\n"
+"QComboBox{\n"
+"    \n"
+"    background-color: rgba(102, 102, 102, 0.5);\n"
+"    font: 75 11pt \"Arial\";\n"
+"}\n"
+"QTableWidget{\n"
+"    \n"
+"    font: 16pt \"Arial\";\n"
+"}")
+
+
+        def aceptar():
+            # Verificar si la contraseña es correcta
+            if password_input.text() == self.passwordDB:
+                # Eliminar datos de todas las tablas excepto 'usuarios' y 'operaciones'
+                cursor = self.conexion.cursor()
+                for tabla in self.tablas:
+                    if tabla not in ('usuarios', 'operaciones'):
+                        cursor.execute(f"DELETE FROM {tabla}")
+                self.conexion.commit()
+                self.mostrar_mensaje("Base de datos limpiada exitosamente.")
+                self.registrar_operacion("Limpieza de Base de Datos")
+                dialog.accept()
+            else:
+                QMessageBox.warning(self, "Contraseña Incorrecta", "La contraseña del administrador es incorrecta.")
+    
+        button_aceptar = QPushButton("Aceptar")
+        button_aceptar.clicked.connect(aceptar)
+        layout.addWidget(button_aceptar)
+    
+        dialog.setLayout(layout)
+        dialog.exec_()
+# LISTO# funciona totalmente
+
+###################################################################################################################################################
+
+# clase de la ventana de agregar y editar equipos herramientas y productos del inventario 
+class Inventario(QtWidgets.QMainWindow):
+    def __init__(self, admin, nameUsDB, usuarioDB, passwordDB ):
+        super(Inventario, self).__init__()
         uic.loadUi("./ui/agginventario.ui", self)
+        # cargar datos del usuario(nombre, contraseña, usuario) para uso posterior
         self.admin = admin
-        self.user_name = user_name
-        self.widget = widget
-        self.setWindowTitle("Gestionar Inventario")
-        self.btn_VolverMenu.clicked.connect(self.backMenu)
-        self.bt_salir_2.clicked.connect(self.backLogin)
+        self.usuarioDB = usuarioDB
+        self.passwordDB = passwordDB
+        self.nameUsDB = nameUsDB
         # Cambio de paginas del stacked widget 
         self.btn_EM.clicked.connect(lambda:self.stackedWidget.setCurrentWidget(self.page_equipos))
         self.btn_Herr.clicked.connect(lambda:self.stackedWidget.setCurrentWidget(self.page_herramientas))
         self.btn_cons.clicked.connect(lambda:self.stackedWidget.setCurrentWidget(self.page_consumibles))
+        #abrir ventanas
+        # volver al menu principal
+        self.btn_VolverMenu.clicked.connect(self.volverMenu) 
+         # abrir la ventana de usuarios
+        self.btn_gest_usuario.clicked.connect(self.abrirUsuarios)
+        # abrir la ventana de ajustes del sistema
+        self.btn_ajustesInvent.clicked.connect(self.abrirAjustes)
+        # abrir ventana de opciones avanzadas ( opciones de la base de datos) 
+        self.btn_bdd.clicked.connect(self.abrirBddMenu) 
+        # cerrar sesion
+        self.bt_salir_2.clicked.connect(self.cerrarSesion)
         # METODOS DE CONSUMIBLES 
         self.btn_buscar_ConsAgg.clicked.connect(self.busquedacons)
         self.btn_agg_ConsAgg.clicked.connect(self.agregagrCons)
@@ -1035,24 +786,82 @@ class gestionInventario(QtWidgets.QMainWindow):
         self.tableWidget_aggEM.cellClicked.connect(self.llenar_lineeditsEM)
         self.btn_limpiarEMagg.clicked.connect(self.limpiarEM)
     
-    # volver al menu principal
-    def backMenu(self):
-        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name, usser=self.usser, passwordDb=self.passwordDb)
-        widget.addWidget(menuprincipal)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
-    
-    #volver al inicio
-    def backLogin(self):
+         
+    # metodo para el registro de operaciones
+    def registrarOperacion(self, operacion):
+        try:
+            with sqlite3.connect("./database/db.db") as conexion:
+                fecha_operacion = datetime.datetime.now()
+                fecha_sqlite = fecha_operacion.strftime('%Y-%m-%d %H:%M:%S')
+
+                cursor = conexion.cursor()
+                cursor.execute("""
+                    INSERT INTO operaciones (responsable, operacion, fecha_operacion)
+                    VALUES (?, ?, ?)
+                """, (self.usuarioDB, operacion, fecha_sqlite))
+
+                conexion.commit()
+
+        except sqlite3.Error as e:
+            print(f"Error al registrar operación: {str(e)}")
+            raise
+           
+    # cerrar sesion 
+    def cerrarSesion(self):
+        self.registrarOperacion("Cierre de Sesión")
         ingreso_usuario.show()
         ingreso_usuario.txt_user.clear()
         ingreso_usuario.txt_password.clear()
         self.hide()
     
+    #volver al menu principal
+    def volverMenu(self):
+        self.registrarOperacion("Abrir menu principal")
+        self.menuprinc = MenuPrincipalc(admin=self.admin, nameUsDB=self.nameUsDB, usuarioDB=self.usuarioDB, passwordDB=self.passwordDB)
+        self.menuprinc.show()
+        self.hide()
+    
+    # abrir ventana de gestion de usuarios
+    def abrirUsuarios(self):
+        if self.admin == "true":
+            self.registrarOperacion("Ingreso al menu de gestión de usuarios")
+            self.usuarios = Usuarios(admin=self.admin, nameUsDB=self.nameUsDB, usuarioDB=self.usuarioDB, passwordDB=self.passwordDB)
+            self.asuarios.show()
+            self.hide()  # Oculta la ventana actual
+
+        else:
+            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            return
+    
+    # abrir ventana de ajustes del sistema
+    def abrirAjustes(self):
+        if self.admin == "true":
+            self.registrarOperacion("Ingreso al menu de ajustes del sistema")
+            self.ajustes = Ajustes(admin=self.admin, nameUsDB=self.nameUsDB, usuarioDB=self.usuarioDB, passwordDB=self.passwordDB)
+            self.ajustes.show()
+            self.hide()  # Oculta la ventana actual
+
+        else:
+            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            return
+    
+    # abrir ventana de opciones avanzadas ( opciones de la base de datos)
+    def abrirBddMenu(self):
+        if self.admin == "true":
+            self.registrarOperacion("Ingreso al menu de opciones avanzadas y Base de datos")
+            self.bddmenu = baseDeDatos(admin=self.admin, nameUsDB=self.nameUsDB, usuarioDB=self.usuarioDB, passwordDB=self.passwordDB)
+            self.bddmenu.show()
+            self.hide()  # Oculta la ventana actual
+        else:
+            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
+            return
+
     ### CONSUMIBLES ###
     
     # busca consumibles en la pagina de agregar consumibles
     def busquedacons(self):
         busqueda = self.lineEdit_busqueda_C.text()
+        self.registrarOperacion(f"Búsqueda en Base de Datos: {busqueda}")
         try:
             conexion = sqlite3.connect("./database/db.db")
             cursor = conexion.cursor()
@@ -1080,6 +889,7 @@ class gestionInventario(QtWidgets.QMainWindow):
     # agregar consumibles
     def agregagrCons(self):
         codigo = self.txt_codigo_consAgg.text()
+        self.registrarOperacion("Agregado de consumibles: ")
        #reaizar verificacion para que no se pueda insertar letras en el campo de cantidad
         try:
             #cantidad = int(cantidad)
@@ -1232,7 +1042,6 @@ class gestionInventario(QtWidgets.QMainWindow):
         self.btn_agg_ConsAgg.setEnabled(True)
         self.txt_codigo_consAgg.setReadOnly(False)
         
-   
     ### HERRAMIENTAS ###
     
     #busqueda de heramientas manuales en la pagina deingresos
@@ -1401,7 +1210,8 @@ class gestionInventario(QtWidgets.QMainWindow):
         self.txt_Notas_aggHM.clear()
         self.btn_aggHM.setEnabled(True)
         self.txt_codigo_HM.setReadOnly(False)
-    
+        
+        
     ### EQUIPOS Y MAQUINARIAS ###
     
     #buscar equipos y maquinarias en la pagina de ingresos
@@ -1584,7 +1394,6 @@ class gestionInventario(QtWidgets.QMainWindow):
         codigo = self.txt_codigo_EM_2.text()
 
         # Realizar la eliminación en la base de datos usando el código obtenido
-        # (similar a tu función agregarEM pero utilizando una sentencia DELETE)
         conexion = sqlite3.connect("./database/db.db")
         cursor = conexion.cursor()
 
@@ -1598,30 +1407,50 @@ class gestionInventario(QtWidgets.QMainWindow):
         conexion.commit()
         QMessageBox.information(self, "Exito", "Los datos se eliminaron correctamente")
 
+################################################################################################################################################   
 
-#### CLASE DE GESTION DE USUARIOS ####
-class Users(QtWidgets.QMainWindow):
-    def __init__(self, admin, widget ,user_name, usser, passwordDb):
-        super(Users, self).__init__()
+# clase la ventana  de gestion de usuarios 
+class Usuarios(QtWidgets.QMainWindow):
+    def __init__(self, admin, nameUsDB, usuarioDB, passwordDB ):
+        super(Usuarios, self).__init__()
         uic.loadUi("./ui/usuarios.ui", self)
+        # cargar datos del usuario(nombre, contraseña, usuario) para uso posterior
         self.admin = admin
-        self.user_name = user_name
-        self.widget = widget
-        self.usser = usser
-        self.passwordDb = passwordDb
-        self.setWindowTitle("Gestion de Usuarios")
-        self.btn_backmenu.clicked.connect(self.backMenu)
-        self.btn_cerrarSesion_1.clicked.connect(self.backLogin)
+        self.usuarioDB = usuarioDB
+        self.passwordDB = passwordDB
+        self.nameUsDB = nameUsDB
+        #cerrar sesion 
+        self.btn_cerrarSesion_1.clicked.connect(self.cerrarSesion)
+        #abrir ventana de volver al menu principal
+        self.btn_backmenu.clicked.connect(self.volverMenu)
+        #metodo de buscar ususario
         self.bt_buscarUsser.clicked.connect(self.busquedauser)
+        #metodo de agregar usuario en la base de datos
         self.btn_aggusser.clicked.connect(self.AggUser)
+        # metoddo de limpiar todos los campos de los forms
         self.btn_clear_inputs.clicked.connect(self.clearinputs1)
         self.btn_clear_inputs2.clicked.connect(self.clearinputs)
+        # metodo de actualizar la tabla de usuarios
         self.bt_reload_user.clicked.connect(self.reloadUser)
+        #metodos de editar y eliminar usuarios de la bdd
         self.btn_deleteusser.clicked.connect(self.deleteuser)
         self.btn_editusser.clicked.connect(self.edituser)
+        # metodo de cargar los datos de la base de datos en la tabla de usuarios
         self.reloadUser()
-        # otros métodos de la clase Users
-
+    
+    # metodo de volver al menu principal
+    def volverMenu(self):
+        self.menuprinc = MenuPrincipalc(admin=self.admin, nameUsDB=self.nameUsDB, usuarioDB=self.usuarioDB, passwordDB=self.passwordDB)
+        self.menuprinc.show()
+        self.hide()
+    
+    # Metodo de cerrar sesion 
+    def cerrarSesion(self):
+        ingreso_usuario.show()
+        ingreso_usuario.txt_user.clear()
+        ingreso_usuario.txt_password.clear()
+        self.hide()
+    
     # busqueda de usuario en la pagina de editar y eliminar usuarios
     def busquedauser(self):
         busqueda = self.lineEdit_buscarUsser.text()
@@ -1691,6 +1520,7 @@ class Users(QtWidgets.QMainWindow):
             QMessageBox.information(self,"Exito","Se actualizo el usuario")
             self.clearinputs()
             self.clearinputs1()
+    
     # agregar usuarios     
     def AggUser(self):
         usuario = self.txtbx_aggusser.text()
@@ -1747,7 +1577,7 @@ class Users(QtWidgets.QMainWindow):
             self.rd_btn_false.setChecked(False)
         conexion.close()
     
-    # funcion de limpiar los textbox
+    # funcion de limpiar los textbox de los formularios de insercion y edicion de datos
     def clearinputs(self):
         self.txtbx_aggusser.clear()
         self.txtbx_password.clear()
@@ -1756,8 +1586,7 @@ class Users(QtWidgets.QMainWindow):
         self.lineEdit_idAgguser.clear()
         self.lineEdit_cargoAGGuser.clear()
         self.rd_bt_true.setChecked(False)
-        self.rd_btn_false.setChecked(False)
-    
+        self.rd_btn_false.setChecked(False)  
     def clearinputs1(self):
         self.lineEdit_usser.clear()
         self.lineEdit_password.clear()
@@ -1786,342 +1615,12 @@ class Users(QtWidgets.QMainWindow):
             conexion.close()
         except Exception as e:
             QMessageBox.warning(self, "Error", f"Error al recuperar datos: {str(e)}")
-    # metodo de volver al menu principal    
-    def backMenu(self):
-        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name, usser= self.usser, passwordDb= self.passwordDb)
-        widget.addWidget(menuprincipal)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
-    # metodo de volver al login
-    def backLogin(self):
-        ingreso_usuario = IngresoUsuario()  
-        ingreso_usuario.showMaximized()
-        ingreso_usuario.txt_user.clear()
-        ingreso_usuario.txt_password.clear()
-        self.widget.setCurrentIndex(0)
-        self.hide()
+#( completamente lista y funcional ###LISTO###)
 
 
-### CLASE DE MENU DE BASSE DE DATOS ###
-class bddMenu(QtWidgets.QMainWindow):
-    def __init__(self, admin, widget, user_name, usser, passwordDb):
-        super(bddMenu, self).__init__()
-        uic.loadUi("./ui/bdd.ui", self)
-        self.admin = admin
-        self.usser = usser
-        self.user_name = user_name
-        self.widget = widget
-        self.styles = getSampleStyleSheet()
-        self.estilo_normal = self.styles['Normal']
-        self.btn_VolverMenu.clicked.connect(self.volver_menu)
-        self.btn_gest_usuario.clicked.connect(self.verifyAdmin_user)
-        self.bt_salir_2.clicked.connect(self.cerrarSesion)
-        #self.btn_limpiarbdd.clicked.connect(self.LimpiarBDD)
-        
-        self.btn_ajustesInvent.clicked.connect(self.HistorialView)
 
-    ### Exportar basse de datos ###
-    def exportarBDD(self):
-        try:
-            # El usuario selecciona la carpeta de destino
-            carpeta_destino = QFileDialog.getExistingDirectory(self, "Seleccionar Carpeta de Destino")
-
-            if not carpeta_destino:
-                return
-
-            db_backup_path = f"{carpeta_destino}/db.db"
-
-            conexion = sqlite3.connect("./database/db.db")
-
-            # Cambiar la sección de copia de la base de datos
-            shutil.copy2("./database/db.db", db_backup_path)
-
-            consulta_tablas_sql = "SELECT name FROM sqlite_master WHERE type='table';"
-            tablas = pd.read_sql_query(consulta_tablas_sql, conexion)["name"].tolist()
-
-            
-            # Cambiar la orientación de las páginas a horizontal
-            pdf_filename = f"{carpeta_destino}/exportacion_inventario.pdf"
-            pdf = SimpleDocTemplate(pdf_filename, pagesize=(letter[1], letter[0]))
-
-            estilo_titulo = ParagraphStyle(
-                'Title',
-                parent=self.estilo_normal,
-                fontName='Helvetica-Bold',
-                fontSize=16,
-                spaceAfter=12,
-                textColor=colors.black
-            )
-
-            estilo_pdf_header = TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor('#001F3F')),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
-                ]
-            )
-
-            estilo_pdf_body = TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                    ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
-                    ("GRID", (0, 0), (0, 0), 1, colors.black),
-                ]
-            )
-
-            # Agregar título
-            titulo = Paragraph("Tablas de la Base de Datos del Sistema de Control de Inventario", estilo_titulo)
-
-            # Agregar espacio entre título y imagen
-            espacio_titulo = Spacer(1, 20)
-            
-            # Agregar mensaje de impresión y usuario en la esquina superior derecha
-            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            printed_message = f"Impreso: {current_time} | Por: {self.user_name}"
-            mensaje_impresion = Paragraph(printed_message, self.estilo_normal)
-            
-            # Agregar imagen en la esquina superior izquierda
-            imagen_path = "./ui/imagenes/ysr_logo-transformed.jpeg"  # Reemplaza con la ruta de tu imagen
-            imagen = Image(imagen_path, width=100, height=100)
-
-            # Agregar espacio entre imagen y mensajes
-            espacio_imagen = Spacer(20, 1)
-
-
-            # Crear la lista de elementos a agregar al PDF
-            story = [titulo, espacio_titulo, mensaje_impresion, imagen, espacio_imagen ]
-
-
-            for tabla in tablas:
-                consulta_sql = f"SELECT * FROM {tabla}"
-                df = pd.read_sql_query(consulta_sql, conexion)
-
-                # Convertir todos los datos a Unicode antes de pasarlos a la tabla PDF
-                data = [
-                    [str(cell) for cell in row]
-                    for row in [df.columns.tolist()] + df.values.tolist()
-                ]
-
-                # Agregar el nombre de la tabla como título
-                story.append(Paragraph(f"<u>{tabla}</u>", self.estilo_normal))
-
-                # Agregar la tabla con estilos personalizados
-                tabla_pdf = Table(data)
-
-                # Aplicar estilos al encabezado (primera fila)
-                for col_idx in range(len(data[0])):
-                    tabla_pdf.setStyle(
-                        TableStyle([
-                            ("BACKGROUND", (col_idx, 0), (col_idx, 0), colors.HexColor('#001F3F')),
-                            ("TEXTCOLOR", (col_idx, 0), (col_idx, 0), colors.white),
-                            ("ALIGN", (col_idx, 0), (col_idx, 0), "CENTER"),
-                            ("FONTNAME", (col_idx, 0), (col_idx, 0), "Helvetica-Bold"),
-                            ("BOTTOMPADDING", (col_idx, 0), (col_idx, 0), 12),
-                            ("GRID", (col_idx, 0), (col_idx, 0), 1, colors.black),
-                        ])
-                    )
-
-                # Aplicar estilos al cuerpo de la tabla (resto de las filas)
-                for row_idx in range(1, len(data)):
-                    for col_idx in range(len(data[row_idx])):
-                        tabla_pdf.setStyle(
-                            TableStyle([
-                                ("BACKGROUND", (col_idx, row_idx), (col_idx, row_idx), colors.white),
-                                ("TEXTCOLOR", (col_idx, row_idx), (col_idx, row_idx), colors.black),
-                                ("ALIGN", (col_idx, row_idx), (col_idx, row_idx), "CENTER"),
-                                ("GRID", (col_idx, row_idx), (col_idx, row_idx), 1, colors.black),
-                            ])
-                        )
-
-                story.append(tabla_pdf)
-
-                # Agregar espacio entre tablas
-                story.append(Spacer(0, 20))
-
-            pdf.build(story)
-
-            self.mostrar_mensaje(
-                f"Base de datos y tablas exportadas a:\n{db_backup_path} y {pdf_filename}"
-            )
-
-        except sqlite3.Error as e:
-            self.mostrar_error(f"Error en la conexión a la base de datos: {str(e)}")
-        except pd.errors.EmptyDataError:
-            self.mostrar_error("Error: La base de datos está vacía.")
-        except Exception as e:
-            self.mostrar_error(f"Error inesperado: {str(e)}")
-        finally:
-            if 'conexion' in locals() and conexion:
-                conexion.close()
-
-    def mostrar_mensaje(self, mensaje):
-        QMessageBox.information(self, "Éxito", mensaje)
-
-    def mostrar_error(self, mensaje):
-        QMessageBox.critical(self, "Error", mensaje)
-        
-    ### Importar datos de la base de datos copia (respaldo) ###
-    def importar_base_datos(self):
-        # Abrir el cuadro de diálogo para seleccionar la base de datos a importar
-        ruta_importar, _ = QFileDialog.getOpenFileName(
-            self,
-            "Seleccionar Base de Datos",
-            "",
-            "SQLite Database Files (*.db *.sqlite *.db3)",
-        )
-
-        if not ruta_importar:
-            # Si el usuario cierra el cuadro de diálogo, salir de la función
-            return
-
-        # Ruta de destino de la base de datos
-        ruta_destino = "db.db"
-
-        try:
-            # Cerrar conexiones a la base de datos si es necesario
-            # (Asegúrate de adaptar esto según cómo manejes las conexiones en tu código)
-
-            # Esperar un breve período antes de intentar eliminar o reemplazar
-            time.sleep(2)  # Ajusta el tiempo según sea necesario
-
-            # Crear una copia temporal de la base de datos
-            ruta_temporal = "db_temp.db"
-            copyfile(ruta_importar, ruta_temporal)
-
-            # Reemplazar la base de datos existente con la copia temporal
-            os.replace(ruta_temporal, ruta_destino)
-
-            # Mostrar un mensaje de éxito
-            self.mostrar_mensaje(f"Base de datos importada desde:\n{ruta_importar}")
-        except Exception as e:
-            # Mostrar un mensaje de error si ocurre un problema
-            self.mostrar_mensaje(f"Error al importar la base de datos:\n{str(e)}")
-
-    def mostrar_mensaje(self, mensaje):
-        # Mostrar un cuadro de mensaje con la información proporcionada
-        QMessageBox.information(self, "Éxito", mensaje)
-
-    
-    # cerrar sesion
-    def cerrarSesion(self):
-        ingreso_usuario.show()
-        ingreso_usuario.txt_user.clear()
-        ingreso_usuario.txt_password.clear()
-        self.hide()
-        
-    # abrir ventana de gestion de usuarios    
-    def verifyAdmin_user(self):
-        if self.admin == "true":
-            Usuario = Users(admin=self.admin, usser=self.usser, widget=self.widget, user_name=self.user_name, passwordDb=self.passwordDb)
-            widget.addWidget(Usuario)
-            widget.setCurrentIndex(widget.currentIndex() + 1)
-         
-        else:
-            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
-            return
-        
-    # volver al menu principal
-    def volver_menu(self):
-        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name, usser=self.usser, passwordDb=self.passwordDb)
-        widget.addWidget(menuprincipal)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
-
-    # abrir ventana de ajustes de inventario si es admin
-    def HistorialView(self):
-        if self.admin == "true":
-            historial_cambio_inventario = ajustesInventario(admin=self.admin, widget=widget, user_name=self.user_name,usser=self.usser, passwordDb=self.passwordDb)
-            widget.addWidget(historial_cambio_inventario)
-            widget.setCurrentIndex(widget.currentIndex() + 1)
-         
-        else:
-            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
-            return
-
-
-###    CLASE DE AJUSTES DEL PROGRAMA Y HISTORIAL DE CAMBIOS
-class ajustesInventario(QtWidgets.QMainWindow):
-    def __init__(self, admin, widget, user_name, usser):
-        super(ajustesInventario, self).__init__()
-        uic.loadUi("./ui/Historial_cambios.ui", self)
-        self.admin = admin
-        self.user_name = user_name
-        self.widget = widget
-        self.usser = usser
-        #volver al menu
-        self.btn_VolverMenu.clicked.connect(self.volvermenup)
-        self.btn_gest_usuario.clicked.connect(self.abrirMenu_gestUsuario)
-        self.btn_bddRespaldo.clicked.connect(self.abrirmenu_BDD)
-        self.btn_guardar.clicked.connect(self.guardarProyecto)
-        #self.btn_guardar.clicked.connect(self.guardar_config)
-        # self.btn_recargardataConfig.clicked.connect(self.reloadDataConfig)
-    
-    # metodo de guardar configuración
-    #def guardar_config(self):
-        
-    # metodo de recargar los datos dde configuracion
-    #def reloadDataConfig(self):
-           
-    # metodo de volver al menu principal
-    def guardarProyecto(self):
-        nombre =self.lineEdit_nameproyecto.text()
-        gerente = self.lineEdit_nameGerente.text()
-        ingenieroREsidente = self.lineEdit_IngenieroResidente.text()
-        if not (nombre or gerente or ingenieroREsidente):
-            QMessageBox.information(self,"Error","Los datos son obligatorios")
-            return
-        
-        conexion = sqlite3.connect("./database/db.db")
-        cursor = conexion.cursor()
-        cursor.execute("INSERT INTO configuracion_global (nombre_proyecto,Encargado_proyecto,Ingeniero_Residente) VALUES (?,?,?)",(nombre,gerente, ingenieroREsidente))
-        conexion.commit()
-        QMessageBox.information(self,"Guardado","El proyecto fue almacenado correctamente")
-        if cursor.execute:
-            cursor.execute("SELECT nombre_proyecto,Encargado_proyecto,Ingeniero_Residente FROM configuracion_global WHERE nombre_proyecto=?",(nombre,))
-            resultado = cursor.fetchone()
-            self.label_Name_proyecto.setText(resultado[0])
-            self.label_Gerente.setText(resultado[1])
-            self.label_IngenieroResidente.setText(resultado[2])
-    
-    # volver al menu principal    
-    def volvermenup(self):
-        menuprincipal = MenuPrincipal(admin=self.admin, user_name=self.user_name, usser=self.usser, passwordDb=self.passwordDb)
-        widget.addWidget(menuprincipal)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
-        
-    # abrir ventana de ajustes de inventario si es admin
-    def abrirMenu_gestUsuario(self):
-        if self.admin == "true":
-            Menu_gestionUsers = Users(admin=self.admin, usser=self.usser, passwordDb=self.passwordDb, widget=self.widget, user_name=self.user_name)
-            widget.addWidget(Menu_gestionUsers)
-            widget.setCurrentIndex(widget.currentIndex() + 1)
-         
-        else:
-            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
-            return
-        
-    # abrir ventana de opciones avanzadas( base de datos)
-    def abrirmenu_BDD(self):
-        if self.admin == "true":
-            Menu_BDD = bddMenu(admin=self.admin, widget=widget, user_name=self.user_name)
-            widget.addWidget(Menu_BDD)
-            widget.setCurrentIndex(widget.currentIndex() + 1)
-         
-        else:
-            QMessageBox.information(self, "Permiso Denegado", "No tienes permisos de administrador")
-            return
-        
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    widget = QtWidgets.QStackedWidget()
-    app.setApplicationName("Manejo de Inventario") 
-    ingreso_usuario = IngresoUsuario()
-    widget.addWidget(ingreso_usuario)
-    widget.show()
-
-    sys.exit(app.exec_())
+if __name__ == '__main__':
+    app = QApplication([])
+    ingreso_usuario = login()
+    ingreso_usuario.show()
+    app.exec_()

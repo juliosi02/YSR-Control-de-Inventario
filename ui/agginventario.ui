@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1472</width>
-    <height>846</height>
+    <height>954</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -107,7 +107,7 @@ QTableWidget{
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>../../../../.designer/backup/imagenes/logo pendon ysr.jpg</pixmap>
+            <pixmap>C:/Users/Asus Vivoook/.designer/backup/imagenes/logo pendon ysr.jpg</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -452,7 +452,7 @@ color:#ffffff;
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../../../../.designer/backup/imagenes/buscar (1).png</normaloff>../../../../.designer/backup/imagenes/buscar (1).png</iconset>
+                    <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                   </property>
                   <property name="checkable">
                    <bool>false</bool>
@@ -1094,7 +1094,7 @@ background-color: #50cbff;}
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../../../../.designer/backup/imagenes/buscar (1).png</normaloff>../../../../.designer/backup/imagenes/buscar (1).png</iconset>
+                    <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -1805,7 +1805,7 @@ background-color: #50cbff;}
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../../../../.designer/backup/imagenes/buscar (1).png</normaloff>../../../../.designer/backup/imagenes/buscar (1).png</iconset>
+                    <normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</normaloff>C:/Users/Asus Vivoook/.designer/backup/imagenes/buscar (1).png</iconset>
                   </property>
                  </widget>
                 </item>
