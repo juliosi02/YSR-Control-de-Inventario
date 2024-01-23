@@ -36,7 +36,7 @@ class login(QtWidgets.QMainWindow):
         super(login, self).__init__()
         uic.loadUi("./ui/login.ui", self)
         self.btn_acceder.clicked.connect(self.validacion)
-        self.setWindowTitle("|Manejo de Inventario|")
+        self.setWindowTitle("Manejo de Inventario")
     
     def validacion(self):
         usuario = self.txt_user.text()
